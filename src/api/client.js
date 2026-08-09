@@ -32,6 +32,7 @@ export default client;
 // ---- Auth ----
 export const authApi = {
   login: (data) => client.post("/api/auth/login", data),
+  verifyMfa: (data) => client.post("/api/auth/login/verify-mfa", data),
   register: (data) => client.post("/api/auth/register", data),
   forgotPassword: (data) => client.post("/api/auth/forgot-password", data),
   resetPassword: (data) => client.post("/api/auth/reset-password", data),

@@ -36,12 +36,25 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (username, password) => {
     const res = await authApi.login({ username, password });
+    
+    if (res.data.requiresMfa) {
+      return { requiresMfa: true, username };
+    }
+    
     const newToken = res.data.token || res.data.accessToken || res.data.access_token;
     if (!newToken) throw new Error("Login succeeded but no token was returned by the API.");
     localStorage.setItem("gs_token", newToken);
     setToken(newToken);
     setUser(decodeUser(newToken));
-    return res.data;
+    return { requiresMfa: false };
+  }, []);
+
+  const verifyMfa = useCallback(async (username, code) => {
+    const res = await authApi.verifyMfa({ username, code });
+    const newToken = res.data.token;
+    localStorage.setItem("gs_token", newToken);
+    setToken(newToken);
+    setUser(decodeUser(newToken));
   }, []);
 
   const logout = useCallback(() => {
@@ -56,7 +69,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ token, user, isAuthenticated: !!token, isAdmin, isMod, login, logout }}
+      value={{ token, user, isAuthenticated: !!token, isAdmin, isMod, login, logout, verifyMfa }}
     >
       {children}
     </AuthContext.Provider>
