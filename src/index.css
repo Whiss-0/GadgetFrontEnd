@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+@theme {
+  /* -- Palette: electronics spec-sheet / component packaging -- */
+  --color-paper: #EDEFF2;      /* cool paper background */
+  --color-panel: #F8F9FB;      /* card surface */
+  --color-ink: #14181F;        /* near-black navy text */
+  --color-ink-soft: #4B5563;   /* secondary text */
+  --color-line: #D6DAE0;       /* hairline borders */
+  --color-circuit: #1F8A70;    /* solder-mask green, primary */
+  --color-circuit-dark: #146354;
+  --color-gold: #B8863A;       /* connector gold, price/accent */
+  --color-signal: #C6403A;     /* alert / sale red */
+
+  /* -- Dark admin/dashboard theme -- */
+  --color-dark-bg: #0B0E11;
+  --color-dark-panel: #12161B;
+  --color-dark-line: #232B33;
+  --color-dark-ink: #E7EAEE;
+
+  --font-display: "Space Grotesk", "IBM Plex Sans", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+/* Perforated "spec ticket" edge — the signature element */
+.spec-ticket {
+  position: relative;
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+}
+.spec-ticket::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 148px;
+  height: 0;
+  border-top: 1px dashed var(--color-line);
+}
+.spec-ticket::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 142px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  box-shadow: calc(100% + 12px - 12px) 0 0 0 transparent;
+}
+
+.mono-tag {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-circuit);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   STAFF / ADMIN THEME — "Command Center"
+   Applied via data-theme="staff" on the root wrapper.
+   Overrides every palette token; components adapt automatically
+   because they all consume CSS variables.
+   ============================================================ */
+[data-theme="staff"] {
+  /* Backgrounds */
+  --color-paper:   #080D1A;   /* deep space navy — body bg */
+  --color-panel:   #0F1629;   /* card surface */
+
+  /* Typography */
+  --color-ink:      #E2E8F0;  /* near-white body text (NOTE: navbar bg hardcodes its own colour below) */
+  --color-ink-soft: #64748B;  /* muted slate */
+
+  /* Borders / dividers */
+  --color-line:    #1A2540;
+
+  /* Primary accent — electric violet instead of solder-green */
+  --color-circuit:      #A78BFA;
+  --color-circuit-dark: #8B5CF6;
+
+  /* Connector gold — brighter amber */
+  --color-gold:   #F59E0B;
+
+  /* Alert red — stays recognisable */
+  --color-signal: #EF4444;
+
+  /* Re-map dark panel tokens used inside AdminLayout */
+  --color-dark-bg:    #050810;
+  --color-dark-panel: #0F1629;
+  --color-dark-line:  #1A2540;
+  --color-dark-ink:   #E2E8F0;
+}
+
+/* Body background & text must follow the theme tokens */
+[data-theme="staff"] .theme-body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Navbar header keeps its own deep-dark background in staff mode
+   so it looks like a separate command bar rather than body colour */
+[data-theme="staff"] header {
+  background-color: #050810 !important;
+  border-color: #1A2540 !important;
+}
+
+/* Spec-ticket cards — dark surface + dark dashed divider */
+[data-theme="staff"] .spec-ticket {
+  background: var(--color-panel);
+  border-color: var(--color-line);
+}
+[data-theme="staff"] .spec-ticket::before {
+  border-color: var(--color-line);
+}
+[data-theme="staff"] .spec-ticket::after {
+  background: var(--color-paper);
+  border-color: var(--color-line);
+}
+
+/* Input / textarea fields in dark context */
+[data-theme="staff"] input,
+[data-theme="staff"] textarea,
+[data-theme="staff"] select {
+  background-color: #0F1629 !important;
+  color: #E2E8F0 !important;
+  border-color: #1A2540 !important;
+}
+[data-theme="staff"] input::placeholder,
+[data-theme="staff"] textarea::placeholder {
+  color: #64748B;
+}
+
+/* Force bg-white overrides used inside cards to dark */
+[data-theme="staff"] .bg-white {
+  background-color: #0F1629 !important;
+}
