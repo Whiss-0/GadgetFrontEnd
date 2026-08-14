@@ -24,6 +24,7 @@ export default function Checkout() {
   const [method, setMethod] = useState("COD");
   const [step, setStep] = useState("form"); // form | processing | done
   const [error, setError] = useState("");
+  const [completedOrder, setCompletedOrder] = useState(null);
 
   const total = items.reduce((sum, i) => {
     const price = i.price ?? i.Price ?? 0;
@@ -34,6 +35,11 @@ export default function Checkout() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+
+    const orderSnapshot = {
+      items: [...items],
+      total: total,
+    };
 
     if (method !== "COD") {
       // Simulated payment step — no real gateway, no real card data collected.
@@ -62,6 +68,9 @@ export default function Checkout() {
         });
       }
 
+      // Save order snapshot before cart items are cleared from state
+      setCompletedOrder(orderSnapshot);
+
       // 3. Clear cart if not buy now
       if (!buyNow) {
         await cartApi.clear();
@@ -75,10 +84,16 @@ export default function Checkout() {
     }
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && step !== "done") {
     return (
-      <div className="max-w-md mx-auto px-5 py-16 text-center text-[var(--color-ink-soft)]">
-        Nothing to check out. Add something from the catalog first.
+      <div className="max-w-md mx-auto px-5 py-16 text-center">
+        <p className="text-[var(--color-ink-soft)] mb-4">Nothing to check out. Add something from the catalog first.</p>
+        <button
+          onClick={() => navigate("/")}
+          className="btn-secondary px-5 py-2.5 rounded text-sm font-semibold inline-flex items-center gap-2"
+        >
+          ← Browse Catalog
+        </button>
       </div>
     );
   }
@@ -179,8 +194,12 @@ export default function Checkout() {
               ) : method === "COD" ? "Place order" : "Pay & place order"}
             </button>
           </form>
+      </div>
 
-        {step === "done" && (
+      {step === "done" && (() => {
+        const displayItems = completedOrder?.items ?? items;
+        const displayTotal = completedOrder?.total ?? total;
+        return (
           <div className="modal-backdrop">
             <div className="purchase-modal">
               <div className="success-icon-badge">
@@ -191,7 +210,7 @@ export default function Checkout() {
 
               <h3 className="modal-title">Transaction Confirmed</h3>
               <p className="modal-description">
-                Your order for <strong id="purchased-item-name">{items.length === 1 ? (items[0].name ?? items[0].Name ?? "your item") : `${items.length} items`}</strong> has been processed successfully.
+                Your order for <strong id="purchased-item-name">{displayItems.length === 1 ? (displayItems[0].name ?? displayItems[0].Name ?? "your item") : `${displayItems.length} items`}</strong> has been processed successfully.
               </p>
 
               <div className="summary-card">
@@ -201,18 +220,18 @@ export default function Checkout() {
                 </div>
                 <div className="summary-row">
                   <span>Total Paid</span>
-                  <strong className="summary-price">${total.toFixed(2)}</strong>
+                  <strong className="summary-price">${displayTotal.toFixed(2)}</strong>
                 </div>
               </div>
 
               <div className="modal-actions">
-                <button className="btn-primary" onClick={() => navigate("/orders")}>View Orders</button>
-                <button className="btn-secondary" onClick={() => navigate("/")}>Continue Shopping</button>
+                <button className="btn-secondary" onClick={() => navigate("/orders")}>View Orders</button>
+                <button className="btn-primary" onClick={() => navigate("/")}>Continue Shopping</button>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        );
+      })()}
     </div>
   );
 }

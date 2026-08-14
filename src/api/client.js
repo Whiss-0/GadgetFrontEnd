@@ -70,8 +70,8 @@ export const cartApi = {
 
 // ---- Wishlist ----
 export const wishlistApi = {
-  list: () => client.get("/api/wishlist"),
-  add: (data) => client.post("/api/wishlist", data),
+  list: () => client.get("/api/wishlist/my"),
+  add: (productId) => client.post("/api/wishlist", { Product_ID: productId }),
   remove: (id) => client.delete(`/api/wishlist/${id}`),
 };
 
