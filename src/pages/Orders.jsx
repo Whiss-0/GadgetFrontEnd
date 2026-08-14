@@ -8,6 +8,7 @@ export default function Orders() {
   const [expandedId, setExpandedId] = useState(null);
   const [detailsByOrder, setDetailsByOrder] = useState({});
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState(null);
 
   useEffect(() => {
     ordersApi
@@ -18,6 +19,24 @@ export default function Orders() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  async function handleCancel(orderId) {
+    setCancellingId(orderId);
+    try {
+      await ordersApi.cancel(orderId);
+      setOrders((prev) =>
+        prev.map((o) =>
+          (o.order_id ?? o.orderId ?? o.OrderId) === orderId
+            ? { ...o, status: "Cancelled", Status: "Cancelled" }
+            : o
+        )
+      );
+    } catch (err) {
+      alert(err.response?.data?.message || "Couldn't cancel this order.");
+    } finally {
+      setCancellingId(null);
+    }
+  }
 
   async function toggleExpand(orderId) {
     if (expandedId === orderId) {
@@ -71,9 +90,23 @@ export default function Orders() {
                     {date ? new Date(date).toLocaleDateString() : ""}
                   </p>
                 </div>
-                <span className="text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded bg-[var(--color-circuit)]/10 text-[var(--color-circuit-dark)]">
-                  {status}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded bg-[var(--color-circuit)]/10 text-[var(--color-circuit-dark)]">
+                    {status}
+                  </span>
+                  {status === "Pending" && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // don't trigger the row's expand/collapse click
+                        handleCancel(id);
+                      }}
+                      disabled={cancellingId === id}
+                      className="text-xs text-[var(--color-signal)] hover:underline disabled:opacity-50"
+                    >
+                      {cancellingId === id ? "Cancelling…" : "Cancel"}
+                    </button>
+                  )}
+                </div>
                 <span className="font-[var(--font-mono)] font-semibold text-[var(--color-gold)]">
                   ${Number(total).toFixed(2)}
                 </span>

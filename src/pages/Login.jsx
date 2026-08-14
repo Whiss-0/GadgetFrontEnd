@@ -51,6 +51,7 @@ export default function Login() {
                 <label className="block text-sm font-medium mb-1" htmlFor="username">Username</label>
                 <input
                   id="username"
+                  type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required

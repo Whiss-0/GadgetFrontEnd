@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useState, useRef, useEffect } from "react";
+import ThemeToggle from "./ThemeToggle";
 
 function Pin() {
   return <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--color-circuit)] mr-2 align-middle" />;
@@ -78,7 +79,7 @@ export default function Navbar() {
   const count = items.reduce((sum, i) => sum + (i.quantity || 1), 0);
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--color-ink)] text-[var(--color-dark-ink)] border-b border-[var(--color-dark-line)] relative">
+    <header className="sticky top-0 z-40 top-header bg-[var(--color-ink)] text-[var(--color-dark-ink)] border-b border-[var(--color-dark-line)] relative">
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         {/* Brand (Left) */}
         <Link to="/" className="font-[var(--font-display)] font-semibold text-lg tracking-tight flex items-center gap-2 z-10">
@@ -119,6 +120,8 @@ export default function Navbar() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
             Cart {count > 0 && `(${count})`}
           </Link>
+
+          <ThemeToggle />
 
           {isAuthenticated ? (
             <UserMenu user={user} logout={logout} />

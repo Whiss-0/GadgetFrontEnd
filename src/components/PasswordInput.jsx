@@ -19,7 +19,7 @@ export default function PasswordInput({ id, value, onChange, placeholder = "Pass
         type="button"
         onClick={() => setShow((s) => !s)}
         aria-label={show ? "Hide password" : "Show password"}
-        className="absolute inset-y-0 right-0 flex items-center px-3 text-[var(--color-ink-soft)] hover:text-[var(--color-circuit)] transition-colors"
+        className="absolute inset-y-0 right-0 flex items-center px-3 text-[var(--color-ink-soft)] hover:text-[var(--color-circuit)] transition-colors password-toggle-icon"
       >
         {show ? (
           /* Eye-off icon */

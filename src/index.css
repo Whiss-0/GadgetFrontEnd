@@ -1,14 +1,50 @@
 @import "tailwindcss";
 
+/* LIGHT MODE (Default) */
 :root {
+  --bg-color: #f8fafc; /* Light gray background */
+  --text-primary: #0f172a; /* Dark slate text */
+  --bg-surface: #ffffff; /* White modal/card background */
+  --accent-color: #10b981; /* Standard emerald green */
+  --border-color: #e2e8f0;
+
   --bg-header: #0f172a;
-  --bg-page: #f1f5f9;
+  --bg-page: #f8fafc;
   --bg-card: #ffffff;
   --text-main: #0f172a;
   --text-muted: #64748b;
-  --accent-primary: #059669;
-  --accent-hover: #10b981;
+  --accent-primary: #10b981;
+  --accent-hover: #059669;
   --border-light: #e2e8f0;
+}
+
+/* DARK MODE (Cyber / Hacker-Terminal Aesthetic) */
+html.dark :root,
+html.dark,
+:root.dark {
+  --bg-color: #0f172a; /* Deep monochrome dark background */
+  --text-primary: #e2e8f0; /* Soft off-white text for readability */
+  --bg-surface: #1e293b; /* Slightly lighter dark for modals/cards */
+  --accent-color: #06b6d4; /* Vibrant electric cyan */
+  --border-color: #334155;
+
+  --bg-header: #070b14;
+  --bg-page: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
+  --accent-primary: #06b6d4;
+  --accent-hover: #22d3ee;
+  --border-light: #334155;
+
+  /* Spec and palette mapping for dark mode */
+  --color-paper: #0f172a;
+  --color-panel: #1e293b;
+  --color-ink: #e2e8f0;
+  --color-ink-soft: #94a3b8;
+  --color-line: #334155;
+  --color-circuit: #06b6d4;
+  --color-circuit-dark: #0891b2;
 }
 
 @theme {
@@ -42,10 +78,12 @@
   --font-mono: "IBM Plex Mono", monospace;
 }
 
+/* Apply the variables to your elements */
 body {
-  background-color: var(--color-paper);
-  color: var(--color-ink);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
   font-family: var(--font-body);
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth fade effect */
 }
 
 /* Perforated "spec ticket" edge — the signature element */
@@ -253,7 +291,7 @@ body {
 
 /* Primary Button (Vibrant & Interactive) */
 .btn-primary {
-  background-color: var(--accent-primary);
+  background-color: var(--accent-color);
   color: white !important;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
@@ -262,15 +300,61 @@ body {
   justify-content: center;
 }
 
+/* Add cyber glow effect in dark mode */
+html.dark .btn-primary {
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); 
+}
+
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   background-color: var(--accent-hover);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
 }
 
+html.dark .btn-primary:hover:not(:disabled) {
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+}
+
 .btn-primary:active:not(:disabled) {
   transform: translateY(1px);
   box-shadow: 0 2px 8px rgba(31, 138, 112, 0.3);
+}
+
+.modal {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+}
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+html.dark .theme-toggle-btn {
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.12);
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.25);
+}
+
+html.dark .theme-toggle-btn:hover {
+  background: rgba(6, 182, 212, 0.25);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.45);
 }
 
 /* Secondary/Ghost Button */
@@ -307,6 +391,49 @@ body {
   border-color: var(--color-circuit);
   box-shadow: 0 0 0 3px rgba(31, 138, 112, 0.15);
   transform: translateY(-1px);
+}
+
+/* Master rule for all text-based inputs and textareas in Dark Mode */
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="password"],
+html.dark input[type="tel"],
+html.dark input[type="number"],
+html.dark input:not([type]),
+html.dark textarea {
+  background-color: #1e293b; /* Deep slate background */
+  color: #e2e8f0; /* Soft off-white text */
+  border: 1px solid #334155; /* Subtle dark border */
+  padding: 12px;
+  border-radius: 8px;
+}
+
+/* Make sure the text inside the placeholder is also visible but muted */
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #94a3b8; /* Muted slate gray */
+}
+
+/* Master rule for the cyan focus glow */
+html.dark input[type="text"]:focus,
+html.dark input[type="email"]:focus,
+html.dark input[type="password"]:focus,
+html.dark input[type="tel"]:focus,
+html.dark input[type="number"]:focus,
+html.dark input:not([type]):focus,
+html.dark textarea:focus {
+  border-color: #06b6d4; /* Vibrant cyan */
+  outline: none;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.3); /* Subtle cyber glow */
+}
+
+/* Fix the eye icon color if it is an SVG */
+html.dark .password-toggle-icon {
+  color: #94a3b8; /* Muted gray for the eye icon */
+}
+
+html.dark .password-toggle-icon:hover {
+  color: #06b6d4;
 }
 
 /* Micro-animations */
@@ -361,12 +488,62 @@ body {
   font-size: 1.125rem;
 }
 
-.product-image-wrap {
+.product-image-wrap,
+.main-image-container,
+.thumbnail {
   position: relative;
   width: 100%;
   height: 180px;
   background-color: #f8fafc;
   overflow: hidden;
+}
+
+/* Fix 1: Product Image Placeholders in Dark Mode */
+html.dark .product-card .main-image-container,
+html.dark .product-card .thumbnail {
+  background-color: #1e293b; /* A deep slate/charcoal color */
+  /* Remove any existing hardcoded background: white; */
+}
+
+/* Disabled Button Styling */
+html.dark .btn-add:disabled {
+  background-color: #334155 !important; /* Muted slate background */
+  color: #64748b !important; /* Darker muted text */
+  border: 1px solid #334155 !important; /* Match border to background */
+  cursor: not-allowed !important; /* Shows the "no" symbol on hover */
+  box-shadow: none !important; /* Removes the cyber glow */
+  transform: none !important;
+}
+
+/* Optional UX Polish: Dim the product image slightly if out of stock */
+html.dark .product-card.out-of-stock .main-image-container {
+  opacity: 0.4;
+  filter: grayscale(80%); /* Makes it look inactive */
+}
+
+/* Fix 2: Navigation Bar Dark Mode Support */
+html.dark nav, 
+html.dark .top-header {
+  background-color: #0f172a; /* Deep monochrome dark base */
+  color: #e2e8f0; /* Soft off-white text for readability */
+  border-bottom: 1px solid #334155; /* Subtle border to separate it from the body */
+}
+
+/* Make sure the text inside the navbar stays readable */
+html.dark nav a {
+  color: #e2e8f0;
+}
+
+html.dark nav a:hover {
+  color: #06b6d4; /* Text turns cyan on hover! */
+}
+
+html.dark .top-header a:not(.btn-primary) {
+  color: #e2e8f0;
+}
+
+html.dark .top-header a:not(.btn-primary):hover {
+  color: #06b6d4;
 }
 
 .sku-badge {
@@ -485,12 +662,13 @@ body {
 }
 
 .purchase-modal {
-  background: #ffffff;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   width: 100%;
   max-width: 420px;
   padding: 24px;
-  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -508,23 +686,27 @@ body {
   margin-bottom: 16px;
 }
 
+html.dark .success-icon-badge {
+  background: rgba(6, 182, 212, 0.15);
+}
+
 .modal-title {
-  color: #0f172a;
+  color: var(--text-primary);
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 8px 0;
 }
 
 .modal-description {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.875rem;
   margin: 0 0 20px 0;
 }
 
 .summary-card {
   width: 100%;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 12px 16px;
   margin-bottom: 24px;
@@ -538,7 +720,7 @@ body {
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .status-badge {
@@ -550,8 +732,13 @@ body {
   border-radius: 6px;
 }
 
+html.dark .status-badge {
+  background: rgba(6, 182, 212, 0.2);
+  color: #22d3ee;
+}
+
 .summary-price {
-  color: #0f172a;
+  color: var(--text-primary);
   font-size: 1rem;
 }
 

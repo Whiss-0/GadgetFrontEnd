@@ -37,8 +37,8 @@ export default function ProductCard({ product, onAddToCart }) {
   }
 
   return (
-    <div className="product-card relative group">
-      <div className="product-image-wrap flex items-center justify-center relative">
+    <div className={`product-card relative group ${stock === 0 ? "out-of-stock" : ""}`}>
+      <div className="product-image-wrap main-image-container flex items-center justify-center relative">
         <span className="sku-badge">
           {sku(id, name)}
         </span>
@@ -77,21 +77,21 @@ export default function ProductCard({ product, onAddToCart }) {
           {name}
         </Link>
         
-        <div className="text-[0.875rem] text-[#64748b]">
+        <div className="text-[0.875rem] text-[var(--text-muted)]">
           {product.brand ? `${product.brand} • ` : ""}
           {typeof stock === "number" ? (stock > 0 ? `${stock} in stock` : "Out of stock") : ""}
         </div>
 
         <div className="mt-auto pt-2 flex items-center justify-between">
-          <span className="font-semibold text-lg text-[#0f172a]">
+          <span className="product-price">
             ${Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           <button
             onClick={() => onAddToCart?.(id)}
             disabled={stock === 0}
-            className="btn-primary text-sm font-semibold uppercase tracking-wide px-4 py-2 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-primary btn-add text-sm font-semibold uppercase tracking-wide px-4 py-2 rounded"
           >
-            Add
+            {stock === 0 ? "OUT OF STOCK" : "ADD"}
           </button>
         </div>
       </div>

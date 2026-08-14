@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { productsApi, categoriesApi } from "../api/client";
+import client, { productsApi, categoriesApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
@@ -8,6 +8,10 @@ export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null); // null = all
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 12;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { isAuthenticated } = useAuth();
@@ -15,17 +19,35 @@ export default function Home() {
   const [toast, setToast] = useState("");
 
   useEffect(() => {
-    productsApi
-      .list()
-      .then((res) => setProducts(res.data || []))
-      .catch(() => setError("Couldn't load products. Is the API running on http://localhost:5064?"))
-      .finally(() => setLoading(false));
-
     categoriesApi
       .list()
       .then((res) => setCategories(res.data || []))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setLoading(true);
+      const request = searchTerm.trim()
+        ? productsApi.search(searchTerm.trim())
+        : client.get(`/api/product?pageNumber=${page}&pageSize=${pageSize}`);
+
+      request
+        .then((res) => {
+          // Paged responses come back as { items, totalCount, ... } — plain
+          // lists (from search) come back as a bare array. Handle both.
+          const data = res.data;
+          const items = Array.isArray(data) ? data : data?.items ?? data?.Items ?? [];
+          const count = Array.isArray(data) ? data.length : data?.totalCount ?? data?.TotalCount ?? items.length;
+          setProducts(items);
+          setTotalCount(count);
+        })
+        .catch(() => setError("Couldn't load products. Is the API running on http://localhost:5064?"))
+        .finally(() => setLoading(false));
+    }, 350); // debounce — wait for typing to pause before firing the request
+
+    return () => clearTimeout(handle);
+  }, [searchTerm, page]);
 
   async function handleAdd(productId) {
     if (!isAuthenticated) {
@@ -58,6 +80,17 @@ export default function Home() {
           {toast}
         </div>
       )}
+
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setPage(1);
+        }}
+        placeholder="Search products or brands…"
+        className="w-full max-w-sm border border-[var(--color-line)] rounded px-3 py-2 mb-4 bg-white focus:border-[var(--color-circuit)] outline-none"
+      />
 
       {categories.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
@@ -114,6 +147,28 @@ export default function Home() {
           {visibleProducts.map((p) => (
             <ProductCard key={p.product_id} product={p} onAddToCart={handleAdd} />
           ))}
+        </div>
+      )}
+
+      {!searchTerm && totalCount > pageSize && (
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="text-sm px-3 py-1.5 border border-[var(--color-line)] rounded disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span className="text-sm font-[var(--font-mono)] text-[var(--color-ink-soft)]">
+            Page {page} of {Math.ceil(totalCount / pageSize)}
+          </span>
+          <button
+            onClick={() => setPage((p) => (p * pageSize < totalCount ? p + 1 : p))}
+            disabled={page * pageSize >= totalCount}
+            className="text-sm px-3 py-1.5 border border-[var(--color-line)] rounded disabled:opacity-40"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

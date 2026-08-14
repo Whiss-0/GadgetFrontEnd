@@ -43,6 +43,7 @@ export const authApi = {
 // ---- Products / Categories ----
 export const productsApi = {
   list: () => client.get("/api/product"),
+  search: (term) => client.get(`/api/product?search=${encodeURIComponent(term)}`),
   get: (id) => client.get(`/api/product/${id}`),
   // Admin-only: full create / update / delete
   create: (data) => client.post("/api/product", data),
@@ -81,6 +82,7 @@ export const ordersApi = {
   myOrders: () => client.get("/api/order/my"),         // GET /api/order/my  (user's own orders)
   get: (id) => client.get(`/api/order/${id}`),
   create: (data) => client.post("/api/order", data),   // POST /api/order  { TotalAmount }
+  cancel: (id) => client.put(`/api/order/${id}/cancel`),
   listAllAdmin: () => client.get("/api/order"),         // GET /api/order   (admin only)
   updateStatus: (id, status) =>
     client.put(`/api/order/${id}`, { Status: status }), // PUT /api/order/{id}  (mod+)
