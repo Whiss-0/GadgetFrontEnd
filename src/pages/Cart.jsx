@@ -1,40 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { ordersApi, cartApi } from "../api/client";
+import { cartApi } from "../api/client";
 import { useState } from "react";
 
 export default function Cart() {
   const { items, loading, updateQuantity, removeItem, refresh } = useCart();
   const navigate = useNavigate();
-  const [placing, setPlacing] = useState(false);
-  const [error, setError] = useState("");
 
   // Cart items are enriched in CartContext with `name`, `price` joined from products table.
   // DB fields from the cart row: cart_id, user_id, product_id, quantity
   const rawTotal = items.reduce((sum, i) => sum + (i.price ?? 0) * (i.quantity ?? 1), 0);
   // Guard against NaN / Infinity (e.g. if prices didn't load yet)
   const total = Number.isFinite(rawTotal) ? rawTotal : 0;
-
-  async function handleCheckout() {
-    if (total <= 0) {
-      setError("Your cart total must be greater than $0.00 to place an order.");
-      return;
-    }
-    setPlacing(true);
-    setError("");
-    try {
-      // OrderRequest expects { TotalAmount } — always send a valid number
-      await ordersApi.create({ TotalAmount: parseFloat(total.toFixed(2)) });
-      // Clear the cart from the database after a successful order
-      await cartApi.clear();
-      await refresh();
-      navigate("/orders");
-    } catch (err) {
-      setError(err.response?.data?.message || "Couldn't place the order. Please try again.");
-    } finally {
-      setPlacing(false);
-    }
-  }
 
   if (loading) {
     return (
@@ -109,14 +86,11 @@ export default function Cart() {
             </span>
           </div>
 
-          {error && <p className="text-sm text-[var(--color-signal)] mt-3">{error}</p>}
-
           <button
-            onClick={handleCheckout}
-            disabled={placing}
-            className="mt-6 w-full bg-[var(--color-ink)] text-white font-semibold py-3 rounded hover:bg-[var(--color-circuit)] transition-colors disabled:opacity-50"
+            onClick={() => navigate("/checkout")}
+            className="mt-6 w-full bg-[var(--color-ink)] text-white font-semibold py-3 rounded hover:bg-[var(--color-circuit)] transition-colors"
           >
-            {placing ? "Placing order…" : "Place order"}
+            Proceed to checkout
           </button>
         </div>
       )}

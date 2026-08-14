@@ -47,7 +47,7 @@ export default function ResetPassword() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full border border-[var(--color-line)] rounded px-3 py-2 bg-white focus:border-[var(--color-circuit)] outline-none"
+                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none"
               />
             </div>
             <div>
@@ -60,7 +60,7 @@ export default function ResetPassword() {
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 placeholder="000000"
-                className="w-full border border-[var(--color-line)] rounded px-3 py-2 bg-white focus:border-[var(--color-circuit)] outline-none font-[var(--font-mono)] text-lg tracking-[0.4em] text-center"
+                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none font-[var(--font-mono)] text-lg tracking-[0.4em] text-center"
               />
               <p className="text-xs text-[var(--color-ink-soft)] mt-1">Check your email — the code expires in 10 minutes.</p>
             </div>
@@ -80,7 +80,7 @@ export default function ResetPassword() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[var(--color-ink)] text-white font-semibold py-2 rounded hover:bg-[var(--color-circuit)] transition-colors disabled:opacity-50"
+              className="w-full btn-primary font-semibold py-2 rounded disabled:opacity-50"
             >
               {loading ? "Updating…" : "Update password"}
             </button>

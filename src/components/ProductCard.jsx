@@ -14,9 +14,9 @@ export default function ProductCard({ product, onAddToCart }) {
   const stock = product.stock;
 
   return (
-    <div className="spec-ticket rounded-md overflow-hidden flex flex-col h-full">
-      <div className="h-[148px] bg-[var(--color-line)]/40 flex items-center justify-center relative">
-        <span className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mono-tag absolute top-2 left-2 bg-[var(--color-paper)] px-1.5 py-0.5 rounded border border-[var(--color-line)]">
+    <div className="product-card">
+      <div className="product-image-wrap flex items-center justify-center">
+        <span className="sku-badge">
           {sku(id, name)}
         </span>
         {product.image ? (
@@ -33,32 +33,27 @@ export default function ProductCard({ product, onAddToCart }) {
         )}
       </div>
 
-      <div className="p-4 pt-5 flex flex-col flex-1">
+      <div className="product-card-body">
         <Link
           to={`/products/${id}`}
-          className="font-[var(--font-display)] font-semibold text-base leading-snug hover:text-[var(--color-circuit)] transition-colors"
+          className="font-[var(--font-display)] font-semibold text-base leading-snug hover:text-[var(--color-circuit)] transition-colors line-clamp-2"
         >
           {name}
         </Link>
-        {product.brand && (
-          <span className="text-xs mt-0.5 font-[var(--font-mono)] text-[var(--color-ink-soft)]/70">
-            {product.brand}
-          </span>
-        )}
-        {typeof stock === "number" && (
-          <span className="text-xs mt-1 font-[var(--font-mono)] text-[var(--color-ink-soft)]">
-            {stock > 0 ? `${stock} in stock` : "Out of stock"}
-          </span>
-        )}
+        
+        <div className="text-[0.875rem] text-[#64748b]">
+          {product.brand ? `${product.brand} • ` : ""}
+          {typeof stock === "number" ? (stock > 0 ? `${stock} in stock` : "Out of stock") : ""}
+        </div>
 
-        <div className="mt-auto pt-4 flex items-center justify-between">
-          <span className="font-[var(--font-mono)] font-semibold text-lg text-[var(--color-gold)]">
-            ${Number(price).toFixed(2)}
+        <div className="mt-auto pt-2 flex items-center justify-between">
+          <span className="font-semibold text-lg text-[#0f172a]">
+            ${Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           <button
             onClick={() => onAddToCart?.(id)}
             disabled={stock === 0}
-            className="text-xs font-semibold uppercase tracking-wide bg-[var(--color-ink)] text-white px-3 py-2 rounded hover:bg-[var(--color-circuit)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-primary text-sm font-semibold uppercase tracking-wide px-4 py-2 rounded disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Add
           </button>

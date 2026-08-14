@@ -48,7 +48,7 @@ export default function Register() {
                 required
                 value={form.username}
                 onChange={(e) => update("username", e.target.value)}
-                className="w-full border border-[var(--color-line)] rounded px-3 py-2 bg-white focus:border-[var(--color-circuit)] outline-none"
+                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none"
               />
             </div>
             <div>
@@ -59,7 +59,7 @@ export default function Register() {
                 required
                 value={form.email}
                 onChange={(e) => update("email", e.target.value)}
-                className="w-full border border-[var(--color-line)] rounded px-3 py-2 bg-white focus:border-[var(--color-circuit)] outline-none"
+                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none"
               />
               <p className="text-xs text-[var(--color-ink-soft)] mt-1">Used only for password resets.</p>
             </div>
@@ -79,7 +79,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[var(--color-ink)] text-white font-semibold py-2 rounded hover:bg-[var(--color-circuit)] transition-colors disabled:opacity-50"
+              className="w-full btn-primary font-semibold py-2 rounded disabled:opacity-50"
             >
               {loading ? "Creating…" : "Create account"}
             </button>

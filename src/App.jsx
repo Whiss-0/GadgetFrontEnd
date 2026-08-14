@@ -11,7 +11,9 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
+import Settings from "./pages/Settings";
 
 import AdminLayout from "./pages/admin/AdminLayout";
 import ProductsAdmin from "./pages/admin/ProductsAdmin";
@@ -42,7 +44,9 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/cart" element={<RequireAuth><Cart /></RequireAuth>} />
+        <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
         <Route path="/orders" element={<RequireAuth><Orders /></RequireAuth>} />
+        <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
 
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
           <Route index element={<ProductsAdmin />} />

@@ -35,10 +35,10 @@ export default function Orders() {
       <div className="space-y-3">
         {orders.map((o) => {
           // Order model: order_id, user_id, order_date, total_amount, status
-          const id     = o.order_id;
-          const status = o.status ?? "Pending";
-          const date   = o.order_date;
-          const total  = o.total_amount ?? 0;
+          const id     = o.order_id ?? o.orderId ?? o.OrderId;
+          const status = o.status ?? o.Status ?? "Pending";
+          const date   = o.order_date ?? o.orderDate ?? o.OrderDate;
+          const total  = o.total_amount ?? o.totalAmount ?? o.TotalAmount ?? 0;
           return (
             <div
               key={id}
@@ -57,7 +57,7 @@ export default function Orders() {
                 {status}
               </span>
               <span className="font-[var(--font-mono)] font-semibold text-[var(--color-gold)]">
-                ${Number(total).toFixed(2)}
+                ${Number(o.total_amount ?? o.totalAmount ?? o.TotalAmount ?? 0).toFixed(2)}
               </span>
             </div>
           );

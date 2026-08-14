@@ -48,18 +48,33 @@ export default function Home() {
         </div>
       )}
 
-      {loading && <p className="text-[var(--color-ink-soft)]">Loading products…</p>}
-      {error && <p className="text-[var(--color-signal)]">{error}</p>}
-
-      {!loading && !error && products.length === 0 && (
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton skeleton-image"></div>
+              <div className="skeleton-body">
+                <div className="skeleton skeleton-title"></div>
+                <div className="skeleton skeleton-subtitle"></div>
+                <div className="skeleton-footer">
+                  <div className="skeleton skeleton-price"></div>
+                  <div className="skeleton skeleton-btn"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <p className="text-[var(--color-signal)]">{error}</p>
+      ) : products.length === 0 ? (
         <p className="text-[var(--color-ink-soft)]">No products yet — add some from the admin panel.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {products.map((p) => (
+            <ProductCard key={p.product_id} product={p} onAddToCart={handleAdd} />
+          ))}
+        </div>
       )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {products.map((p) => (
-          <ProductCard key={p.product_id} product={p} onAddToCart={handleAdd} />
-        ))}
-      </div>
     </div>
   );
 }

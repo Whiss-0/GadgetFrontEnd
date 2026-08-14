@@ -38,13 +38,13 @@ export default function ForgotPassword() {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border border-[var(--color-line)] rounded px-3 py-2 bg-white focus:border-[var(--color-circuit)] outline-none"
+              className="w-full input-premium border rounded px-3 py-2 bg-white outline-none"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--color-ink)] text-white font-semibold py-2 rounded hover:bg-[var(--color-circuit)] transition-colors disabled:opacity-50"
+            className="w-full btn-primary font-semibold py-2 rounded disabled:opacity-50"
           >
             {loading ? "Sending…" : "Send reset code"}
           </button>

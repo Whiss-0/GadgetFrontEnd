@@ -37,6 +37,7 @@ export const authApi = {
   forgotPassword: (data) => client.post("/api/auth/forgot-password", data),
   resetPassword: (data) => client.post("/api/auth/reset-password", data),
   me: () => client.get("/api/auth/me"),
+  updateMe: (data) => client.put("/api/auth/me", data),
 };
 
 // ---- Products / Categories ----
@@ -83,6 +84,18 @@ export const ordersApi = {
   listAllAdmin: () => client.get("/api/order"),         // GET /api/order   (admin only)
   updateStatus: (id, status) =>
     client.put(`/api/order/${id}`, { Status: status }), // PUT /api/order/{id}  (mod+)
+};
+
+// ---- Order Details ----
+export const orderDetailApi = {
+  create: (data) => client.post("/api/orderdetail", data), // POST /api/orderdetail
+  getByOrder: (orderId) => client.get(`/api/orderdetail/order/${orderId}`),
+};
+
+// ---- Reviews ----
+export const reviewsApi = {
+  listForProduct: (productId) => client.get(`/api/review/product/${productId}`),
+  create: (data) => client.post("/api/review", data),
 };
 
 // ---- Admin: Users ----

@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { productsApi, categoriesApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import ProductReviews from "../components/ProductReviews";
 
 // A single spec row in the tech-sheet table
 function SpecRow({ label, value }) {
@@ -96,6 +97,20 @@ export default function ProductDetail() {
       setAdding(false);
       setTimeout(() => setMessage({ text: "", type: "ok" }), 2500);
     }
+  }
+
+  function handleBuyNow() {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    // Skip the cart entirely — go straight to checkout with just this item.
+    navigate("/checkout", {
+      state: {
+        buyNow: true,
+        items: [{ product_ID: Number(id), name, price: Number(price), quantity: qty }],
+      },
+    });
   }
 
   function startEditDesc() {
@@ -310,9 +325,15 @@ export default function ProductDetail() {
                 <button
                   onClick={handleAdd}
                   disabled={adding}
-                  className="flex-1 bg-[var(--color-ink)] text-white font-semibold py-2.5 rounded hover:bg-[var(--color-circuit)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 btn-primary font-semibold py-2.5 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {adding ? "Adding…" : "Add to cart"}
+                </button>
+                <button
+                  onClick={handleBuyNow}
+                  className="bg-[var(--color-circuit)] text-white font-semibold px-6 py-2 rounded hover:bg-[var(--color-circuit-dark)] transition-colors"
+                >
+                  Buy now
                 </button>
               </div>
             ) : (
@@ -337,6 +358,7 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+      <ProductReviews productId={id} />
     </div>
   );
 }

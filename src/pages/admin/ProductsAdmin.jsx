@@ -73,11 +73,11 @@ export default function ProductsAdmin() {
 
   return (
     <div className="grid md:grid-cols-[1fr_320px] gap-8">
-      <div className="space-y-2">
+      <div className="admin-glass-panel rounded-xl p-6 space-y-3 h-fit">
         {products.map((p) => (
           <div
             key={p.product_id}
-            className="flex items-center justify-between bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded px-4 py-3"
+            className="flex items-center justify-between admin-item-card rounded-lg px-5 py-4"
           >
             <div>
               <p className="font-medium">{p.product_name}</p>
@@ -106,7 +106,7 @@ export default function ProductsAdmin() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-5 h-fit sticky top-24"
+        className="admin-glass-panel rounded-xl p-6 h-fit sticky top-24"
       >
         <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-3">
           {editingId ? `EDITING #${editingId}` : "NEW PRODUCT"}
@@ -117,13 +117,13 @@ export default function ProductsAdmin() {
             required
             value={form.ProductName}
             onChange={(e) => update("ProductName", e.target.value)}
-            className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
+            className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none"
           />
           <input
             placeholder="Brand"
             value={form.Brand}
             onChange={(e) => update("Brand", e.target.value)}
-            className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
+            className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none"
           />
           <input
             type="number"
@@ -132,21 +132,21 @@ export default function ProductsAdmin() {
             required
             value={form.Price}
             onChange={(e) => update("Price", e.target.value)}
-            className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
+            className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none"
           />
           <input
             type="number"
             placeholder="Stock"
             value={form.Stock}
             onChange={(e) => update("Stock", e.target.value)}
-            className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
+            className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none"
           />
           <textarea
             placeholder="Description"
             rows={3}
             value={form.Description}
             onChange={(e) => update("Description", e.target.value)}
-            className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
+            className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none"
           />
         </div>
 
@@ -155,7 +155,7 @@ export default function ProductsAdmin() {
         <div className="flex gap-2 mt-4">
           <button
             type="submit"
-            className="flex-1 bg-[var(--color-circuit)] text-[var(--color-ink)] font-semibold text-sm py-2 rounded hover:bg-[var(--color-circuit-dark)] hover:text-white transition-colors"
+            className="flex-1 admin-btn-primary font-semibold text-sm py-2 rounded-lg"
           >
             {editingId ? "Save changes" : "Add product"}
           </button>

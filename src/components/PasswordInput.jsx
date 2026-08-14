@@ -13,7 +13,7 @@ export default function PasswordInput({ id, value, onChange, placeholder = "Pass
         required={required}
         minLength={minLength}
         placeholder={placeholder}
-        className={`w-full border border-[var(--color-line)] rounded px-3 py-2 pr-10 bg-white focus:border-[var(--color-circuit)] outline-none transition-colors ${className}`}
+        className={`w-full input-premium border rounded px-3 py-2 pr-10 bg-white outline-none ${className}`}
       />
       <button
         type="button"
