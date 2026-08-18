@@ -1,19 +1,21 @@
 import { useState } from "react";
 
-export default function PasswordInput({ id, value, onChange, placeholder = "Password", required = false, minLength, className = "" }) {
+export default function PasswordInput({ id, name, value, onChange, placeholder = "Password", required = false, minLength, className = "", autoComplete }) {
   const [show, setShow] = useState(false);
 
   return (
     <div className="relative">
       <input
         id={id}
+        name={name}
         type={show ? "text" : "password"}
         value={value}
         onChange={onChange}
         required={required}
         minLength={minLength}
         placeholder={placeholder}
-        className={`w-full input-premium border rounded px-3 py-2 pr-10 bg-white outline-none ${className}`}
+        autoComplete={autoComplete}
+        className={`w-full input-premium border rounded px-3 py-2 pr-10 outline-none ${className}`}
       />
       <button
         type="button"

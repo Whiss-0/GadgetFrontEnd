@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { authApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import PasswordInput from "../components/PasswordInput";
 
 export default function Settings() {
   const { user, setUser } = useAuth();
@@ -9,6 +10,7 @@ export default function Settings() {
     email: "",
     address: "",
     password: "",
+    currentPassword: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,6 +25,7 @@ export default function Settings() {
           email: res.data.email || "",
           address: res.data.address || "",
           password: "",
+          currentPassword: "",
         });
       })
       .catch(() => setMessage({ type: "error", text: "Failed to load profile data." }))
@@ -47,6 +50,7 @@ export default function Settings() {
       };
       if (formData.password) {
         updateData.Password = formData.password;
+        updateData.CurrentPassword = formData.currentPassword;
       }
 
       await authApi.updateMe(updateData);
@@ -57,7 +61,7 @@ export default function Settings() {
       }
 
       setMessage({ type: "success", text: "Profile updated successfully!" });
-      setFormData(prev => ({ ...prev, password: "" })); // Clear password field
+      setFormData(prev => ({ ...prev, password: "", currentPassword: "" })); // Clear password fields
     } catch (err) {
       setMessage({ type: "error", text: err.response?.data?.message || "Failed to update profile." });
     } finally {
@@ -126,15 +130,30 @@ export default function Settings() {
         </div>
 
         <div className="pt-4 border-t border-[var(--color-line)]">
-          <label className="block text-sm font-semibold mb-1">New Password</label>
+          <div>
+            <label className="block text-sm font-semibold mb-1">Current Password</label>
+            <p className="text-xs text-[var(--color-ink-soft)] mb-2">Required only if you're setting a new password below.</p>
+            <PasswordInput
+              id="currentPassword"
+              name="currentPassword"
+              value={formData.currentPassword}
+              onChange={handleChange}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              className="bg-[var(--color-paper)] border-[var(--color-line)] text-sm"
+            />
+          </div>
+
+          <label className="block text-sm font-semibold mb-1 mt-4">New Password</label>
           <p className="text-xs text-[var(--color-ink-soft)] mb-2">Leave blank to keep your current password.</p>
-          <input
-            type="password"
+          <PasswordInput
+            id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="input-premium w-full bg-[var(--color-paper)] border border-[var(--color-line)] rounded px-3 py-2 text-sm focus:outline-none"
             placeholder="••••••••"
+            autoComplete="new-password"
+            className="bg-[var(--color-paper)] border-[var(--color-line)] text-sm"
           />
         </div>
 

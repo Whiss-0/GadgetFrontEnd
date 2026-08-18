@@ -16,7 +16,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     categoriesApi
@@ -49,19 +49,22 @@ export default function Home() {
     return () => clearTimeout(handle);
   }, [searchTerm, page]);
 
-  async function handleAdd(productId) {
+  async function handleAdd(productOrId) {
+    const id = typeof productOrId === "object" ? productOrId.product_id : productOrId;
+    const name = typeof productOrId === "object" ? productOrId.product_name : "Product";
+
     if (!isAuthenticated) {
-      setToast("Log in to add items to your cart.");
-      setTimeout(() => setToast(""), 2500);
+      setToast({ text: "Log in to add items to your cart.", type: "error" });
+      setTimeout(() => setToast(null), 2500);
       return;
     }
     try {
-      await addItem(productId, 1);
-      setToast("Added to cart!");
+      await addItem(id, 1);
+      setToast({ text: `✓ Added "${name}" to your cart!`, type: "success" });
     } catch (err) {
-      setToast(err.response?.data?.message || "Couldn't add to cart.");
+      setToast({ text: err.response?.data?.message || "Couldn't add to cart.", type: "error" });
     }
-    setTimeout(() => setToast(""), 2000);
+    setTimeout(() => setToast(null), 2500);
   }
 
   const visibleProducts = selectedCategory
@@ -76,8 +79,22 @@ export default function Home() {
       </div>
 
       {toast && (
-        <div className="fixed top-20 right-5 bg-[var(--color-ink)] text-white text-sm px-4 py-2 rounded shadow-lg z-50">
-          {toast}
+        <div
+          role="status"
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl border transition-all duration-300 ${
+            toast.type === "error"
+              ? "bg-red-50 dark:bg-red-950/80 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800"
+              : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border-emerald-500/40 dark:border-cyan-500/40 shadow-emerald-500/10 dark:shadow-cyan-500/20"
+          }`}
+        >
+          {toast.type === "error" ? (
+            <span className="text-red-500 flex-shrink-0 text-lg">⚠️</span>
+          ) : (
+            <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-cyan-950 flex items-center justify-center text-emerald-600 dark:text-cyan-400 font-bold text-xs flex-shrink-0">
+              ✓
+            </span>
+          )}
+          <span className="text-sm font-semibold">{toast.text}</span>
         </div>
       )}
 

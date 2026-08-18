@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { productsApi } from "../../api/client";
 
 // Default empty form — matches ProductRequest DTO field names
-const empty = { ProductName: "", Price: "", Description: "", Stock: "", Brand: "" };
+const empty = { ProductName: "", Price: "", Description: "", Stock: "", Brand: "", RamGb: "", Processor: "", StorageGb: "" };
 
 export default function ProductsAdmin() {
   const [products, setProducts] = useState([]);
@@ -21,7 +21,7 @@ export default function ProductsAdmin() {
   }
 
   function startEdit(p) {
-    // Product model: product_id, product_name, brand, price, description, stock
+    // Product model: product_id, product_name, brand, price, description, stock, ram_gb, processor, storage_gb
     setEditingId(p.product_id);
     setForm({
       ProductName:  p.product_name ?? "",
@@ -29,6 +29,9 @@ export default function ProductsAdmin() {
       Description:  p.description ?? "",
       Stock:        p.stock ?? "",
       Brand:        p.brand ?? "",
+      RamGb:        p.ram_gb ?? "",
+      Processor:    p.processor ?? "",
+      StorageGb:    p.storage_gb ?? "",
     });
   }
 
@@ -40,13 +43,16 @@ export default function ProductsAdmin() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    // ProductRequest DTO expects: ProductName, Brand, Description, Price, Stock, CategoryId, Image
+    // ProductRequest DTO expects: ProductName, Brand, Description, Price, Stock, CategoryId, Image, RamGb, Processor, StorageGb
     const payload = {
       ProductName:  form.ProductName,
       Brand:        form.Brand || null,
       Description:  form.Description || null,
       Price:        Number(form.Price),
       Stock:        Number(form.Stock),
+      RamGb:        Number(form.RamGb) || null,
+      Processor:    form.Processor || null,
+      StorageGb:    Number(form.StorageGb) || null,
     };
     try {
       if (editingId) {
@@ -92,7 +98,7 @@ export default function ProductsAdmin() {
               </button>
               <button
                 onClick={() => handleDelete(p.product_id)}
-                className="text-[var(--color-signal)] hover:underline"
+                className="text-alert hover:underline"
               >
                 Delete
               </button>
@@ -147,6 +153,26 @@ export default function ProductsAdmin() {
             value={form.Description}
             onChange={(e) => update("Description", e.target.value)}
             className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none"
+          />
+          <input
+            type="number"
+            placeholder="RAM (GB)"
+            value={form.RamGb}
+            onChange={(e) => update("RamGb", e.target.value)}
+            className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
+          />
+          <input
+            placeholder="Processor"
+            value={form.Processor}
+            onChange={(e) => update("Processor", e.target.value)}
+            className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
+          />
+          <input
+            type="number"
+            placeholder="Storage (GB)"
+            value={form.StorageGb}
+            onChange={(e) => update("StorageGb", e.target.value)}
+            className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
           />
         </div>
 

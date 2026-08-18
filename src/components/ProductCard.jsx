@@ -13,6 +13,8 @@ export default function ProductCard({ product, onAddToCart }) {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
 
   // API returns snake_case: product_id, product_name, price, stock, brand, image
   const id    = product.product_id;
@@ -33,6 +35,27 @@ export default function ProductCard({ product, onAddToCart }) {
       setTimeout(() => setSaved(false), 2000);
     } catch {
       // already added or error
+    }
+  }
+
+  async function handleAddClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    if (stock === 0 || adding) return;
+
+    setAdding(true);
+    try {
+      if (onAddToCart) {
+        await onAddToCart(product);
+      }
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } finally {
+      setAdding(false);
     }
   }
 
@@ -87,11 +110,13 @@ export default function ProductCard({ product, onAddToCart }) {
             ${Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           <button
-            onClick={() => onAddToCart?.(id)}
-            disabled={stock === 0}
-            className="btn-primary btn-add text-sm font-semibold uppercase tracking-wide px-4 py-2 rounded"
+            onClick={handleAddClick}
+            disabled={stock === 0 || adding}
+            className={`btn-primary btn-add text-sm font-semibold uppercase tracking-wide px-4 py-2 rounded transition-all duration-200 ${
+              added ? "!bg-emerald-600 dark:!bg-cyan-600 text-white" : ""
+            }`}
           >
-            {stock === 0 ? "OUT OF STOCK" : "ADD"}
+            {stock === 0 ? "OUT OF STOCK" : adding ? "ADDING…" : added ? "✓ ADDED" : "ADD"}
           </button>
         </div>
       </div>

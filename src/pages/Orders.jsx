@@ -101,7 +101,7 @@ export default function Orders() {
                         handleCancel(id);
                       }}
                       disabled={cancellingId === id}
-                      className="text-xs text-[var(--color-signal)] hover:underline disabled:opacity-50"
+                      className="text-alert text-xs disabled:opacity-50"
                     >
                       {cancellingId === id ? "Cancelling…" : "Cancel"}
                     </button>

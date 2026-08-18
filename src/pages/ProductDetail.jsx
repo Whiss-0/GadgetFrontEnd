@@ -221,10 +221,13 @@ export default function ProductDetail() {
             </p>
             <table className="w-full">
               <tbody>
-                <SpecRow label="SKU"      value={skuCode} />
-                <SpecRow label="Brand"    value={brand} />
-                <SpecRow label="Category" value={categoryName} />
-                <SpecRow label="Price"    value={`$${Number(price).toFixed(2)}`} />
+                <SpecRow label="SKU"       value={skuCode} />
+                <SpecRow label="Brand"     value={brand} />
+                <SpecRow label="Category"  value={categoryName} />
+                <SpecRow label="Processor" value={product.processor} />
+                <SpecRow label="RAM"       value={product.ram_gb ? `${product.ram_gb} GB` : null} />
+                <SpecRow label="Storage"   value={product.storage_gb ? `${product.storage_gb} GB` : null} />
+                <SpecRow label="Price"     value={`$${Number(price).toFixed(2)}`} />
                 <SpecRow
                   label="Stock"
                   value={
@@ -365,13 +368,19 @@ export default function ProductDetail() {
             )}
 
             {message.text && (
-              <p
-                className={`mt-3 text-sm font-medium ${
-                  message.type === "ok" ? "text-[var(--color-circuit)]" : "text-[var(--color-signal)]"
+              <div
+                role="status"
+                className={`mt-4 p-3 rounded-lg border flex items-center gap-2.5 text-sm font-medium transition-all ${
+                  message.type === "ok"
+                    ? "bg-emerald-50 dark:bg-slate-800/80 text-emerald-800 dark:text-cyan-300 border-emerald-300 dark:border-cyan-500/40 shadow-sm"
+                    : "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/60"
                 }`}
               >
-                {message.text}
-              </p>
+                <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-cyan-950 flex items-center justify-center text-emerald-600 dark:text-cyan-400 font-bold text-xs flex-shrink-0">
+                  {message.type === "ok" ? "✓" : "!"}
+                </span>
+                <span>{message.text}</span>
+              </div>
             )}
 
             {!isAuthenticated && (

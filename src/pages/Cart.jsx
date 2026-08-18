@@ -69,7 +69,7 @@ export default function Cart() {
                     </span>
                     <button
                       onClick={() => removeItem(cartId)}
-                      className="text-[var(--color-signal)] text-xs hover:underline"
+                      className="text-alert text-xs"
                     >
                       Remove
                     </button>

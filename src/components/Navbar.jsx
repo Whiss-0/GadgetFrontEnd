@@ -37,7 +37,7 @@ function UserMenu({ user, logout }) {
   return (
     <div className="user-menu-container ml-2" ref={menuRef}>
       <button 
-        className="user-menu-trigger font-[var(--font-mono)] text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white"
+        className="user-menu-trigger font-[var(--font-mono)]"
         onClick={() => setIsOpen(!isOpen)}
       >
         {user?.username} <span className="chevron text-[10px] opacity-70">▾</span>
