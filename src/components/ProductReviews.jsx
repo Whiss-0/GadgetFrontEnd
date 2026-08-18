@@ -69,7 +69,7 @@ export default function ProductReviews({ productId }) {
           <button
             type="submit"
             disabled={submitting}
-            className="mt-3 bg-[var(--color-ink)] text-white text-sm font-semibold px-4 py-2 rounded hover:bg-[var(--color-circuit)] transition-colors disabled:opacity-50"
+            className="mt-3 btn-primary text-sm font-semibold px-4 py-2 rounded disabled:opacity-50"
           >
             {submitting ? "Posting…" : "Post review"}
           </button>

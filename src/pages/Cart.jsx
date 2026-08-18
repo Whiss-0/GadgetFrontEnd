@@ -88,7 +88,7 @@ export default function Cart() {
 
           <button
             onClick={() => navigate("/checkout")}
-            className="mt-6 w-full bg-[var(--color-ink)] text-white font-semibold py-3 rounded hover:bg-[var(--color-circuit)] transition-colors"
+            className="mt-6 w-full checkout-btn btn-primary font-semibold py-3 rounded"
           >
             Proceed to checkout
           </button>

@@ -67,7 +67,7 @@ export default function Wishlist() {
             <div className="mt-auto flex gap-2">
               <button
                 onClick={() => handleAddToCart(p.product_id)}
-                className="flex-1 bg-[var(--color-ink)] text-white text-xs font-semibold uppercase px-3 py-2 rounded hover:bg-[var(--color-circuit)] transition-colors"
+                className="flex-1 btn-primary text-xs font-semibold uppercase px-3 py-2 rounded"
               >
                 Add to cart
               </button>

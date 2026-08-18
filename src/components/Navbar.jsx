@@ -37,7 +37,7 @@ function UserMenu({ user, logout }) {
   return (
     <div className="user-menu-container ml-2" ref={menuRef}>
       <button 
-        className="user-menu-trigger font-[var(--font-mono)] text-[var(--color-dark-ink)]/80 hover:text-[var(--color-dark-ink)]"
+        className="user-menu-trigger font-[var(--font-mono)] text-slate-800 dark:text-slate-200 hover:text-black dark:hover:text-white"
         onClick={() => setIsOpen(!isOpen)}
       >
         {user?.username} <span className="chevron text-[10px] opacity-70">▾</span>
@@ -79,10 +79,10 @@ export default function Navbar() {
   const count = items.reduce((sum, i) => sum + (i.quantity || 1), 0);
 
   return (
-    <header className="sticky top-0 z-40 top-header bg-[var(--color-ink)] text-[var(--color-dark-ink)] border-b border-[var(--color-dark-line)] relative">
+    <header className="sticky top-0 z-40 top-header border-b relative">
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         {/* Brand (Left) */}
-        <Link to="/" className="font-[var(--font-display)] font-semibold text-lg tracking-tight flex items-center gap-2 z-10">
+        <Link to="/" className="font-[var(--font-display)] font-semibold text-lg tracking-tight flex items-center gap-2 z-10 logo-text">
           <span className="flex items-center">
             <Pin />
             GADGET<span className="text-[var(--color-circuit)]">/</span>STORE
@@ -92,14 +92,14 @@ export default function Navbar() {
 
         {/* Nav links (Center) */}
         <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center text-sm font-medium z-10">
-          <Link to="/" className="px-5 py-3 hover:text-[var(--color-circuit)] hover:bg-white/5 rounded-md transition-all">Catalog</Link>
+          <Link to="/" className="px-5 py-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-md transition-all">Catalog</Link>
           {isAuthenticated && (
-            <Link to="/orders" className="px-5 py-3 hover:text-[var(--color-circuit)] hover:bg-white/5 rounded-md transition-all">Orders</Link>
+            <Link to="/orders" className="px-5 py-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-md transition-all">Orders</Link>
           )}
           {isMod && (
             <Link
               to="/admin"
-              className="px-5 py-3 font-semibold text-[var(--color-circuit)] hover:text-[var(--color-circuit-dark)] hover:bg-white/5 rounded-md transition-all"
+              className="px-5 py-3 font-semibold text-[var(--color-circuit)] hover:text-[var(--color-circuit-dark)] hover:bg-black/5 dark:hover:bg-white/5 rounded-md transition-all"
             >
               {isAdmin ? "Admin" : "Staff"}
             </Link>
@@ -109,7 +109,7 @@ export default function Navbar() {
         {/* Right side (User Actions) */}
         <div className="flex items-center gap-4 z-10">
           {isAuthenticated && (
-            <Link to="/wishlist" className="text-sm font-medium hover:text-[var(--color-circuit)] transition-colors hidden sm:block">
+            <Link to="/wishlist" className="text-sm font-medium transition-colors hidden sm:block">
               Wishlist
             </Link>
           )}

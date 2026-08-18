@@ -346,7 +346,7 @@ export default function ProductDetail() {
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="bg-[var(--color-circuit)] text-white font-semibold px-6 py-2 rounded hover:bg-[var(--color-circuit-dark)] transition-colors"
+                  className="btn-secondary font-semibold px-6 py-2 rounded"
                 >
                   Buy now
                 </button>

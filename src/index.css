@@ -2,10 +2,14 @@
 
 /* LIGHT MODE (Default) */
 :root {
-  --bg-color: #f8fafc; /* Light gray background */
-  --text-primary: #0f172a; /* Dark slate text */
-  --bg-surface: #ffffff; /* White modal/card background */
-  --accent-color: #10b981; /* Standard emerald green */
+  --bg-color: #f8fafc;
+  /* Light gray background */
+  --text-primary: #0f172a;
+  /* Dark slate text */
+  --bg-surface: #ffffff;
+  /* White modal/card background */
+  --accent-color: #10b981;
+  /* Standard emerald green */
   --border-color: #e2e8f0;
 
   --bg-header: #0f172a;
@@ -22,10 +26,14 @@
 html.dark :root,
 html.dark,
 :root.dark {
-  --bg-color: #0f172a; /* Deep monochrome dark background */
-  --text-primary: #e2e8f0; /* Soft off-white text for readability */
-  --bg-surface: #1e293b; /* Slightly lighter dark for modals/cards */
-  --accent-color: #06b6d4; /* Vibrant electric cyan */
+  --bg-color: #0f172a;
+  /* Deep monochrome dark background */
+  --text-primary: #e2e8f0;
+  /* Soft off-white text for readability */
+  --bg-surface: #1e293b;
+  /* Slightly lighter dark for modals/cards */
+  --accent-color: #06b6d4;
+  /* Vibrant electric cyan */
   --border-color: #334155;
 
   --bg-header: #070b14;
@@ -83,7 +91,8 @@ body {
   background-color: var(--bg-color);
   color: var(--text-primary);
   font-family: var(--font-body);
-  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth fade effect */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Smooth fade effect */
 }
 
 /* Perforated "spec ticket" edge — the signature element */
@@ -300,24 +309,42 @@ body {
   justify-content: center;
 }
 
-/* Add cyber glow effect in dark mode */
-html.dark .btn-primary {
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); 
-}
-
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   background-color: var(--accent-hover);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
 }
 
-html.dark .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
-}
-
 .btn-primary:active:not(:disabled) {
   transform: translateY(1px);
   box-shadow: 0 2px 8px rgba(31, 138, 112, 0.3);
+}
+
+/* 1. Unify Primary Action Buttons (Checkout, Add to Cart, Modal) */
+html.dark .btn-primary,
+html.dark button[type="submit"],
+/* Targets form submission buttons */
+html.dark .checkout-btn {
+  /* Assuming your proceed button has a specific class */
+  background-color: #06b6d4 !important;
+  /* Vibrant electric cyan */
+  color: #0f172a !important;
+  /* Deep dark text for contrast against the bright button */
+  border: 1px solid #06b6d4 !important;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4) !important;
+  /* Cyber glow effect */
+  transition: all 0.2s ease-in-out;
+}
+
+html.dark .btn-primary:hover:not(:disabled),
+html.dark button[type="submit"]:hover:not(:disabled),
+html.dark .checkout-btn:hover:not(:disabled) {
+  background-color: #0891b2 !important;
+  /* Slightly darker cyan on hover */
+  border-color: #0891b2 !important;
+  color: #0f172a !important;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6) !important;
+  /* Stronger glow on hover */
 }
 
 .modal {
@@ -381,6 +408,43 @@ html.dark .theme-toggle-btn:hover {
   transform: translateY(1px);
 }
 
+/* 2. Fix the Filter Pills (e.g., the "ALL" button) */
+.filter-pill {
+  transition: all 0.2s ease-in-out;
+}
+
+html.dark .filter-pill.active {
+  background-color: #06b6d4 !important;
+  color: #0f172a !important;
+  border-color: #06b6d4 !important;
+}
+
+html.dark .filter-pill:not(.active) {
+  background-color: transparent !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+html.dark .filter-pill:not(.active):hover {
+  border-color: #06b6d4 !important;
+  color: #e2e8f0 !important;
+}
+
+/* 3. Fix the Secondary Button (View Orders, etc.) */
+html.dark .btn-secondary {
+  background-color: transparent !important;
+  color: #06b6d4 !important;
+  /* Cyan text instead of green */
+  border: 1px solid #06b6d4 !important;
+}
+
+html.dark .btn-secondary:hover:not(:disabled) {
+  background-color: rgba(6, 182, 212, 0.1) !important;
+  /* Subtle cyan background on hover */
+  color: #22d3ee !important;
+  border-color: #06b6d4 !important;
+}
+
 /* Premium Input Styles */
 .input-premium {
   transition: all 0.3s ease;
@@ -401,9 +465,12 @@ html.dark input[type="tel"],
 html.dark input[type="number"],
 html.dark input:not([type]),
 html.dark textarea {
-  background-color: #1e293b; /* Deep slate background */
-  color: #e2e8f0; /* Soft off-white text */
-  border: 1px solid #334155; /* Subtle dark border */
+  background-color: #1e293b;
+  /* Deep slate background */
+  color: #e2e8f0;
+  /* Soft off-white text */
+  border: 1px solid #334155;
+  /* Subtle dark border */
   padding: 12px;
   border-radius: 8px;
 }
@@ -411,7 +478,8 @@ html.dark textarea {
 /* Make sure the text inside the placeholder is also visible but muted */
 html.dark input::placeholder,
 html.dark textarea::placeholder {
-  color: #94a3b8; /* Muted slate gray */
+  color: #94a3b8;
+  /* Muted slate gray */
 }
 
 /* Master rule for the cyan focus glow */
@@ -422,14 +490,17 @@ html.dark input[type="tel"]:focus,
 html.dark input[type="number"]:focus,
 html.dark input:not([type]):focus,
 html.dark textarea:focus {
-  border-color: #06b6d4; /* Vibrant cyan */
+  border-color: #06b6d4;
+  /* Vibrant cyan */
   outline: none;
-  box-shadow: 0 0 8px rgba(6, 182, 212, 0.3); /* Subtle cyber glow */
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
+  /* Subtle cyber glow */
 }
 
 /* Fix the eye icon color if it is an SVG */
 html.dark .password-toggle-icon {
-  color: #94a3b8; /* Muted gray for the eye icon */
+  color: #94a3b8;
+  /* Muted gray for the eye icon */
 }
 
 html.dark .password-toggle-icon:hover {
@@ -438,9 +509,17 @@ html.dark .password-toggle-icon:hover {
 
 /* Micro-animations */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-float {
@@ -501,32 +580,123 @@ html.dark .password-toggle-icon:hover {
 /* Fix 1: Product Image Placeholders in Dark Mode */
 html.dark .product-card .main-image-container,
 html.dark .product-card .thumbnail {
-  background-color: #1e293b; /* A deep slate/charcoal color */
+  background-color: #1e293b;
+  /* A deep slate/charcoal color */
   /* Remove any existing hardcoded background: white; */
 }
 
 /* Disabled Button Styling */
 html.dark .btn-add:disabled {
-  background-color: #334155 !important; /* Muted slate background */
-  color: #64748b !important; /* Darker muted text */
-  border: 1px solid #334155 !important; /* Match border to background */
-  cursor: not-allowed !important; /* Shows the "no" symbol on hover */
-  box-shadow: none !important; /* Removes the cyber glow */
+  background-color: #334155 !important;
+  /* Muted slate background */
+  color: #64748b !important;
+  /* Darker muted text */
+  border: 1px solid #334155 !important;
+  /* Match border to background */
+  cursor: not-allowed !important;
+  /* Shows the "no" symbol on hover */
+  box-shadow: none !important;
+  /* Removes the cyber glow */
   transform: none !important;
 }
 
 /* Optional UX Polish: Dim the product image slightly if out of stock */
 html.dark .product-card.out-of-stock .main-image-container {
   opacity: 0.4;
-  filter: grayscale(80%); /* Makes it look inactive */
+  filter: grayscale(80%);
+  /* Makes it look inactive */
+}
+
+/* ============================================================
+   LIGHT MODE GREEN HEADER & BRANDING (Fix.md)
+   ============================================================ */
+
+/* 1. Restore the Green Header in Light Mode */
+html:not(.dark) nav,
+html:not(.dark) .top-header {
+  background-color: #10b981 !important;
+  /* Standard emerald green */
+  border-bottom: none !important;
+  /* Remove any dark borders */
+}
+
+/* 2. Make Header Text White for Contrast */
+html:not(.dark) nav a,
+html:not(.dark) .top-header a,
+html:not(.dark) .top-header span,
+html:not(.dark) .top-header button,
+html:not(.dark) .logo-text {
+  /* Ensure your logo text is also white */
+  color: #ffffff !important;
+  /* White text on the green header */
+  font-weight: 600;
+}
+
+/* Subtle hover effect for header links */
+html:not(.dark) nav a:hover,
+html:not(.dark) .top-header a:hover {
+  color: #ecfdf5 !important;
+  /* Very light mint/white on hover */
+  opacity: 0.9;
+}
+
+/* 3. Fix the "ALL" Filter Pill to be Green instead of Black */
+html:not(.dark) .filter-pill.active {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+}
+
+/* Inactive Filter Pills (Smartphones, Laptops, etc.) */
+html:not(.dark) .filter-pill:not(.active) {
+  color: #475569 !important;
+  /* Slate gray text so it is readable on white */
+  border-color: #cbd5e1 !important;
+}
+
+/* 4. Protect the Dropdown Menu (Keep it white so it doesn't turn green!) */
+html:not(.dark) .dropdown-menu,
+html:not(.dark) .cart-preview {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  /* Dark text inside the white dropdown */
+  border: 1px solid #e2e8f0 !important;
+}
+
+html:not(.dark) .dropdown-menu a,
+html:not(.dark) .dropdown-menu button,
+html:not(.dark) .dropdown-menu span {
+  color: #0f172a !important;
+  /* Ensure dropdown links stay dark */
+  font-weight: 500 !important;
+}
+
+html:not(.dark) .dropdown-menu a:hover,
+html:not(.dark) .dropdown-menu button:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Ensure cart button on green header looks great in light mode */
+html:not(.dark) .top-header a[href="/cart"] {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .top-header a[href="/cart"]:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
 }
 
 /* Fix 2: Navigation Bar Dark Mode Support */
-html.dark nav, 
+html.dark nav,
 html.dark .top-header {
-  background-color: #0f172a; /* Deep monochrome dark base */
-  color: #e2e8f0; /* Soft off-white text for readability */
-  border-bottom: 1px solid #334155; /* Subtle border to separate it from the body */
+  background-color: #0f172a;
+  /* Deep monochrome dark base */
+  color: #e2e8f0;
+  /* Soft off-white text for readability */
+  border-bottom: 1px solid #334155;
+  /* Subtle border to separate it from the body */
 }
 
 /* Make sure the text inside the navbar stays readable */
@@ -535,7 +705,8 @@ html.dark nav a {
 }
 
 html.dark nav a:hover {
-  color: #06b6d4; /* Text turns cyan on hover! */
+  color: #06b6d4;
+  /* Text turns cyan on hover! */
 }
 
 html.dark .top-header a:not(.btn-primary) {
@@ -590,6 +761,7 @@ html.dark .top-header a:not(.btn-primary):hover {
   border-radius: 6px;
   transition: background 0.2s ease;
 }
+
 .user-menu-trigger:hover {
   background: rgba(255, 255, 255, 0.1);
 }
@@ -632,7 +804,8 @@ html.dark .top-header a:not(.btn-primary):hover {
 }
 
 .dropdown-item.logout-btn {
-  color: #ef4444; /* Red hint for log out */
+  color: #ef4444;
+  /* Red hint for log out */
 }
 
 /* Ensures icons/emojis align evenly across items */
@@ -754,7 +927,7 @@ html.dark .status-badge {
   flex: 1;
   padding: 12px 16px;
   background-color: transparent;
-  color: #10b981 !important;
+  color: #10b981;
   border: 1px solid #10b981;
   border-radius: 8px;
   font-weight: 600;
@@ -765,7 +938,7 @@ html.dark .status-badge {
 
 .modal-actions .btn-secondary:hover {
   background-color: #f0fdf4;
-  color: #059669 !important;
+  color: #059669;
   border-color: #059669;
   transform: none;
 }
@@ -786,6 +959,33 @@ html.dark .status-badge {
 .modal-actions .btn-primary:hover:not(:disabled) {
   background-color: #059669;
   border-color: #059669;
+}
+
+/* Modal dark mode button overrides */
+html.dark .modal-actions .btn-primary {
+  background-color: #06b6d4 !important;
+  color: #0f172a !important;
+  border: 1px solid #06b6d4 !important;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4) !important;
+}
+
+html.dark .modal-actions .btn-primary:hover:not(:disabled) {
+  background-color: #0891b2 !important;
+  border-color: #0891b2 !important;
+  color: #0f172a !important;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6) !important;
+}
+
+html.dark .modal-actions .btn-secondary {
+  background-color: transparent !important;
+  color: #06b6d4 !important;
+  border: 1px solid #06b6d4 !important;
+}
+
+html.dark .modal-actions .btn-secondary:hover:not(:disabled) {
+  background-color: rgba(6, 182, 212, 0.1) !important;
+  color: #22d3ee !important;
+  border-color: #06b6d4 !important;
 }
 
 /* ============================================================
@@ -816,7 +1016,9 @@ html.dark .status-badge {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============================================================
@@ -841,8 +1043,13 @@ html.dark .status-badge {
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-image {

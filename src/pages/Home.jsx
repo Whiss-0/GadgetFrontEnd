@@ -96,10 +96,8 @@ export default function Home() {
         <div className="flex flex-wrap gap-2 mb-6">
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
-              selectedCategory === null
-                ? "bg-[var(--color-ink)] text-white border-[var(--color-ink)]"
-                : "border-[var(--color-line)] text-[var(--color-ink-soft)] hover:border-[var(--color-ink)]"
+            className={`filter-pill text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
+              selectedCategory === null ? "active" : ""
             }`}
           >
             All
@@ -108,10 +106,8 @@ export default function Home() {
             <button
               key={c.category_id}
               onClick={() => setSelectedCategory(c.category_id)}
-              className={`text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
-                selectedCategory === c.category_id
-                  ? "bg-[var(--color-ink)] text-white border-[var(--color-ink)]"
-                  : "border-[var(--color-line)] text-[var(--color-ink-soft)] hover:border-[var(--color-ink)]"
+              className={`filter-pill text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
+                selectedCategory === c.category_id ? "active" : ""
               }`}
             >
               {c.category_name}
