@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
-import { productsApi } from "../../api/client";
+import { productsApi, categoriesApi } from "../../api/client";
 
 // Default empty form — matches ProductRequest DTO field names
-const empty = { ProductName: "", Price: "", Description: "", Stock: "", Brand: "", RamGb: "", Processor: "", StorageGb: "" };
+const empty = { ProductName: "", Price: "", Description: "", Stock: "", Brand: "", CategoryId: "", RamGb: "", Processor: "", StorageGb: "" };
 
 export default function ProductsAdmin() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   function load() {
     productsApi.list().then((res) => setProducts(res.data || []));
   }
 
   useEffect(load, []);
+
+  useEffect(() => {
+    categoriesApi.list().then((res) => setCategories(res.data || [])).catch(() => {});
+  }, []);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -29,6 +35,7 @@ export default function ProductsAdmin() {
       Description:  p.description ?? "",
       Stock:        p.stock ?? "",
       Brand:        p.brand ?? "",
+      CategoryId:   p.category_id ?? "",
       RamGb:        p.ram_gb ?? "",
       Processor:    p.processor ?? "",
       StorageGb:    p.storage_gb ?? "",
@@ -50,6 +57,7 @@ export default function ProductsAdmin() {
       Description:  form.Description || null,
       Price:        Number(form.Price),
       Stock:        Number(form.Stock),
+      CategoryId:   Number(form.CategoryId),
       RamGb:        Number(form.RamGb) || null,
       Processor:    form.Processor || null,
       StorageGb:    Number(form.StorageGb) || null,
@@ -77,10 +85,26 @@ export default function ProductsAdmin() {
     }
   }
 
+  const filteredProducts = products.filter((p) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      p.product_name?.toLowerCase().includes(term) ||
+      p.brand?.toLowerCase().includes(term)
+    );
+  });
+
   return (
     <div className="grid md:grid-cols-[1fr_320px] gap-8">
       <div className="admin-glass-panel rounded-xl p-6 space-y-3 h-fit">
-        {products.map((p) => (
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by name or brand…"
+          className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none mb-3"
+        />
+        {filteredProducts.map((p) => (
           <div
             key={p.product_id}
             className="flex items-center justify-between admin-item-card rounded-lg px-5 py-4"
@@ -105,8 +129,10 @@ export default function ProductsAdmin() {
             </div>
           </div>
         ))}
-        {products.length === 0 && (
-          <p className="text-[var(--color-dark-ink)]/50">No products yet.</p>
+        {filteredProducts.length === 0 && (
+          <p className="text-[var(--color-dark-ink)]/50">
+            {searchTerm ? "No products match your search." : "No products yet."}
+          </p>
         )}
       </div>
 
@@ -131,6 +157,17 @@ export default function ProductsAdmin() {
             onChange={(e) => update("Brand", e.target.value)}
             className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none"
           />
+          <select
+            required
+            value={form.CategoryId}
+            onChange={(e) => update("CategoryId", e.target.value)}
+            className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm outline-none"
+          >
+            <option value="" disabled>Select category *</option>
+            {categories.map((c) => (
+              <option key={c.category_id} value={c.category_id}>{c.category_name}</option>
+            ))}
+          </select>
           <input
             type="number"
             step="0.01"

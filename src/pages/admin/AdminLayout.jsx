@@ -9,7 +9,8 @@ const tabs = [
 ];
 
 export default function AdminLayout() {
-  const [stats, setStats] = useState({ productCount: 0, lowStock: 0, orderCount: 0, revenue: 0 });
+  const [stats, setStats] = useState({ productCount: 0, lowStockItems: [], orderCount: 0, revenue: 0 });
+  const [showLowStock, setShowLowStock] = useState(false);
 
   useEffect(() => {
     Promise.all([productsApi.list(), ordersApi.listAllAdmin()])
@@ -18,9 +19,16 @@ export default function AdminLayout() {
         const orders = orderRes.data || [];
         setStats({
           productCount: products.length,
-          lowStock: products.filter((p) => (p.stock ?? 0) <= 5).length,
+          lowStockItems: products.filter((p) => (p.stock ?? 0) <= 5),
           orderCount: orders.length,
-          revenue: orders.reduce((sum, o) => sum + Number(o.total_amount ?? o.totalAmount ?? 0), 0),
+          revenue: orders
+            .filter((o) => {
+              const status = o.status ?? o.Status;
+              const method = o.payment_method ?? o.paymentMethod;
+              const isCancelledSimulatedPayment = status === "Cancelled" && (method === "Card" || method === "GCash");
+              return !isCancelledSimulatedPayment;
+            })
+            .reduce((sum, o) => sum + Number(o.total_amount ?? o.totalAmount ?? 0), 0),
         });
       })
       .catch(() => {});
@@ -34,18 +42,49 @@ export default function AdminLayout() {
 
         {/* Dashboard summary stats widget */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Products", value: stats.productCount },
-            { label: "Low stock", value: stats.lowStock, warn: stats.lowStock > 0 },
-            { label: "Orders", value: stats.orderCount },
-            { label: "Revenue", value: `$${stats.revenue.toFixed(2)}` },
-          ].map((s) => (
-            <div key={s.label} className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
-              <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">{s.label}</p>
-              <p className={`text-2xl font-semibold ${s.warn ? "text-[var(--color-signal)]" : ""}`}>{s.value}</p>
-            </div>
-          ))}
+          <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
+            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">Products</p>
+            <p className="text-2xl font-semibold">{stats.productCount}</p>
+          </div>
+
+          <button
+            onClick={() => setShowLowStock((v) => !v)}
+            className="text-left bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4 hover:border-[var(--color-signal)]/50 transition-colors"
+          >
+            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">
+              Low stock {stats.lowStockItems.length > 0 && "— click to view"}
+            </p>
+            <p className={`text-2xl font-semibold ${stats.lowStockItems.length > 0 ? "text-[var(--color-signal)]" : ""}`}>
+              {stats.lowStockItems.length}
+            </p>
+          </button>
+
+          <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
+            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">Orders</p>
+            <p className="text-2xl font-semibold">{stats.orderCount}</p>
+          </div>
+
+          <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
+            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">Revenue</p>
+            <p className="text-2xl font-semibold">${stats.revenue.toFixed(2)}</p>
+          </div>
         </div>
+
+        {showLowStock && stats.lowStockItems.length > 0 && (
+          <div className="bg-[var(--color-dark-panel)] border border-[var(--color-signal)]/30 rounded p-4 mb-8 -mt-4">
+            <p className="font-[var(--font-mono)] text-xs text-[var(--color-signal)] uppercase mb-3">Products running low</p>
+            <div className="space-y-2">
+              {stats.lowStockItems.map((p) => (
+                <div key={p.product_id} className="flex items-center justify-between text-sm">
+                  <span>{p.product_name}</span>
+                  <span className={`font-[var(--font-mono)] ${p.stock === 0 ? "text-[var(--color-signal)] font-semibold" : "text-[var(--color-dark-ink)]/70"}`}>
+                    {p.stock === 0 ? "Out of stock" : `${p.stock} left`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-2 border-b border-[var(--color-dark-line)] mb-8">
           {tabs.map((t) => (
