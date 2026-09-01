@@ -51,6 +51,8 @@ export default function ProductReviews({ productId }) {
                 type="button"
                 key={n}
                 onClick={() => setRating(n)}
+                aria-label={`Rate ${n} out of 5 stars`}
+                aria-pressed={n === rating}
                 className={`text-lg ${n <= rating ? "text-[var(--color-gold)]" : "text-[var(--color-line)]"}`}
               >
                 ★

@@ -1,101 +1,108 @@
 @import "tailwindcss";
 
-/* LIGHT MODE (Default) */
-:root {
-  --bg-color: #f8fafc;
-  /* Light gray background */
-  --text-primary: #0f172a;
-  /* Dark slate text */
-  --bg-surface: #ffffff;
-  /* White modal/card background */
-  --accent-color: #10b981;
-  /* Standard emerald green */
-  --border-color: #e2e8f0;
-
-  --bg-header: #0f172a;
-  --bg-page: #f8fafc;
-  --bg-card: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --accent-primary: #10b981;
-  --accent-hover: #059669;
-  --border-light: #e2e8f0;
-}
-
-/* DARK MODE (Cyber / Hacker-Terminal Aesthetic) */
-html.dark :root,
-html.dark,
-:root.dark {
-  --bg-color: #0f172a;
-  /* Deep monochrome dark background */
-  --text-primary: #e2e8f0;
-  /* Soft off-white text for readability */
-  --bg-surface: #1e293b;
-  /* Slightly lighter dark for modals/cards */
-  --accent-color: #06b6d4;
-  /* Vibrant electric cyan */
-  --border-color: #334155;
-
-  --bg-header: #070b14;
-  --bg-page: #0f172a;
-  --bg-card: #1e293b;
-  --text-main: #e2e8f0;
-  --text-muted: #94a3b8;
-  --accent-primary: #06b6d4;
-  --accent-hover: #22d3ee;
-  --border-light: #334155;
-
-  /* Spec and palette mapping for dark mode */
-  --color-paper: #0f172a;
-  --color-panel: #1e293b;
-  --color-ink: #e2e8f0;
-  --color-ink-soft: #94a3b8;
-  --color-line: #334155;
-  --color-circuit: #06b6d4;
-  --color-circuit-dark: #0891b2;
-}
-
 @theme {
-  /* -- Palette: electronics spec-sheet / component packaging -- */
-  --color-paper: #EDEFF2;
-  /* cool paper background */
-  --color-panel: #F8F9FB;
-  /* card surface */
-  --color-ink: #14181F;
-  /* near-black navy text */
-  --color-ink-soft: #4B5563;
-  /* secondary text */
-  --color-line: #D6DAE0;
-  /* hairline borders */
-  --color-circuit: #1F8A70;
-  /* solder-mask green, primary */
-  --color-circuit-dark: #146354;
-  --color-gold: #B8863A;
-  /* connector gold, price/accent */
-  --color-signal: #C6403A;
-  /* alert / sale red */
-
-  /* -- Dark admin/dashboard theme -- */
-  --color-dark-bg: #0B0E11;
-  --color-dark-panel: #12161B;
-  --color-dark-line: #232B33;
-  --color-dark-ink: #E7EAEE;
-
   --font-display: "Space Grotesk", "IBM Plex Sans", sans-serif;
   --font-body: "IBM Plex Sans", sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
 }
 
-/* Apply the variables to your elements */
-body {
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  /* Smooth fade effect */
+/* ============================================================
+   DESIGN TOKENS — single source of truth for every color.
+   Every mode below (light default, dark toggle, staff admin)
+   sets the SAME variable names to different values. Components
+   never hardcode colors — they only ever reference these.
+   ============================================================ */
+
+:root {
+  --color-paper: #EDEFF2;
+  /* page background */
+  --color-panel: #F8F9FB;
+  /* card/surface background */
+  --color-ink: #14181F;
+  /* primary text */
+  --color-ink-soft: #4B5563;
+  /* secondary/muted text */
+  --color-line: #D6DAE0;
+  /* borders/dividers */
+  --color-circuit: #1F8A70;
+  /* primary accent — solder-mask green */
+  --color-circuit-dark: #146354;
+  --color-circuit-soft: rgba(31, 138, 112, 0.12);
+  /* accent tint for hovers/badges */
+  --color-gold: #B8863A;
+  /* price/connector accent */
+  --color-signal: #C6403A;
+  /* danger/alert — do not repurpose for anything else */
+  --color-header-bg: #14181F;
+  /* top navbar background */
+  --color-header-text: #FFFFFF;
 }
 
-/* Perforated "spec ticket" edge — the signature element */
+html.dark {
+  --color-paper: #0F172A;
+  --color-panel: #1E293B;
+  --color-ink: #E2E8F0;
+  --color-ink-soft: #94A3B8;
+  --color-line: #334155;
+  --color-circuit: #2DD4BF;
+  /* same hue family as light mode, brightened for dark contrast */
+  --color-circuit-dark: #14B8A6;
+  --color-circuit-soft: rgba(45, 212, 191, 0.15);
+  --color-gold: #D4A054;
+  --color-signal: #EF4444;
+  --color-header-bg: #070B14;
+  --color-header-text: #E2E8F0;
+}
+
+/* Admin/staff theme — intentionally distinct accent (violet) from the
+   customer-facing storefront, so it's immediately visually clear which
+   area of the app you're in. Everything else still maps to the same
+   variable names, so all shared components adapt automatically. */
+[data-theme="staff"] {
+  --color-paper: #080D1A;
+  --color-panel: #0F1629;
+  --color-ink: #E2E8F0;
+  --color-ink-soft: #64748B;
+  --color-line: #1A2540;
+  --color-circuit: #A78BFA;
+  --color-circuit-dark: #8B5CF6;
+  --color-circuit-soft: rgba(167, 139, 250, 0.15);
+  --color-gold: #F59E0B;
+  --color-signal: #EF4444;
+  --color-header-bg: #050810;
+  --color-header-text: #E2E8F0;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-circuit);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.mono-tag {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   SPEC TICKET — signature product/order card element
+   ============================================================ */
 .spec-ticket {
   position: relative;
   background: var(--color-panel);
@@ -105,7 +112,7 @@ body {
 
 .spec-ticket:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px -8px rgba(20, 24, 31, 0.12);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
   border-color: var(--color-circuit);
 }
 
@@ -129,227 +136,86 @@ body {
   border-radius: 999px;
   background: var(--color-paper);
   border: 1px solid var(--color-line);
-  box-shadow: calc(100% + 12px - 12px) 0 0 0 transparent;
-}
-
-.mono-tag {
-  font-family: var(--font-mono);
-  letter-spacing: 0.02em;
-}
-
-:focus-visible {
-  outline: 2px solid var(--color-circuit);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
 }
 
 /* ============================================================
-   STAFF / ADMIN THEME — "Command Center"
-   Applied via data-theme="staff" on the root wrapper.
-   Overrides every palette token; components adapt automatically
-   because they all consume CSS variables.
+   BUTTONS
    ============================================================ */
-[data-theme="staff"] {
-  /* Backgrounds */
-  --color-paper: #080D1A;
-  /* deep space navy — body bg */
-  --color-panel: #0F1629;
-  /* card surface */
-
-  /* Typography */
-  --color-ink: #E2E8F0;
-  /* near-white body text (NOTE: navbar bg hardcodes its own colour below) */
-  --color-ink-soft: #64748B;
-  /* muted slate */
-
-  /* Borders / dividers */
-  --color-line: #1A2540;
-
-  /* Primary accent — electric violet instead of solder-green */
-  --color-circuit: #A78BFA;
-  --color-circuit-dark: #8B5CF6;
-
-  /* Connector gold — brighter amber */
-  --color-gold: #F59E0B;
-
-  /* Alert red — stays recognisable */
-  --color-signal: #EF4444;
-
-  /* Re-map dark panel tokens used inside AdminLayout */
-  --color-dark-bg: #050810;
-  --color-dark-panel: #0F1629;
-  --color-dark-line: #1A2540;
-  --color-dark-ink: #E2E8F0;
-}
-
-/* Body background & text must follow the theme tokens */
-[data-theme="staff"].theme-body {
-  background-color: var(--color-paper);
-  color: var(--color-ink);
-}
-
-/* Navbar header keeps its own deep-dark background in staff mode
-   so it looks like a separate command bar rather than body colour */
-[data-theme="staff"] header {
-  background-color: #050810 !important;
-  border-color: #1A2540 !important;
-}
-
-/* Spec-ticket cards — dark surface + dark dashed divider */
-[data-theme="staff"] .spec-ticket {
-  background: var(--color-panel);
-  border-color: var(--color-line);
-}
-
-[data-theme="staff"] .spec-ticket::before {
-  border-color: var(--color-line);
-}
-
-[data-theme="staff"] .spec-ticket::after {
-  background: var(--color-paper);
-  border-color: var(--color-line);
-}
-
-/* Input / textarea fields in dark context */
-[data-theme="staff"] input,
-[data-theme="staff"] textarea,
-[data-theme="staff"] select {
-  background-color: #0F1629 !important;
-  color: #E2E8F0 !important;
-  border-color: #1A2540 !important;
-}
-
-[data-theme="staff"] input::placeholder,
-[data-theme="staff"] textarea::placeholder {
-  color: #64748B;
-}
-
-/* Force bg-white overrides used inside cards to dark */
-[data-theme="staff"] .bg-white {
-  background-color: #0F1629 !important;
-}
-
-/* ============================================================
-   PREMIUM ADMIN UI ENHANCEMENTS
-   ============================================================ */
-.admin-gradient-text {
-  background: linear-gradient(135deg, var(--color-circuit) 0%, #E2E8F0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.admin-glass-panel {
-  background: rgba(15, 22, 41, 0.6) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.08) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-.admin-item-card {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background: rgba(167, 139, 250, 0.15) !important;
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--color-dark-line);
-}
-
-.admin-item-card:hover {
-  transform: translateY(-2px) scale(1.002);
-  box-shadow: 0 10px 25px -5px rgba(167, 139, 250, 0.15);
-  border-color: rgba(167, 139, 250, 0.4) !important;
-  background: linear-gradient(to right, rgba(18, 22, 27, 0.9), rgba(26, 37, 64, 0.9)) !important;
-}
-
-.admin-btn-primary {
-  background-color: var(--color-circuit);
-  background-image: linear-gradient(135deg, var(--color-circuit) 0%, var(--color-circuit-dark) 100%);
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(167, 139, 250, 0.25);
-  color: white !important;
-}
-
-.admin-btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.45);
-  filter: brightness(1.15);
-}
-
-.admin-input-premium {
-  background-color: rgba(15, 22, 41, 0.5) !important;
-  transition: all 0.2s ease;
-}
-
-.admin-input-premium:focus {
-  background-color: rgba(15, 22, 41, 0.8) !important;
-  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.2);
-}
-
-/* ============================================================
-   PREMIUM GLOBAL UI ENHANCEMENTS (USER & ADMIN)
-   ============================================================ */
-
-/* Primary Button (Vibrant & Interactive) */
 .btn-primary {
-  background-color: var(--accent-color);
-  color: white !important;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+  background-color: var(--color-circuit);
+  color: white;
+  border: 1px solid var(--color-circuit);
+  border-radius: 8px;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 14px var(--color-circuit-soft);
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .btn-primary:hover:not(:disabled) {
+  background-color: var(--color-circuit-dark);
+  border-color: var(--color-circuit-dark);
   transform: translateY(-2px);
-  background-color: var(--accent-hover);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 6px 20px var(--color-circuit-soft);
 }
 
 .btn-primary:active:not(:disabled) {
   transform: translateY(1px);
-  box-shadow: 0 2px 8px rgba(31, 138, 112, 0.3);
 }
 
-/* 1. Unify Primary Action Buttons (Checkout, Add to Cart, Modal) */
-html.dark .btn-primary,
-html.dark button[type="submit"],
-/* Targets form submission buttons */
-html.dark .checkout-btn {
-  /* Assuming your proceed button has a specific class */
-  background-color: #06b6d4 !important;
-  /* Vibrant electric cyan */
-  color: #0f172a !important;
-  /* Deep dark text for contrast against the bright button */
-  border: 1px solid #06b6d4 !important;
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4) !important;
-  /* Cyber glow effect */
+.btn-primary:disabled {
+  background-color: var(--color-line);
+  border-color: var(--color-line);
+  color: var(--color-ink-soft);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-circuit);
+  border: 1px solid var(--color-circuit);
+  border-radius: 8px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease-in-out;
 }
 
-html.dark .btn-primary:hover:not(:disabled),
-html.dark button[type="submit"]:hover:not(:disabled),
-html.dark .checkout-btn:hover:not(:disabled) {
-  background-color: #0891b2 !important;
-  /* Slightly darker cyan on hover */
-  border-color: #0891b2 !important;
-  color: #0f172a !important;
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6) !important;
-  /* Stronger glow on hover */
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-circuit-soft);
+  color: var(--color-circuit-dark);
 }
 
-.modal {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Danger/destructive actions — unrelated to the primary accent on purpose */
+.btn-danger {
+  color: var(--color-signal);
+  border: 1px solid var(--color-signal);
+  background: transparent;
+  transition: all 150ms ease;
+}
+
+.btn-danger:hover {
+  background: var(--color-signal);
+  color: white;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-signal) 60%, transparent);
+}
+
+.text-alert {
+  color: var(--color-signal);
+  transition: text-shadow 150ms ease;
+}
+
+.text-alert:hover {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-signal) 70%, transparent);
 }
 
 .theme-toggle-btn {
@@ -359,399 +225,70 @@ html.dark .checkout-btn:hover:not(:disabled) {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: var(--color-circuit-soft);
+  border: 1px solid var(--color-circuit-soft);
+  color: var(--color-header-text);
   font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  line-height: 1;
 }
 
 .theme-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--color-circuit);
   transform: translateY(-1px);
 }
 
-html.dark .theme-toggle-btn {
-  border-color: rgba(6, 182, 212, 0.4);
-  background: rgba(6, 182, 212, 0.12);
-  box-shadow: 0 0 8px rgba(6, 182, 212, 0.25);
-}
-
-html.dark .theme-toggle-btn:hover {
-  background: rgba(6, 182, 212, 0.25);
-  box-shadow: 0 0 12px rgba(6, 182, 212, 0.45);
-}
-
-/* Secondary/Ghost Button */
-.btn-secondary {
-  background-color: transparent;
-  color: #10b981;
-  border: 1px solid #10b981;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease-in-out;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #f0fdf4;
-  color: #059669;
-  border-color: #059669;
-}
-
-.btn-secondary:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-/* 2. Fix the Filter Pills (e.g., the "ALL" button) */
 .filter-pill {
   transition: all 0.2s ease-in-out;
+  border: 1px solid var(--color-line);
+  color: var(--color-ink-soft);
 }
 
-html.dark .filter-pill.active {
-  background-color: #06b6d4 !important;
-  color: #0f172a !important;
-  border-color: #06b6d4 !important;
-}
-
-html.dark .filter-pill:not(.active) {
-  background-color: transparent !important;
-  color: #94a3b8 !important;
-  border-color: #334155 !important;
-}
-
-html.dark .filter-pill:not(.active):hover {
-  border-color: #06b6d4 !important;
-  color: #e2e8f0 !important;
-}
-
-/* 3. Fix the Secondary Button (View Orders, etc.) */
-html.dark .btn-secondary {
-  background-color: transparent !important;
-  color: #06b6d4 !important;
-  /* Cyan text instead of green */
-  border: 1px solid #06b6d4 !important;
-}
-
-html.dark .btn-secondary:hover:not(:disabled) {
-  background-color: rgba(6, 182, 212, 0.1) !important;
-  /* Subtle cyan background on hover */
-  color: #22d3ee !important;
-  border-color: #06b6d4 !important;
-}
-
-/* Premium Input Styles */
-.input-premium {
-  transition: all 0.3s ease;
-  border-color: var(--color-line);
-}
-
-.input-premium:focus {
+.filter-pill.active {
+  background-color: var(--color-circuit);
+  color: white;
   border-color: var(--color-circuit);
-  box-shadow: 0 0 0 3px rgba(31, 138, 112, 0.15);
-  transform: translateY(-1px);
 }
 
-/* Master rule for all text-based inputs and textareas in Dark Mode */
-html.dark input[type="text"],
-html.dark input[type="email"],
-html.dark input[type="password"],
-html.dark input[type="tel"],
-html.dark input[type="number"],
-html.dark input:not([type]),
-html.dark textarea {
-  background-color: #1e293b;
-  /* Deep slate background */
-  color: #e2e8f0;
-  /* Soft off-white text */
-  border: 1px solid #334155;
-  /* Subtle dark border */
-  padding: 12px;
-  border-radius: 8px;
-}
-
-/* Make sure the text inside the placeholder is also visible but muted */
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #94a3b8;
-  /* Muted slate gray */
-}
-
-/* Master rule for the cyan focus glow */
-html.dark input[type="text"]:focus,
-html.dark input[type="email"]:focus,
-html.dark input[type="password"]:focus,
-html.dark input[type="tel"]:focus,
-html.dark input[type="number"]:focus,
-html.dark input:not([type]):focus,
-html.dark textarea:focus {
-  border-color: #06b6d4;
-  /* Vibrant cyan */
-  outline: none;
-  box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
-  /* Subtle cyber glow */
-}
-
-/* Fix the eye icon color if it is an SVG */
-html.dark .password-toggle-icon {
-  color: #94a3b8;
-  /* Muted gray for the eye icon */
-}
-
-html.dark .password-toggle-icon:hover {
-  color: #06b6d4;
-}
-
-/* Micro-animations */
-@keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-5px);
-  }
-
-  100% {
-    transform: translateY(0px);
-  }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-/* Admin specific overrides */
-[data-theme="staff"] .btn-primary {
-  background-image: linear-gradient(135deg, var(--color-circuit) 0%, var(--color-circuit-dark) 100%);
-  box-shadow: 0 4px 14px rgba(167, 139, 250, 0.25);
-}
-
-[data-theme="staff"] .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.45);
-}
-
-[data-theme="staff"] .input-premium:focus {
+.filter-pill:not(.active):hover {
   border-color: var(--color-circuit);
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+  color: var(--color-ink);
 }
 
 /* ============================================================
-   NEW PRODUCT CARD STYLES
+   NAVBAR / HEADER
    ============================================================ */
-.product-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
-  overflow: hidden;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
+.top-header {
+  background-color: var(--color-header-bg);
+  color: var(--color-header-text);
+  border-bottom: 1px solid var(--color-line);
 }
 
-.product-card:hover {
-  border-color: var(--accent-primary);
-  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
-  transform: translateY(-4px);
+.top-header a,
+.top-header span,
+.top-header button,
+.logo-text {
+  color: var(--color-header-text);
 }
 
-.product-price {
-  color: var(--text-main);
-  font-weight: 700;
-  font-size: 1.125rem;
-}
-
-.product-image-wrap,
-.main-image-container,
-.thumbnail {
-  position: relative;
-  width: 100%;
-  height: 180px;
-  background-color: #f8fafc;
-  overflow: hidden;
-}
-
-/* Fix 1: Product Image Placeholders in Dark Mode */
-html.dark .product-card .main-image-container,
-html.dark .product-card .thumbnail {
-  background-color: #1e293b;
-  /* A deep slate/charcoal color */
-  /* Remove any existing hardcoded background: white; */
-}
-
-/* Disabled Button Styling */
-html.dark .btn-add:disabled {
-  background-color: #334155 !important;
-  /* Muted slate background */
-  color: #64748b !important;
-  /* Darker muted text */
-  border: 1px solid #334155 !important;
-  /* Match border to background */
-  cursor: not-allowed !important;
-  /* Shows the "no" symbol on hover */
-  box-shadow: none !important;
-  /* Removes the cyber glow */
-  transform: none !important;
-}
-
-/* Optional UX Polish: Dim the product image slightly if out of stock */
-html.dark .product-card.out-of-stock .main-image-container {
-  opacity: 0.4;
-  filter: grayscale(80%);
-  /* Makes it look inactive */
-}
-
-/* ============================================================
-   LIGHT MODE GREEN HEADER & BRANDING (Fix.md)
-   ============================================================ */
-
-/* 1. Restore the Green Header in Light Mode */
-html:not(.dark) nav,
-html:not(.dark) .top-header {
-  background-color: #10b981 !important;
-  /* Standard emerald green */
-  border-bottom: none !important;
-  /* Remove any dark borders */
-}
-
-/* 2. Make Header Text White for Contrast */
-html:not(.dark) nav a,
-html:not(.dark) .top-header a,
-html:not(.dark) .top-header span,
-html:not(.dark) .top-header button,
-html:not(.dark) .logo-text {
-  /* Ensure your logo text is also white */
-  color: #ffffff !important;
-  /* White text on the green header */
-  font-weight: 600;
-}
-
-/* Subtle hover effect for header links */
-html:not(.dark) nav a:hover,
-html:not(.dark) .top-header a:hover {
-  color: #ecfdf5 !important;
-  /* Very light mint/white on hover */
+.top-header a:hover {
+  color: var(--color-circuit);
   opacity: 0.9;
 }
 
-/* 3. Fix the "ALL" Filter Pill to be Green instead of Black */
-html:not(.dark) .filter-pill.active {
-  background-color: #10b981 !important;
-  color: #ffffff !important;
-  border-color: #10b981 !important;
+.top-header a[href="/cart"] {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--color-header-text);
 }
 
-/* Inactive Filter Pills (Smartphones, Laptops, etc.) */
-html:not(.dark) .filter-pill:not(.active) {
-  color: #475569 !important;
-  /* Slate gray text so it is readable on white */
-  border-color: #cbd5e1 !important;
-}
-
-/* 4. Protect the Dropdown Menu (Keep it white so it doesn't turn green!) */
-html:not(.dark) .dropdown-menu,
-html:not(.dark) .cart-preview {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  /* Dark text inside the white dropdown */
-  border: 1px solid #e2e8f0 !important;
-}
-
-html:not(.dark) .dropdown-menu a,
-html:not(.dark) .dropdown-menu button,
-html:not(.dark) .dropdown-menu span {
-  color: #0f172a !important;
-  /* Ensure dropdown links stay dark */
-  font-weight: 500 !important;
-}
-
-html:not(.dark) .dropdown-menu a:hover,
-html:not(.dark) .dropdown-menu button:hover {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
-}
-
-/* Ensure cart button on green header looks great in light mode */
-html:not(.dark) .top-header a[href="/cart"] {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  color: #ffffff !important;
-}
-
-html:not(.dark) .top-header a[href="/cart"]:hover {
-  background-color: rgba(255, 255, 255, 0.3) !important;
-  color: #ffffff !important;
-}
-
-/* Fix 2: Navigation Bar Dark Mode Support */
-html.dark nav,
-html.dark .top-header {
-  background-color: #0f172a;
-  /* Deep monochrome dark base */
-  color: #e2e8f0;
-  /* Soft off-white text for readability */
-  border-bottom: 1px solid #334155;
-  /* Subtle border to separate it from the body */
-}
-
-/* Make sure the text inside the navbar stays readable */
-html.dark nav a {
-  color: #e2e8f0;
-}
-
-html.dark nav a:hover {
-  color: #06b6d4;
-  /* Text turns cyan on hover! */
-}
-
-html.dark .top-header a:not(.btn-primary) {
-  color: #e2e8f0;
-}
-
-html.dark .top-header a:not(.btn-primary):hover {
-  color: #06b6d4;
-}
-
-.sku-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(4px);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-family: monospace;
-  font-weight: 600;
-  color: #334155;
-  z-index: 2;
-}
-
-.product-card-body {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-/* ============================================================
-   USER DROPDOWN MENU
-   ============================================================ */
-.user-menu-container {
-  position: relative;
-  display: inline-block;
+.top-header a[href="/cart"]:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .user-menu-trigger {
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: var(--color-header-text);
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -766,16 +303,18 @@ html.dark .top-header a:not(.btn-primary):hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* Dropdown always uses the panel/ink tokens, regardless of the header's
+   own (always-dark) background — so it reads as a distinct surface. */
 .dropdown-menu {
   position: absolute;
   right: 0;
   top: 100%;
   margin-top: 8px;
   width: 160px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
   border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   padding: 6px 0;
@@ -785,14 +324,12 @@ html.dark .top-header a:not(.btn-primary):hover {
 .dropdown-item {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   gap: 10px;
   padding: 10px 16px;
-  color: var(--text-main);
+  color: var(--color-ink);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
-  width: 100%;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -800,33 +337,142 @@ html.dark .top-header a:not(.btn-primary):hover {
 }
 
 .dropdown-item:hover {
-  background-color: var(--bg-page);
+  background-color: var(--color-paper);
 }
 
 .dropdown-item.logout-btn {
-  color: #ef4444;
-  /* Red hint for log out */
+  color: var(--color-signal);
 }
 
-/* Ensures icons/emojis align evenly across items */
 .dropdown-item-icon {
   width: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
 }
 
 /* ============================================================
-   SUCCESS PURCHASE MODAL
+   INPUTS
+   ============================================================ */
+.input-premium,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input:not([type]),
+textarea,
+select {
+  background-color: var(--color-panel);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-ink-soft);
+}
+
+.input-premium:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-circuit);
+  box-shadow: 0 0 0 3px var(--color-circuit-soft);
+}
+
+.password-toggle-icon {
+  color: var(--color-ink-soft);
+}
+
+.password-toggle-icon:hover {
+  color: var(--color-circuit);
+}
+
+/* ============================================================
+   PRODUCT CARDS
+   ============================================================ */
+.product-card {
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  border-color: var(--color-circuit);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.product-card.out-of-stock .main-image-container {
+  opacity: 0.4;
+  filter: grayscale(80%);
+}
+
+.product-price {
+  color: var(--color-gold);
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.product-image-wrap,
+.main-image-container,
+.thumbnail {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background-color: var(--color-line);
+  overflow: hidden;
+}
+
+.product-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.sku-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: color-mix(in srgb, var(--color-paper) 85%, transparent);
+  backdrop-filter: blur(4px);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  z-index: 2;
+}
+
+.btn-add:disabled {
+  background-color: var(--color-line) !important;
+  color: var(--color-ink-soft) !important;
+  border-color: var(--color-line) !important;
+  cursor: not-allowed;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* ============================================================
+   MODAL / PURCHASE SUCCESS
    ============================================================ */
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(15, 23, 42, 0.6);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -834,14 +480,15 @@ html.dark .top-header a:not(.btn-primary):hover {
   z-index: 9999;
 }
 
+.modal,
 .purchase-modal {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
   border-radius: 16px;
   width: 100%;
   max-width: 420px;
   padding: 24px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -852,34 +499,30 @@ html.dark .top-header a:not(.btn-primary):hover {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #dcfce7;
+  background: var(--color-circuit-soft);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
 }
 
-html.dark .success-icon-badge {
-  background: rgba(6, 182, 212, 0.15);
-}
-
 .modal-title {
-  color: var(--text-primary);
+  color: var(--color-ink);
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 8px 0;
 }
 
 .modal-description {
-  color: var(--text-muted);
+  color: var(--color-ink-soft);
   font-size: 0.875rem;
   margin: 0 0 20px 0;
 }
 
 .summary-card {
   width: 100%;
-  background: var(--bg-page);
-  border: 1px solid var(--border-color);
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
   border-radius: 10px;
   padding: 12px 16px;
   margin-bottom: 24px;
@@ -891,28 +534,22 @@ html.dark .success-icon-badge {
 .summary-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: var(--color-ink-soft);
+}
+
+.summary-price {
+  color: var(--color-ink);
+  font-size: 1rem;
 }
 
 .status-badge {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--color-circuit-soft);
+  color: var(--color-circuit-dark);
   font-size: 0.75rem;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 6px;
-}
-
-html.dark .status-badge {
-  background: rgba(6, 182, 212, 0.2);
-  color: #22d3ee;
-}
-
-.summary-price {
-  color: var(--text-primary);
-  font-size: 1rem;
 }
 
 .modal-actions {
@@ -922,83 +559,19 @@ html.dark .status-badge {
   width: 100%;
 }
 
-/* Secondary Button (View Orders) */
 .modal-actions .btn-secondary {
   flex: 1;
   padding: 12px 16px;
-  background-color: transparent;
-  color: #10b981;
-  border: 1px solid #10b981;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: none;
-  transition: all 0.2s ease-in-out;
 }
 
-.modal-actions .btn-secondary:hover {
-  background-color: #f0fdf4;
-  color: #059669;
-  border-color: #059669;
-  transform: none;
-}
-
-/* Primary Button (Continue Shopping) */
 .modal-actions .btn-primary {
   flex: 2;
   padding: 12px 16px;
-  background-color: #10b981;
-  color: #ffffff !important;
-  border: 1px solid #10b981;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.modal-actions .btn-primary:hover:not(:disabled) {
-  background-color: #059669;
-  border-color: #059669;
-}
-
-/* Modal dark mode button overrides */
-html.dark .modal-actions .btn-primary {
-  background-color: #06b6d4 !important;
-  color: #0f172a !important;
-  border: 1px solid #06b6d4 !important;
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.4) !important;
-}
-
-html.dark .modal-actions .btn-primary:hover:not(:disabled) {
-  background-color: #0891b2 !important;
-  border-color: #0891b2 !important;
-  color: #0f172a !important;
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6) !important;
-}
-
-html.dark .modal-actions .btn-secondary {
-  background-color: transparent !important;
-  color: #06b6d4 !important;
-  border: 1px solid #06b6d4 !important;
-}
-
-html.dark .modal-actions .btn-secondary:hover:not(:disabled) {
-  background-color: rgba(6, 182, 212, 0.1) !important;
-  color: #22d3ee !important;
-  border-color: #06b6d4 !important;
 }
 
 /* ============================================================
-   BUTTON LOADING STATE
+   LOADING STATES
    ============================================================ */
-.btn-primary:disabled {
-  background-color: #047857 !important;
-  cursor: not-allowed;
-  opacity: 0.8;
-  box-shadow: none !important;
-  transform: none !important;
-}
-
 .btn-loading-content {
   display: flex;
   align-items: center;
@@ -1021,12 +594,9 @@ html.dark .modal-actions .btn-secondary:hover:not(:disabled) {
   }
 }
 
-/* ============================================================
-   SKELETON LOADER
-   ============================================================ */
 .skeleton-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -1035,8 +605,8 @@ html.dark .modal-actions .btn-secondary:hover:not(:disabled) {
 }
 
 .skeleton {
-  background: #e2e8f0;
-  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background: var(--color-line);
+  background: linear-gradient(90deg, var(--color-line) 25%, var(--color-panel) 50%, var(--color-line) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
   border-radius: 6px;
@@ -1094,24 +664,140 @@ html.dark .modal-actions .btn-secondary:hover:not(:disabled) {
 }
 
 /* ============================================================
-   DANGER / DESTRUCTIVE ACTION STYLING
+   ADMIN / STAFF-THEME SPECIFIC POLISH
+   These already inherit the right colors from [data-theme="staff"]
+   above — these rules just add admin-specific effects (glass,
+   glow) on top, still referencing the same variables.
    ============================================================ */
-.btn-danger {
-  color: var(--color-signal);
-  border: 1px solid var(--color-signal);
-  background: transparent;
-  transition: all 150ms ease;
-}
-.btn-danger:hover {
-  background: var(--color-signal);
-  color: white;
-  box-shadow: 0 0 12px color-mix(in srgb, var(--color-signal) 60%, transparent);
+.admin-gradient-text {
+  background: linear-gradient(135deg, var(--color-circuit) 0%, var(--color-ink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.text-alert {
-  color: var(--color-signal);
-  transition: text-shadow 150ms ease;
+.admin-glass-panel {
+  background: color-mix(in srgb, var(--color-panel) 60%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
-.text-alert:hover {
-  text-shadow: 0 0 8px color-mix(in srgb, var(--color-signal) 70%, transparent);
+
+.admin-item-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: var(--color-circuit-soft);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-line);
+}
+
+.admin-item-card:hover {
+  transform: translateY(-2px) scale(1.002);
+  box-shadow: 0 10px 25px -5px var(--color-circuit-soft);
+  border-color: var(--color-circuit);
+  background: linear-gradient(to right, var(--color-panel), var(--color-circuit-soft));
+}
+
+.admin-input-premium {
+  background-color: color-mix(in srgb, var(--color-panel) 70%, transparent);
+}
+
+.admin-input-premium:focus {
+  background-color: var(--color-panel);
+  box-shadow: 0 0 0 2px var(--color-circuit-soft);
+}
+
+.user-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* ============================================================
+   STOREFRONT REDESIGN — editorial hardware catalog
+   ============================================================ */
+.catalog-page {
+  position: relative;
+}
+
+.catalog-hero {
+  min-height: 300px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  align-items: center;
+  gap: 2rem;
+  padding: clamp(1.5rem, 4vw, 3.25rem);
+  border: 1px solid var(--color-line);
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(31, 138, 112, 0.1), transparent 42%),
+    radial-gradient(circle at 82% 30%, rgba(184, 134, 58, 0.12), transparent 28%),
+    var(--color-panel);
+  box-shadow: 0 18px 50px rgba(20, 24, 31, 0.08);
+}
+
+.catalog-hero-copy { max-width: 640px; }
+.eyebrow, .catalog-state-kicker, .catalog-toolbar-meta, .product-image-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.eyebrow { color: var(--color-circuit); display: flex; align-items: center; gap: 0.5rem; }
+.eyebrow-dot { width: 0.45rem; height: 0.45rem; background: var(--color-circuit); border-radius: 50%; box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-circuit) 14%, transparent); }
+.hero-accent { color: var(--color-circuit); }
+.catalog-hero-description { max-width: 540px; margin-top: 1.25rem; color: var(--color-ink-soft); font-size: 1rem; line-height: 1.7; }
+.catalog-hero-stats { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: 2rem; color: var(--color-ink-soft); font-family: var(--font-mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.catalog-hero-stats span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.catalog-hero-stats strong { color: var(--color-gold); font-size: 0.88rem; }
+.catalog-hero-mark { position: relative; aspect-ratio: 1; max-width: 220px; justify-self: end; border: 1px solid color-mix(in srgb, var(--color-circuit) 45%, transparent); border-radius: 50%; background: repeating-radial-gradient(circle, transparent 0 24px, color-mix(in srgb, var(--color-circuit) 12%, transparent) 25px 26px); }
+.hero-mark-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--color-circuit); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; }
+.hero-mark-ring { position: absolute; inset: 15%; border: 1px dashed color-mix(in srgb, var(--color-gold) 60%, transparent); border-radius: 50%; }
+.hero-mark-ring-two { inset: 31%; border-style: solid; border-color: color-mix(in srgb, var(--color-circuit) 55%, transparent); }
+.hero-mark-crosshair::before, .hero-mark-crosshair::after { content: ""; position: absolute; background: color-mix(in srgb, var(--color-circuit) 50%, transparent); }
+.hero-mark-crosshair::before { width: 1px; height: 118%; top: -9%; left: 50%; }
+.hero-mark-crosshair::after { height: 1px; width: 118%; left: -9%; top: 50%; }
+
+.catalog-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-line); }
+.search-field-wrap { position: relative; width: min(100%, 420px); }
+.search-icon { position: absolute; left: 0.9rem; top: 50%; width: 1rem; height: 1rem; transform: translateY(-50%); fill: none; stroke: var(--color-ink-soft); stroke-width: 1.8; pointer-events: none; }
+.catalog-search { width: 100%; height: 2.75rem; padding: 0 2.75rem; border: 1px solid var(--color-line); border-radius: 999px; background: var(--color-panel); color: var(--color-ink); outline: none; transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease; }
+.catalog-search::placeholder { color: var(--color-ink-soft); }
+.catalog-search:focus { border-color: var(--color-circuit); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-circuit) 14%, transparent); }
+.search-clear { position: absolute; right: 0.65rem; top: 50%; width: 1.5rem; height: 1.5rem; transform: translateY(-50%); border: 0; border-radius: 50%; background: var(--color-line); color: var(--color-ink-soft); cursor: pointer; line-height: 1; }
+.catalog-toolbar-meta { color: var(--color-ink-soft); }
+
+.product-grid { align-items: stretch; }
+.product-card { border-radius: 16px; border-color: var(--color-line); background: var(--color-panel); box-shadow: 0 8px 20px rgba(20, 24, 31, 0.06); }
+.product-card:hover { border-color: var(--color-circuit); box-shadow: 0 18px 32px rgba(20, 24, 31, 0.12); }
+.product-image-wrap, .main-image-container { height: 208px; background: color-mix(in srgb, var(--color-paper) 72%, var(--color-circuit) 4%); }
+.product-image-kicker { position: absolute; left: 0.8rem; bottom: 0.7rem; z-index: 2; color: var(--color-ink-soft); opacity: 0.85; }
+.product-wishlist { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; }
+.product-card-body { padding: 1.05rem; gap: 0.55rem; }
+.product-card-body > a { min-height: 2.7rem; }
+.product-meta { min-height: 1.25rem; font-size: 0.76rem; }
+.product-price { color: var(--color-gold); font-family: var(--font-mono); letter-spacing: -0.03em; }
+.btn-primary, .btn-secondary { min-height: 2.5rem; }
+.btn-primary:active, .btn-secondary:active { transform: scale(0.97); }
+
+.catalog-state { display: grid; justify-items: start; gap: 0.65rem; padding: 3rem; border: 1px dashed var(--color-line); border-radius: 16px; background: color-mix(in srgb, var(--color-panel) 70%, transparent); }
+.catalog-state h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; }
+.catalog-state p { max-width: 520px; color: var(--color-ink-soft); line-height: 1.6; }
+.catalog-state-kicker { color: var(--color-circuit); }
+.catalog-state-error { border-color: color-mix(in srgb, var(--color-signal) 50%, var(--color-line)); }
+.catalog-state-error .catalog-state-kicker { color: var(--color-signal); }
+
+@media (max-width: 640px) {
+  .catalog-hero { grid-template-columns: 1fr; min-height: 0; }
+  .catalog-hero-mark { display: none; }
+  .catalog-hero-stats { gap: 0.75rem 1rem; }
+  .catalog-toolbar { align-items: stretch; flex-direction: column; }
+  .search-field-wrap { width: 100%; }
+  .catalog-toolbar-meta { padding-left: 0.25rem; }
+  .catalog-state { padding: 2rem 1.25rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .catalog-hero-mark { animation: catalog-pulse 5s ease-in-out infinite; }
+  @keyframes catalog-pulse { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(5deg); } }
 }

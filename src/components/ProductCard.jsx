@@ -62,13 +62,16 @@ export default function ProductCard({ product, onAddToCart }) {
   return (
     <div className={`product-card relative group ${stock === 0 ? "out-of-stock" : ""}`}>
       <div className="product-image-wrap main-image-container flex items-center justify-center relative">
+        <span className="product-image-kicker">TECH / READY</span>
         <span className="sku-badge">
           {sku(id, name)}
         </span>
         <button
           onClick={handleWishlist}
           title={saved ? "Saved to wishlist!" : "Save to wishlist"}
-          className={`absolute top-2 right-2 z-10 p-1.5 rounded-full backdrop-blur-sm transition-all ${
+          aria-label={saved ? `Remove ${name} from wishlist` : `Save ${name} to wishlist`}
+          aria-pressed={saved}
+          className={`product-wishlist absolute top-2 right-2 z-10 p-1.5 rounded-full backdrop-blur-sm transition-all ${
             saved
               ? "bg-[var(--color-signal)] text-white"
               : "bg-black/20 hover:bg-black/40 text-white"
@@ -82,7 +85,7 @@ export default function ProductCard({ product, onAddToCart }) {
           <img
             src={product.image}
             alt={name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="text-[var(--color-ink-soft)]/40">
@@ -100,7 +103,7 @@ export default function ProductCard({ product, onAddToCart }) {
           {name}
         </Link>
         
-        <div className="text-[0.875rem] text-[var(--text-muted)]">
+        <div className="product-meta text-[0.875rem] text-[var(--text-muted)]">
           {product.brand ? `${product.brand} • ` : ""}
           {typeof stock === "number" ? (stock > 0 ? `${stock} in stock` : "Out of stock") : ""}
         </div>
@@ -112,6 +115,7 @@ export default function ProductCard({ product, onAddToCart }) {
           <button
             onClick={handleAddClick}
             disabled={stock === 0 || adding}
+            aria-label={`Add ${name} to cart`}
             className={`btn-primary btn-add text-sm font-semibold uppercase tracking-wide px-4 py-2 rounded transition-all duration-200 ${
               added ? "!bg-emerald-600 dark:!bg-cyan-600 text-white" : ""
             }`}
