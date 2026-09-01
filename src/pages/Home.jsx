@@ -133,9 +133,12 @@ export default function Home() {
       </section>
 
       {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="category-filter-row flex flex-wrap gap-2 mb-6" aria-label="Filter by category">
+          <span className="category-filter-label">FILTER BY</span>
           <button
+            type="button"
             onClick={() => setSelectedCategory(null)}
+            aria-pressed={selectedCategory === null}
             className={`filter-pill text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
               selectedCategory === null ? "active" : ""
             }`}
@@ -144,8 +147,10 @@ export default function Home() {
           </button>
           {categories.map((c) => (
             <button
+              type="button"
               key={c.category_id}
               onClick={() => setSelectedCategory(c.category_id)}
+              aria-pressed={selectedCategory === c.category_id}
               className={`filter-pill text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
                 selectedCategory === c.category_id ? "active" : ""
               }`}

@@ -9,104 +9,122 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
+  const [mfaStep, setMfaStep] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mfaStep, setMfaStep] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      if (mfaStep) {
-        await verifyMfa(username, code);
-        navigate("/");
-      } else {
-        const res = await login(username, password);
-        if (res.requiresMfa) {
+      if (!mfaStep) {
+        const result = await login(username, password);
+        if (result.requiresMfa) {
           setMfaStep(true);
         } else {
           navigate("/");
         }
+      } else {
+        await verifyMfa(username, code);
+        navigate("/");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Couldn't log in. Check your credentials.");
+      setError(err.response?.data?.message || "Something went wrong. Try again.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-16 px-5">
-      <div className="spec-ticket rounded-md p-6 pt-8">
-        <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mb-1">AUTH-001</p>
-        <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6">
-          {mfaStep ? "Verify Code" : "Log in"}
-        </h1>
+    <main className="auth-page">
+      <div className="auth-frame">
+        <aside className="auth-visual" aria-label="Gadget Store benefits">
+          <div>
+            <p className="auth-visual-code">GADGET/STORE · AUTH-001</p>
+            <h2>Secure access.<br /><span>Better setups.</span></h2>
+            <p className="auth-visual-copy">Keep your cart, orders, and saved gear in sync across every session.</p>
+          </div>
+          <div className="auth-visual-footer">
+            <span>01 / SERVER-SYNCED CART</span>
+            <span>02 / VERIFIED ORDERS</span>
+            <span>03 / CURATED HARDWARE</span>
+          </div>
+        </aside>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-10">
-          {!mfaStep ? (
-            <>
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="username">Username</label>
+        <section className="auth-form-panel">
+          <div className="auth-heading">
+            <p className="eyebrow">{mfaStep ? "AUTH-001 / MFA CHECK" : "AUTH-001 / CUSTOMER ACCESS"}</p>
+            <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight">
+              {mfaStep ? "Verify your sign-in" : "Welcome back"}
+            </h1>
+            <p className="auth-lede">
+              {mfaStep ? "Enter the six-digit code sent to your email to finish logging in." : "Sign in to pick up where you left off."}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            {!mfaStep ? (
+              <>
+                <div className="auth-field">
+                  <label htmlFor="username">Username</label>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    autoComplete="username"
+                    required
+                    className="auth-input input-premium"
+                  />
+                </div>
+                <div className="auth-field">
+                  <label htmlFor="password">Password</label>
+                  <PasswordInput
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    required
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="auth-field">
+                <label htmlFor="code">Verification code</label>
                 <input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="code"
+                  name="code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
                   required
-                  className="w-full input-premium border rounded px-3 py-2 bg-white outline-none"
+                  maxLength={6}
+                  pattern="[0-9]{6}"
+                  aria-describedby="code-help"
+                  className="auth-input input-premium auth-code-input"
                 />
+                <span id="code-help" className="auth-field-help">6 digits · sent to your verified email</span>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="password">Password</label>
-                <PasswordInput
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </>
-          ) : (
-            <div>
-              <p className="text-sm text-[var(--color-ink-soft)] mb-4">
-                Enter the code sent to your email to finish logging in.
-              </p>
-              <label className="block text-sm font-medium mb-1" htmlFor="code">Verification Code</label>
-              <input
-                id="code"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-                maxLength={6}
-                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none text-center tracking-widest text-lg font-mono"
-              />
+            )}
+
+            {error && <p className="auth-error" role="alert">{error}</p>}
+
+            <button type="submit" disabled={loading} className="w-full btn-primary auth-submit">
+              {loading ? "Processing…" : (mfaStep ? "Verify and continue" : "Log in")}
+            </button>
+          </form>
+
+          {!mfaStep && (
+            <div className="auth-links">
+              <Link to="/forgot-password">Forgot password?</Link>
+              <Link to="/register" className="auth-create-link">Create account <span aria-hidden="true">→</span></Link>
             </div>
           )}
-
-          {error && <p className="text-sm text-[var(--color-signal)]">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full btn-primary font-semibold py-2 rounded disabled:opacity-50"
-          >
-            {loading ? "Processing…" : (mfaStep ? "Verify" : "Log in")}
-          </button>
-        </form>
-
-        {!mfaStep && (
-          <div className="mt-5 flex justify-between text-sm">
-            <Link to="/forgot-password" className="text-[var(--color-ink-soft)] hover:text-[var(--color-circuit)]">
-              Forgot password?
-            </Link>
-            <Link to="/register" className="text-[var(--color-ink-soft)] hover:text-[var(--color-circuit)]">
-              Create account
-            </Link>
-          </div>
-        )}
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
