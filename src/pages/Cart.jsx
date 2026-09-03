@@ -1,10 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { cartApi } from "../api/client";
-import { useState } from "react";
 
 export default function Cart() {
-  const { items, loading, updateQuantity, removeItem, refresh } = useCart();
+  const { items, loading, updateQuantity, removeItem } = useCart();
   const navigate = useNavigate();
 
   // Cart items are enriched in CartContext with `name`, `price` joined from products table.
