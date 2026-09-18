@@ -52,6 +52,14 @@ export const productsApi = {
   // Staff (Moderator) + Admin: update description only
   updateDescription: (id, description) =>
     client.patch(`/api/product/${id}/description`, { Description: description }),
+  // Admin-only: upload a product image file
+  uploadImage: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return client.post("/api/product/upload-image", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
 };
 
 export const categoriesApi = {

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { productsApi, categoriesApi } from "../../api/client";
+import ImageDropzone from "../../components/ImageDropzone";
 
 // Default empty form — matches ProductRequest DTO field names
-const empty = { ProductName: "", Price: "", Description: "", Stock: "", Brand: "", CategoryId: "", RamGb: "", Processor: "", StorageGb: "" };
+const empty = { ProductName: "", Price: "", Description: "", Stock: "", Brand: "", CategoryId: "", Image: "", RamGb: "", Processor: "", StorageGb: "" };
 
 export default function ProductsAdmin() {
   const [products, setProducts] = useState([]);
@@ -27,7 +28,7 @@ export default function ProductsAdmin() {
   }
 
   function startEdit(p) {
-    // Product model: product_id, product_name, brand, price, description, stock, ram_gb, processor, storage_gb
+    // Product model: product_id, product_name, brand, price, description, stock, image, ram_gb, processor, storage_gb
     setEditingId(p.product_id);
     setForm({
       ProductName:  p.product_name ?? "",
@@ -36,6 +37,7 @@ export default function ProductsAdmin() {
       Stock:        p.stock ?? "",
       Brand:        p.brand ?? "",
       CategoryId:   p.category_id ?? "",
+      Image:        p.image ?? "",
       RamGb:        p.ram_gb ?? "",
       Processor:    p.processor ?? "",
       StorageGb:    p.storage_gb ?? "",
@@ -58,6 +60,7 @@ export default function ProductsAdmin() {
       Price:        Number(form.Price),
       Stock:        Number(form.Stock),
       CategoryId:   Number(form.CategoryId),
+      Image:        form.Image || null,
       RamGb:        Number(form.RamGb) || null,
       Processor:    form.Processor || null,
       StorageGb:    Number(form.StorageGb) || null,
@@ -210,6 +213,10 @@ export default function ProductsAdmin() {
             value={form.StorageGb}
             onChange={(e) => update("StorageGb", e.target.value)}
             className="w-full bg-[var(--color-dark-bg)] border border-[var(--color-dark-line)] rounded px-3 py-2 text-sm focus:border-[var(--color-circuit)] outline-none"
+          />
+          <ImageDropzone
+            value={form.Image}
+            onChange={(url) => update("Image", url)}
           />
         </div>
 
