@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { productsApi, ordersApi } from "../../api/client";
+import { productsApi, ordersApi, usersApi } from "../../api/client";
+import CustomerLocationMap from "../../components/CustomerLocationMap";
 
 const tabs = [
   { to: "/admin", label: "Products", end: true },
@@ -48,16 +49,37 @@ function formatRangeLabel(start, end) {
   return `${start.toLocaleDateString(undefined, opts)} – ${end.toLocaleDateString(undefined, opts)}`;
 }
 
+// Reduces an address to a broad locality (city/province) only.
+// Strips leading numeric parts and removes pure-number segments so that
+// house numbers, street numbers, and unit numbers are never shown.
+function getBroadLocation(address) {
+  if (!address || typeof address !== "string") return "";
+
+  const parts = address
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => !/^\d+[\w\s-]*$/.test(part));
+
+  if (parts.length === 0) return "";
+
+  return parts.length > 1
+    ? parts[parts.length - 1]
+    : parts[0].replace(/^\d+\s+/, "");
+}
+
 export default function AdminLayout() {
   const [productCount, setProductCount] = useState(0);
   const [lowStockItems, setLowStockItems] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [period, setPeriod] = useState("all");
   const [customStart, setCustomStart] = useState(""); // "YYYY-MM-DD" from <input type="date">
   const [customEnd, setCustomEnd] = useState("");
   const [showLowStock, setShowLowStock] = useState(false);
 
   useEffect(() => {
+    // Products and orders are critical — load together.
     Promise.all([productsApi.list(), ordersApi.listAllAdmin()])
       .then(([prodRes, orderRes]) => {
         const products = prodRes.data || [];
@@ -65,6 +87,12 @@ export default function AdminLayout() {
         setLowStockItems(products.filter((p) => (p.stock ?? 0) <= 5));
         setOrders(orderRes.data || []);
       })
+      .catch(() => {});
+
+    // Users are loaded separately so a failure here never breaks the main dashboard.
+    usersApi
+      .list()
+      .then((res) => setUsers(res.data || []))
       .catch(() => {});
   }, []);
 
@@ -97,6 +125,46 @@ export default function AdminLayout() {
   const revenue = ordersInPeriod
     .filter(countsAsRevenue)
     .reduce((sum, o) => sum + Number(o.total_amount ?? o.totalAmount ?? 0), 0);
+
+  // --- Location aggregation (privacy-safe, broad areas only) ---
+  const usersById = new Map(
+    users.map((user) => [user.User_ID ?? user.user_ID ?? user.userId, user])
+  );
+
+  const locationBuckets = new Map();
+
+  ordersInPeriod.forEach((order) => {
+    const userId = order.user_id ?? order.userId ?? order.User_ID;
+    const user = usersById.get(userId);
+    const rawAddress =
+      user?.Address ??
+      user?.address ??
+      order.shipping_address ??
+      order.shippingAddress;
+    const label = getBroadLocation(rawAddress);
+
+    if (!label) return;
+
+    const bucket = locationBuckets.get(label) || {
+      label,
+      orders: 0,
+      customerIds: new Set(),
+    };
+
+    bucket.orders += 1;
+    if (userId !== undefined && userId !== null) {
+      bucket.customerIds.add(userId);
+    }
+
+    locationBuckets.set(label, bucket);
+  });
+
+  const customerLocations = Array.from(locationBuckets.values())
+    .map(({ customerIds, ...location }) => ({
+      ...location,
+      customers: customerIds.size || location.orders,
+    }))
+    .sort((a, b) => b.orders - a.orders || a.label.localeCompare(b.label));
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[var(--color-dark-bg)] text-[var(--color-dark-ink)]">
@@ -200,6 +268,14 @@ export default function AdminLayout() {
             </div>
           </div>
         )}
+
+        {/* Customer location insights */}
+        <div className="mb-8">
+          <CustomerLocationMap
+            locations={customerLocations}
+            totalOrders={ordersInPeriod.length}
+          />
+        </div>
 
         <div className="flex gap-2 border-b border-[var(--color-dark-line)] mb-8">
           {tabs.map((t) => (
