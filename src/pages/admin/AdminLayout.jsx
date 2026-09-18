@@ -8,31 +8,95 @@ const tabs = [
   { to: "/admin/users", label: "Users" },
 ];
 
+const PERIODS = [
+  { id: "all", label: "All time" },
+  { id: "year", label: "This year" },
+  { id: "month", label: "This month" },
+  { id: "week", label: "This week" },
+];
+
+// Returns { start, end } as Dates for a named period. end is always "now"
+// for these — only a custom range has its own fixed end date.
+function getPeriodRange(period) {
+  const now = new Date();
+  if (period === "year") {
+    return { start: new Date(now.getFullYear(), 0, 1), end: now };
+  }
+  if (period === "month") {
+    return { start: new Date(now.getFullYear(), now.getMonth(), 1), end: now };
+  }
+  if (period === "week") {
+    const d = new Date(now);
+    const mondayOffset = (d.getDay() + 6) % 7; // getDay(): Sun=0 → shift so Monday=0
+    d.setDate(d.getDate() - mondayOffset);
+    d.setHours(0, 0, 0, 0);
+    return { start: d, end: now };
+  }
+  return { start: null, end: null }; // "all"
+}
+
+// Cancelled Card/GCash orders were marked paid by the payment simulation,
+// so a cancellation should reverse that revenue. COD is unaffected.
+function countsAsRevenue(order) {
+  const status = order.status ?? order.Status;
+  const method = order.payment_method ?? order.paymentMethod;
+  return !(status === "Cancelled" && (method === "Card" || method === "GCash"));
+}
+
+function formatRangeLabel(start, end) {
+  const opts = { month: "short", day: "numeric", year: "numeric" };
+  return `${start.toLocaleDateString(undefined, opts)} – ${end.toLocaleDateString(undefined, opts)}`;
+}
+
 export default function AdminLayout() {
-  const [stats, setStats] = useState({ productCount: 0, lowStockItems: [], orderCount: 0, revenue: 0 });
+  const [productCount, setProductCount] = useState(0);
+  const [lowStockItems, setLowStockItems] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [period, setPeriod] = useState("all");
+  const [customStart, setCustomStart] = useState(""); // "YYYY-MM-DD" from <input type="date">
+  const [customEnd, setCustomEnd] = useState("");
   const [showLowStock, setShowLowStock] = useState(false);
 
   useEffect(() => {
     Promise.all([productsApi.list(), ordersApi.listAllAdmin()])
       .then(([prodRes, orderRes]) => {
         const products = prodRes.data || [];
-        const orders = orderRes.data || [];
-        setStats({
-          productCount: products.length,
-          lowStockItems: products.filter((p) => (p.stock ?? 0) <= 5),
-          orderCount: orders.length,
-          revenue: orders
-            .filter((o) => {
-              const status = o.status ?? o.Status;
-              const method = o.payment_method ?? o.paymentMethod;
-              const isCancelledSimulatedPayment = status === "Cancelled" && (method === "Card" || method === "GCash");
-              return !isCancelledSimulatedPayment;
-            })
-            .reduce((sum, o) => sum + Number(o.total_amount ?? o.totalAmount ?? 0), 0),
-        });
+        setProductCount(products.length);
+        setLowStockItems(products.filter((p) => (p.stock ?? 0) <= 5));
+        setOrders(orderRes.data || []);
       })
       .catch(() => {});
   }, []);
+
+  const hasCustomRange = Boolean(customStart || customEnd);
+
+  let rangeStart = null;
+  let rangeEnd = null;
+  let periodLabel = "All time";
+
+  if (hasCustomRange) {
+    rangeStart = customStart ? new Date(`${customStart}T00:00:00`) : null;
+    rangeEnd = customEnd ? new Date(`${customEnd}T23:59:59.999`) : new Date();
+    periodLabel = rangeStart ? formatRangeLabel(rangeStart, rangeEnd) : `Through ${rangeEnd.toLocaleDateString()}`;
+  } else {
+    const range = getPeriodRange(period);
+    rangeStart = range.start;
+    rangeEnd = range.end;
+    periodLabel = PERIODS.find((p) => p.id === period)?.label ?? "All time";
+  }
+
+  const ordersInPeriod = orders.filter((o) => {
+    const raw = o.order_date ?? o.orderDate ?? o.OrderDate;
+    if (!raw) return false;
+    const date = new Date(raw);
+    if (rangeStart && date < rangeStart) return false;
+    if (rangeEnd && date > rangeEnd) return false;
+    return true;
+  });
+
+  const revenue = ordersInPeriod
+    .filter(countsAsRevenue)
+    .reduce((sum, o) => sum + Number(o.total_amount ?? o.totalAmount ?? 0), 0);
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[var(--color-dark-bg)] text-[var(--color-dark-ink)]">
@@ -40,11 +104,58 @@ export default function AdminLayout() {
         <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">ADMIN CONSOLE</p>
         <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6 admin-gradient-text">Store management</h1>
 
+        <div className="flex flex-wrap items-center gap-2 mb-2" role="group" aria-label="Revenue period">
+          <span className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mr-1">Period</span>
+          {PERIODS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => { setPeriod(p.id); setCustomStart(""); setCustomEnd(""); }}
+              aria-pressed={!hasCustomRange && period === p.id}
+              className={`text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
+                !hasCustomRange && period === p.id
+                  ? "bg-[var(--color-circuit)]/15 text-[var(--color-circuit)] border-[var(--color-circuit)]/40"
+                  : "border-[var(--color-dark-line)] text-[var(--color-dark-ink)]/60 hover:text-[var(--color-dark-ink)]"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mr-1">Or custom range</span>
+          <div className="date-range-group">
+            <input
+              type="date"
+              value={customStart}
+              onChange={(e) => setCustomStart(e.target.value)}
+              aria-label="Custom range start date"
+            />
+            <span className="date-range-separator">to</span>
+            <input
+              type="date"
+              value={customEnd}
+              onChange={(e) => setCustomEnd(e.target.value)}
+              aria-label="Custom range end date"
+            />
+          </div>
+          {hasCustomRange && (
+            <button
+              type="button"
+              onClick={() => { setCustomStart(""); setCustomEnd(""); }}
+              className="text-alert text-xs"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
         {/* Dashboard summary stats widget */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
             <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">Products</p>
-            <p className="text-2xl font-semibold">{stats.productCount}</p>
+            <p className="text-2xl font-semibold">{productCount}</p>
           </div>
 
           <button
@@ -52,29 +163,33 @@ export default function AdminLayout() {
             className="text-left bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4 hover:border-[var(--color-signal)]/50 transition-colors"
           >
             <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">
-              Low stock {stats.lowStockItems.length > 0 && "— click to view"}
+              Low stock {lowStockItems.length > 0 && "— click to view"}
             </p>
-            <p className={`text-2xl font-semibold ${stats.lowStockItems.length > 0 ? "text-[var(--color-signal)]" : ""}`}>
-              {stats.lowStockItems.length}
+            <p className={`text-2xl font-semibold ${lowStockItems.length > 0 ? "text-[var(--color-signal)]" : ""}`}>
+              {lowStockItems.length}
             </p>
           </button>
 
           <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
-            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">Orders</p>
-            <p className="text-2xl font-semibold">{stats.orderCount}</p>
+            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1 truncate" title={periodLabel}>
+              Orders · {periodLabel}
+            </p>
+            <p className="text-2xl font-semibold">{ordersInPeriod.length}</p>
           </div>
 
           <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
-            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">Revenue</p>
-            <p className="text-2xl font-semibold">${stats.revenue.toFixed(2)}</p>
+            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1 truncate" title={periodLabel}>
+              Revenue · {periodLabel}
+            </p>
+            <p className="text-2xl font-semibold">${revenue.toFixed(2)}</p>
           </div>
         </div>
 
-        {showLowStock && stats.lowStockItems.length > 0 && (
+        {showLowStock && lowStockItems.length > 0 && (
           <div className="bg-[var(--color-dark-panel)] border border-[var(--color-signal)]/30 rounded p-4 mb-8 -mt-4">
             <p className="font-[var(--font-mono)] text-xs text-[var(--color-signal)] uppercase mb-3">Products running low</p>
             <div className="space-y-2">
-              {stats.lowStockItems.map((p) => (
+              {lowStockItems.map((p) => (
                 <div key={p.product_id} className="flex items-center justify-between text-sm">
                   <span>{p.product_name}</span>
                   <span className={`font-[var(--font-mono)] ${p.stock === 0 ? "text-[var(--color-signal)] font-semibold" : "text-[var(--color-dark-ink)]/70"}`}>

@@ -31,7 +31,7 @@ export default function ResetPassword() {
   return (
     <div className="max-w-sm mx-auto mt-16 px-5">
       <div className="spec-ticket rounded-md p-6 pt-8">
-        <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mb-1">AUTH-004</p>
+        <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mb-1">ACCOUNT HELP</p>
         <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6">Enter your code</h1>
 
         {success ? (

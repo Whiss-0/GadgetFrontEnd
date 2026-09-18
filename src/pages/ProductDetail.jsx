@@ -4,6 +4,7 @@ import { productsApi, categoriesApi, wishlistApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import ProductReviews from "../components/ProductReviews";
+import ProductArt from "../components/ProductArt";
 
 // A single spec row in the tech-sheet table
 function SpecRow({ label, value }) {
@@ -71,7 +72,6 @@ export default function ProductDetail() {
   const stock       = product.stock;
   const brand       = product.brand;
   const categoryId  = product.category_id;
-  const image       = product.image;
 
   // Resolve category name from the categories list
   const category = categories.find((c) => c.category_id === categoryId || c.id === categoryId);
@@ -163,37 +163,24 @@ export default function ProductDetail() {
       </nav>
 
       <div className="grid md:grid-cols-2 gap-10 items-start">
-        {/* ── Left: Image panel ── */}
         <div className="spec-ticket rounded-md overflow-hidden">
-          {/* SKU badge */}
-          <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-            <span className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] bg-[var(--color-paper)] border border-[var(--color-line)] px-2 py-0.5 rounded">
-              {skuCode}
-            </span>
+          <div className="px-4 pt-4 pb-2 flex items-center justify-end">
             <span
-              className={`text-xs font-semibold px-2 py-0.5 rounded font-[var(--font-mono)] ${
+              className={`text-xs font-semibold px-2 py-0.5 rounded ${
                 inStock
                   ? "bg-[var(--color-circuit)]/10 text-[var(--color-circuit)]"
                   : "bg-[var(--color-signal)]/10 text-[var(--color-signal)]"
               }`}
             >
-              {inStock ? "IN STOCK" : "OUT OF STOCK"}
+              {inStock ? "In stock" : "Out of stock"}
             </span>
           </div>
-
           <div className="mx-4 mb-4 aspect-square bg-[var(--color-paper)] rounded flex items-center justify-center overflow-hidden">
-            {image ? (
-              <img src={image} alt={name} className="w-full h-full object-contain p-4" />
-            ) : (
-              <div className="flex flex-col items-center gap-3 text-[var(--color-ink-soft)]/30">
-                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                  <rect x="2" y="3" width="20" height="14" rx="2" />
-                  <path d="M8 21h8M12 17v4" strokeLinecap="round" />
-                  <path d="M7 8h10M7 11h6" strokeLinecap="round" />
-                </svg>
-                <span className="font-[var(--font-mono)] text-xs">NO IMAGE</span>
-              </div>
-            )}
+            <ProductArt
+              product={product}
+              alt={name}
+              className="w-full h-full object-contain p-4"
+            />
           </div>
         </div>
 

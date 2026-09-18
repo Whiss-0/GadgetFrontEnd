@@ -76,17 +76,17 @@ export default function Home() {
     <div className="catalog-page max-w-6xl mx-auto px-5 py-8 sm:py-12">
       <section className="catalog-hero mb-10">
         <div className="catalog-hero-copy">
-          <p className="eyebrow mb-3"><span className="eyebrow-dot" /> CATALOG / FULL RANGE</p>
-          <h1 className="font-[var(--font-display)] text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.05]">Useful tech.<br /><span className="hero-accent">No filler.</span></h1>
-          <p className="catalog-hero-description">Curated hardware for work, play, and everything in between. Browse the latest drops, compare specs, and build your setup with confidence.</p>
+          <p className="eyebrow mb-3"><span className="eyebrow-dot" /> GOOD GEAR, WELL CHOSEN</p>
+          <h1 className="font-[var(--font-display)] text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.05]">Technology you'll love using.<br /><span className="hero-accent">No filler.</span></h1>
+          <p className="catalog-hero-description">From everyday essentials to the piece that finishes your desk, find reliable tech that fits the way you work, play, and live.</p>
           <div className="catalog-hero-stats" aria-label="Catalog highlights">
-            <span><strong>{totalCount || "—"}</strong> items indexed</span>
-            <span><strong>24h</strong> dispatch window</span>
-            <span><strong>100%</strong> spec-led</span>
+            <span><strong>{totalCount || "—"}</strong> products to browse</span>
+            <span><strong>24h</strong> fast dispatch</span>
+            <span><strong>Easy</strong> returns</span>
           </div>
         </div>
         <div className="catalog-hero-mark" aria-hidden="true">
-          <span className="hero-mark-label">GS / 01</span>
+          <span className="hero-mark-label">MADE FOR DAILY USE</span>
           <span className="hero-mark-ring hero-mark-ring-one" />
           <span className="hero-mark-ring hero-mark-ring-two" />
           <span className="hero-mark-crosshair" />
@@ -129,7 +129,7 @@ export default function Home() {
           />
           {searchTerm && <button type="button" className="search-clear" onClick={() => { setSearchTerm(""); setPage(1); }} aria-label="Clear search">×</button>}
         </div>
-        <div className="catalog-toolbar-meta">{loading ? "SYNCING CATALOG…" : `${visibleProducts.length} ${visibleProducts.length === 1 ? "RESULT" : "RESULTS"}`}</div>
+        <div className="catalog-toolbar-meta">{loading ? "Finding products…" : `${visibleProducts.length} ${visibleProducts.length === 1 ? "RESULT" : "RESULTS"}`}</div>
       </section>
 
       {categories.length > 0 && (
@@ -179,15 +179,15 @@ export default function Home() {
         </div>
       ) : error ? (
         <div className="catalog-state catalog-state-error">
-          <span className="catalog-state-kicker">CONNECTION INTERRUPTED</span>
-          <h2>We couldn't sync the catalog.</h2>
+          <span className="catalog-state-kicker">SORRY, SOMETHING WENT WRONG</span>
+          <h2>We couldn't load the products.</h2>
           <p>{error}</p>
           <button type="button" className="btn-primary px-4 py-2 rounded" onClick={() => { setError(""); setRetryNonce((value) => value + 1); }}>Try again</button>
         </div>
       ) : visibleProducts.length === 0 ? (
         <div className="catalog-state">
-          <span className="catalog-state-kicker">NO MATCHES</span>
-          <h2>No hardware found.</h2>
+          <span className="catalog-state-kicker">NO PRODUCTS FOUND</span>
+          <h2>Nothing matched your search.</h2>
           <p>{selectedCategory ? "Try another category or clear the active filter." : "Try a different search term or check back soon."}</p>
           {(selectedCategory || searchTerm) && <button type="button" className="btn-secondary px-4 py-2 rounded" onClick={() => { setSelectedCategory(null); setSearchTerm(""); setPage(1); }}>Reset filters</button>}
         </div>

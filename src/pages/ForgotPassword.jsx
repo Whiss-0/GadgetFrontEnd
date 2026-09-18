@@ -27,7 +27,7 @@ export default function ForgotPassword() {
   return (
     <div className="max-w-sm mx-auto mt-16 px-5">
       <div className="spec-ticket rounded-md p-6 pt-8">
-        <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mb-1">AUTH-003</p>
+        <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mb-1">ACCOUNT HELP</p>
         <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6">Reset password</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-10">

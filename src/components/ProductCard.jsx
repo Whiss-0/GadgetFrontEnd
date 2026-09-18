@@ -3,11 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { wishlistApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
-// Build a short SKU code from the product id and name
-function sku(id, name) {
-  const code = (name || "GDG").replace(/[^A-Za-z]/g, "").slice(0, 3).toUpperCase();
-  return `${code}-${String(id).padStart(4, "0")}`;
-}
 
 export default function ProductCard({ product, onAddToCart }) {
   const { isAuthenticated } = useAuth();
@@ -62,9 +57,8 @@ export default function ProductCard({ product, onAddToCart }) {
   return (
     <div className={`product-card relative group ${stock === 0 ? "out-of-stock" : ""}`}>
       <div className="product-image-wrap main-image-container flex items-center justify-center relative">
-        <span className="product-image-kicker">TECH / READY</span>
-        <span className="sku-badge">
-          {sku(id, name)}
+        <span className="product-image-kicker">
+          {stock === 0 ? "Currently unavailable" : "Ready to ship"}
         </span>
         <button
           onClick={handleWishlist}

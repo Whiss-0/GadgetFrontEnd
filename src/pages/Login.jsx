@@ -41,20 +41,20 @@ export default function Login() {
       <div className="auth-frame">
         <aside className="auth-visual" aria-label="Gadget Store benefits">
           <div>
-            <p className="auth-visual-code">GADGET/STORE · AUTH-001</p>
-            <h2>Secure access.<br /><span>Better setups.</span></h2>
-            <p className="auth-visual-copy">Keep your cart, orders, and saved gear in sync across every session.</p>
+            <p className="auth-visual-code">GADGET/STORE</p>
+            <h2>Welcome back.<br /><span>Your setup is waiting.</span></h2>
+            <p className="auth-visual-copy">Pick up where you left off, keep your favorites close, and make checkout easy.</p>
           </div>
           <div className="auth-visual-footer">
-            <span>01 / SERVER-SYNCED CART</span>
-            <span>02 / VERIFIED ORDERS</span>
-            <span>03 / CURATED HARDWARE</span>
+            <span>Your cart, wherever you left it</span>
+            <span>Easy access to your orders</span>
+            <span>Thoughtful tech, all in one place</span>
           </div>
         </aside>
 
         <section className="auth-form-panel">
           <div className="auth-heading">
-            <p className="eyebrow">{mfaStep ? "AUTH-001 / MFA CHECK" : "AUTH-001 / CUSTOMER ACCESS"}</p>
+            <p className="eyebrow">{mfaStep ? "One more quick step" : "Good to see you"}</p>
             <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight">
               {mfaStep ? "Verify your sign-in" : "Welcome back"}
             </h1>

@@ -22,12 +22,13 @@ export default function Cart() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-12">
       <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">
-        RECEIPT — CART-{new Date().getFullYear()}
+        Almost yours
       </p>
-      <h1 className="font-[var(--font-display)] text-3xl font-semibold mb-8">Your cart</h1>
+      <h1 className="font-[var(--font-display)] text-3xl font-semibold mb-2">Your cart</h1>
+      <p className="text-[var(--color-ink-soft)] text-sm mb-8">Take one more look, then we'll get everything ready to go.</p>
 
       {items.length === 0 ? (
-        <p className="text-[var(--color-ink-soft)]">Your cart is empty. Go add something from the catalog.</p>
+        <p className="text-[var(--color-ink-soft)]">Your cart is empty. Have a look around and find something you'll enjoy using.</p>
       ) : (
         <div className="spec-ticket rounded-md p-6">
           <div className="space-y-4 pb-10">
