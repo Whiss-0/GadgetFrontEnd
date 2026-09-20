@@ -116,3 +116,11 @@ export const usersApi = {
   // PUT /api/user/{id} with { Role_ID } — no dedicated /role sub-route exists
   updateRole: (id, roleId) => client.put(`/api/user/${id}`, { Role_ID: roleId }),
 };
+
+// ---- Activity Log ----
+export const activityApi = {
+  my: (params = {}) => client.get("/api/activity/my", { params }),
+  customers: (params = {}) => client.get("/api/activity/customers", { params }),
+  all: (params = {}) => client.get("/api/activity", { params }),
+  forUser: (userId, params = {}) => client.get(`/api/activity/user/${userId}`, { params }),
+};

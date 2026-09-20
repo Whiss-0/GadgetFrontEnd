@@ -20,6 +20,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import ProductsAdmin from "./pages/admin/ProductsAdmin";
 import OrdersAdmin from "./pages/admin/OrdersAdmin";
 import UsersAdmin from "./pages/admin/UsersAdmin";
+import ActivityLog from "./pages/ActivityLog";
 
 export default function App() {
   const { isMod } = useAuth();
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="/orders" element={<RequireAuth><Orders /></RequireAuth>} />
         <Route path="/wishlist" element={<RequireAuth><Wishlist /></RequireAuth>} />
         <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+        <Route path="/activity" element={<RequireAuth><ActivityLog /></RequireAuth>} />
 
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
           <Route index element={<ProductsAdmin />} />

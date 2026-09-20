@@ -47,6 +47,10 @@ function UserMenu({ user, logout }) {
 
       {isOpen && (
         <div className="dropdown-menu" role="menu">
+          <Link to="/activity" className="dropdown-item" onClick={() => setIsOpen(false)} role="menuitem">
+            <span className="dropdown-item-icon opacity-70" aria-hidden="true">◷</span>
+            <span>Activity</span>
+          </Link>
           <Link to="/settings" className="dropdown-item" onClick={() => setIsOpen(false)} role="menuitem">
             <span className="dropdown-item-icon opacity-70" aria-hidden="true">⚙</span>
             <span>Settings</span>
