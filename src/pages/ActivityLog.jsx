@@ -48,13 +48,13 @@ function formatDate(iso) {
 }
 
 function getEventIcon(type) {
-  if (type?.startsWith("Cart")) return "🛒";
+  if (type?.startsWith("Cart")) return "·";
   if (type?.startsWith("Wishlist")) return "♡";
-  if (type?.startsWith("Order")) return "📦";
-  if (type?.startsWith("Product")) return "💾";
-  if (type?.startsWith("User")) return "👤";
-  if (type === "Login") return "🔑";
-  if (type === "AccountCreated") return "✨";
+  if (type?.startsWith("Order")) return "→";
+  if (type?.startsWith("Product")) return "+";
+  if (type?.startsWith("User")) return "○";
+  if (type === "Login") return "→";
+  if (type === "AccountCreated") return "+";
   if (type === "PasswordChanged" || type === "ProfileUpdated") return "⚙";
   return "◷";
 }

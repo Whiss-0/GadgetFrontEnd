@@ -61,7 +61,7 @@ export default function Home() {
     }
     try {
       await addItem(id, 1);
-      setToast({ text: `✓ Added "${name}" to your cart!`, type: "success" });
+      setToast({ text: `"${name}" added to your cart.`, type: "success" });
     } catch (err) {
       setToast({ text: err.response?.data?.message || "Couldn't add to cart.", type: "error" });
     }
@@ -76,20 +76,18 @@ export default function Home() {
     <div className="catalog-page max-w-6xl mx-auto px-5 py-8 sm:py-12">
       <section className="catalog-hero mb-10">
         <div className="catalog-hero-copy">
-          <p className="eyebrow mb-3"><span className="eyebrow-dot" /> GOOD GEAR, WELL CHOSEN</p>
+          <p className="eyebrow mb-3"><span className="eyebrow-dot" /> Good gear, thoughtfully chosen</p>
           <h1 className="font-[var(--font-display)] text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.05]">Technology you'll love using.<br /><span className="hero-accent">No filler.</span></h1>
           <p className="catalog-hero-description">From everyday essentials to the piece that finishes your desk, find reliable tech that fits the way you work, play, and live.</p>
           <div className="catalog-hero-stats" aria-label="Catalog highlights">
-            <span><strong>{totalCount || "—"}</strong> products to browse</span>
-            <span><strong>24h</strong> fast dispatch</span>
-            <span><strong>Easy</strong> returns</span>
+            <span><strong>{totalCount || "—"}</strong> products to explore</span>
+            <span><strong>24-hour</strong> dispatch</span>
+            <span><strong>Simple</strong> returns</span>
           </div>
         </div>
-        <div className="catalog-hero-mark" aria-hidden="true">
-          <span className="hero-mark-label">MADE FOR DAILY USE</span>
-          <span className="hero-mark-ring hero-mark-ring-one" />
-          <span className="hero-mark-ring hero-mark-ring-two" />
-          <span className="hero-mark-crosshair" />
+        <div className="catalog-hero-art" aria-hidden="true">
+          <span className="hero-art-shape" />
+          <span className="hero-art-dot" />
         </div>
       </section>
 
@@ -103,7 +101,9 @@ export default function Home() {
           }`}
         >
           {toast.type === "error" ? (
-            <span className="text-red-500 flex-shrink-0 text-lg">⚠️</span>
+            <span className="flex-shrink-0 text-red-500">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </span>
           ) : (
             <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-cyan-950 flex items-center justify-center text-emerald-600 dark:text-cyan-400 font-bold text-xs flex-shrink-0">
               ✓
@@ -129,12 +129,12 @@ export default function Home() {
           />
           {searchTerm && <button type="button" className="search-clear" onClick={() => { setSearchTerm(""); setPage(1); }} aria-label="Clear search">×</button>}
         </div>
-        <div className="catalog-toolbar-meta">{loading ? "Finding products…" : `${visibleProducts.length} ${visibleProducts.length === 1 ? "RESULT" : "RESULTS"}`}</div>
+        <div className="catalog-toolbar-meta">{loading ? "Finding products…" : `${visibleProducts.length} ${visibleProducts.length === 1 ? "result" : "results"}`}</div>
       </section>
 
       {categories.length > 0 && (
         <div className="category-filter-row flex flex-wrap gap-2 mb-6" aria-label="Filter by category">
-          <span className="category-filter-label">FILTER BY</span>
+          <span className="category-filter-label">Browse by</span>
           <button
             type="button"
             onClick={() => setSelectedCategory(null)}
@@ -179,14 +179,14 @@ export default function Home() {
         </div>
       ) : error ? (
         <div className="catalog-state catalog-state-error">
-          <span className="catalog-state-kicker">SORRY, SOMETHING WENT WRONG</span>
+          <span className="catalog-state-kicker">We hit a small snag</span>
           <h2>We couldn't load the products.</h2>
           <p>{error}</p>
           <button type="button" className="btn-primary px-4 py-2 rounded" onClick={() => { setError(""); setRetryNonce((value) => value + 1); }}>Try again</button>
         </div>
       ) : visibleProducts.length === 0 ? (
         <div className="catalog-state">
-          <span className="catalog-state-kicker">NO PRODUCTS FOUND</span>
+          <span className="catalog-state-kicker">No matches yet</span>
           <h2>Nothing matched your search.</h2>
           <p>{selectedCategory ? "Try another category or clear the active filter." : "Try a different search term or check back soon."}</p>
           {(selectedCategory || searchTerm) && <button type="button" className="btn-secondary px-4 py-2 rounded" onClick={() => { setSelectedCategory(null); setSearchTerm(""); setPage(1); }}>Reset filters</button>}

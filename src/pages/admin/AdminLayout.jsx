@@ -169,11 +169,11 @@ export default function AdminLayout() {
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[var(--color-dark-bg)] text-[var(--color-dark-ink)]">
       <div className="max-w-6xl mx-auto px-5 py-8">
-        <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">ADMIN CONSOLE</p>
-        <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6 admin-gradient-text">Store management</h1>
+        <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-1">Store management</h1>
+        <p className="text-sm text-[var(--color-dark-ink)]/50 mb-6">A clear view of the day</p>
 
         <div className="flex flex-wrap items-center gap-2 mb-2" role="group" aria-label="Revenue period">
-          <span className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mr-1">Period</span>
+          <span className="text-xs text-[var(--color-dark-ink)]/50 mr-1">Show</span>
           {PERIODS.map((p) => (
             <button
               key={p.id}
@@ -192,7 +192,7 @@ export default function AdminLayout() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <span className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mr-1">Or custom range</span>
+          <span className="text-xs text-[var(--color-dark-ink)]/50 mr-1">Custom dates</span>
           <div className="date-range-group">
             <input
               type="date"
@@ -222,7 +222,7 @@ export default function AdminLayout() {
         {/* Dashboard summary stats widget */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
-            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">Products</p>
+            <p className="text-xs text-[var(--color-dark-ink)]/50 mb-1">Products</p>
             <p className="text-2xl font-semibold">{productCount}</p>
           </div>
 
@@ -230,8 +230,8 @@ export default function AdminLayout() {
             onClick={() => setShowLowStock((v) => !v)}
             className="text-left bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4 hover:border-[var(--color-signal)]/50 transition-colors"
           >
-            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1">
-              Low stock {lowStockItems.length > 0 && "— click to view"}
+            <p className="text-xs text-[var(--color-dark-ink)]/50 mb-1">
+              {lowStockItems.length > 0 ? "Low stock — view list" : "Low stock"}
             </p>
             <p className={`text-2xl font-semibold ${lowStockItems.length > 0 ? "text-[var(--color-signal)]" : ""}`}>
               {lowStockItems.length}
@@ -239,14 +239,14 @@ export default function AdminLayout() {
           </button>
 
           <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
-            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1 truncate" title={periodLabel}>
+            <p className="text-xs text-[var(--color-dark-ink)]/50 mb-1 truncate" title={periodLabel}>
               Orders · {periodLabel}
             </p>
             <p className="text-2xl font-semibold">{ordersInPeriod.length}</p>
           </div>
 
           <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded p-4">
-            <p className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/50 uppercase mb-1 truncate" title={periodLabel}>
+            <p className="text-xs text-[var(--color-dark-ink)]/50 mb-1 truncate" title={periodLabel}>
               Revenue · {periodLabel}
             </p>
             <p className="text-2xl font-semibold">${revenue.toFixed(2)}</p>
@@ -284,10 +284,10 @@ export default function AdminLayout() {
               to={t.to}
               end={t.end}
               className={({ isActive }) =>
-                `px-5 py-2 text-sm font-medium rounded-full transition-all duration-300 ${
+                `px-5 py-2 text-sm font-medium rounded-full transition-all duration-200 border ${
                   isActive
-                    ? "bg-[var(--color-circuit)]/15 text-[var(--color-circuit)] shadow-[0_0_15px_rgba(167,139,250,0.2)] border border-[var(--color-circuit)]/30"
-                    : "text-[var(--color-dark-ink)]/60 hover:text-[var(--color-dark-ink)] hover:bg-[var(--color-dark-line)]/50 border border-transparent"
+                    ? "bg-[var(--color-circuit)]/15 text-[var(--color-circuit)] border-[var(--color-circuit)]/30"
+                    : "text-[var(--color-dark-ink)]/60 hover:text-[var(--color-dark-ink)] hover:bg-[var(--color-dark-line)]/50 border-transparent"
                 }`
               }
             >

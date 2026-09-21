@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { wishlistApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import ProductArt from "./ProductArt";
 
 
 export default function ProductCard({ product, onAddToCart }) {
@@ -75,18 +76,11 @@ export default function ProductCard({ product, onAddToCart }) {
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
         </button>
-        {product.image ? (
-          <img
-            src={product.image}
-            alt={name}
-            className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="text-[var(--color-ink-soft)]/40">
-            <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M8 9h8M8 13h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        )}
+        <ProductArt
+          product={product}
+          alt={name}
+          className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+        />
       </div>
 
       <div className="product-card-body">
@@ -97,8 +91,8 @@ export default function ProductCard({ product, onAddToCart }) {
           {name}
         </Link>
         
-        <div className="product-meta text-[0.875rem] text-[var(--text-muted)]">
-          {product.brand ? `${product.brand} • ` : ""}
+        <div className="product-meta">
+          {product.brand ? `${product.brand} · ` : ""}
           {typeof stock === "number" ? (stock > 0 ? `${stock} in stock` : "Out of stock") : ""}
         </div>
 
@@ -110,11 +104,11 @@ export default function ProductCard({ product, onAddToCart }) {
             onClick={handleAddClick}
             disabled={stock === 0 || adding}
             aria-label={`Add ${name} to cart`}
-            className={`btn-primary btn-add text-sm font-semibold uppercase tracking-wide px-4 py-2 rounded transition-all duration-200 ${
+            className={`btn-primary btn-add text-sm font-semibold px-4 py-2 rounded transition-all duration-200 ${
               added ? "!bg-emerald-600 dark:!bg-cyan-600 text-white" : ""
             }`}
           >
-            {stock === 0 ? "OUT OF STOCK" : adding ? "ADDING…" : added ? "✓ ADDED" : "ADD"}
+            {stock === 0 ? "Unavailable" : adding ? "Adding…" : added ? "Added" : "Add to cart"}
           </button>
         </div>
       </div>

@@ -741,13 +741,19 @@ select:focus {
 }
 
 .eyebrow,
-.catalog-state-kicker,
-.catalog-toolbar-meta {
+.catalog-state-kicker {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.catalog-toolbar-meta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .eyebrow {
@@ -800,60 +806,40 @@ select:focus {
   font-size: 0.88rem;
 }
 
-.catalog-hero-mark {
+.catalog-hero-art {
   position: relative;
   aspect-ratio: 1;
-  max-width: 220px;
+  max-width: 200px;
   justify-self: end;
-  border: 1px solid color-mix(in srgb, var(--color-circuit) 45%, transparent);
-  border-radius: 50%;
-  background: repeating-radial-gradient(circle, transparent 0 24px, color-mix(in srgb, var(--color-circuit) 12%, transparent) 25px 26px);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-circuit) 12%, transparent) 0%, transparent 60%),
+    color-mix(in srgb, var(--color-panel) 80%, var(--color-line) 20%);
+  border: 1px solid color-mix(in srgb, var(--color-line) 80%, transparent);
+  box-shadow: 0 8px 24px rgba(20, 24, 31, 0.06);
+  overflow: hidden;
 }
 
-.hero-mark-label {
+.hero-art-shape {
+  position: absolute;
+  inset: 18%;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-circuit) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-circuit) 30%, transparent);
+}
+
+.hero-art-dot {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: var(--color-circuit);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-}
-
-.hero-mark-ring {
-  position: absolute;
-  inset: 15%;
-  border: 1px dashed color-mix(in srgb, var(--color-gold) 60%, transparent);
+  width: 0.6rem;
+  height: 0.6rem;
   border-radius: 50%;
+  background: var(--color-circuit);
+  opacity: 0.7;
 }
 
-.hero-mark-ring-two {
-  inset: 31%;
-  border-style: solid;
-  border-color: color-mix(in srgb, var(--color-circuit) 55%, transparent);
-}
-
-.hero-mark-crosshair::before,
-.hero-mark-crosshair::after {
-  content: "";
-  position: absolute;
-  background: color-mix(in srgb, var(--color-circuit) 50%, transparent);
-}
-
-.hero-mark-crosshair::before {
-  width: 1px;
-  height: 118%;
-  top: -9%;
-  left: 50%;
-}
-
-.hero-mark-crosshair::after {
-  height: 1px;
-  width: 118%;
-  left: -9%;
-  top: 50%;
-}
 
 .catalog-toolbar {
   display: flex;
@@ -927,21 +913,23 @@ select:focus {
 }
 
 .product-card {
-  border-radius: 16px;
+  border-radius: 18px;
   border-color: var(--color-line);
   background: var(--color-panel);
-  box-shadow: 0 8px 20px rgba(20, 24, 31, 0.06);
+  box-shadow: 0 7px 20px rgba(20, 24, 31, 0.045);
 }
 
 .product-card:hover {
   border-color: var(--color-circuit);
-  box-shadow: 0 18px 32px rgba(20, 24, 31, 0.12);
+  box-shadow: 0 15px 30px rgba(20, 24, 31, 0.09);
 }
 
 .product-image-wrap,
 .main-image-container {
-  height: 208px;
-  background: color-mix(in srgb, var(--color-paper) 72%, var(--color-circuit) 4%);
+  height: 220px;
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--color-circuit) 7%, transparent), transparent 48%),
+    color-mix(in srgb, var(--color-paper) 88%, var(--color-line) 12%);
 }
 
 .product-image-kicker {
@@ -982,6 +970,12 @@ select:focus {
   color: var(--color-gold);
   font-family: var(--font-mono);
   letter-spacing: -0.03em;
+}
+
+.btn-add {
+  min-width: 6.4rem;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .btn-primary,
@@ -1034,7 +1028,7 @@ select:focus {
     min-height: 0;
   }
 
-  .catalog-hero-mark {
+  .catalog-hero-art {
     display: none;
   }
 
@@ -1061,20 +1055,8 @@ select:focus {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .catalog-hero-mark {
-    animation: catalog-pulse 5s ease-in-out infinite;
-  }
-
-  @keyframes catalog-pulse {
-
-    0%,
-    100% {
-      transform: rotate(0deg);
-    }
-
-    50% {
-      transform: rotate(5deg);
-    }
+  .hero-art-shape {
+    transition: opacity 0.4s ease;
   }
 }
 
