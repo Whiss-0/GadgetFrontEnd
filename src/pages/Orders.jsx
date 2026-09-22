@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import { ordersApi, orderDetailApi } from "../api/client";
+import {
+  ordersApi,
+  orderDetailApi,
+  productsApi,
+  categoriesApi,
+} from "../api/client";
 import ConfirmDialog from "../components/ConfirmDialog";
+import ProductArt from "../components/ProductArt";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -11,7 +17,9 @@ export default function Orders() {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState(null);
   const [orderToCancel, setOrderToCancel] = useState(null); // { id, total }
+  const [categories, setCategories] = useState([]);
 
+  // Load orders
   useEffect(() => {
     ordersApi
       .myOrders()
@@ -20,6 +28,14 @@ export default function Orders() {
         setError(err.response?.data?.message || "Couldn't load your orders. Make sure you're logged in.");
       })
       .finally(() => setLoading(false));
+  }, []);
+
+  // Load categories once — a failure here must not block orders
+  useEffect(() => {
+    categoriesApi
+      .list()
+      .then((res) => setCategories(res.data || []))
+      .catch(() => setCategories([]));
   }, []);
 
   async function handleCancel(orderId) {
@@ -52,11 +68,36 @@ export default function Orders() {
       return;
     }
     setExpandedId(orderId);
+
+    // Cache: only fetch if not already loaded
     if (!detailsByOrder[orderId]) {
       setDetailsLoading(true);
       try {
         const res = await orderDetailApi.getByOrder(orderId);
-        setDetailsByOrder((prev) => ({ ...prev, [orderId]: res.data || [] }));
+        const details = res.data || [];
+
+        // Enrich each line with its product data
+        const enriched = await Promise.all(
+          details.map(async (detail) => {
+            const productId =
+              detail.product_id ??
+              detail.productId ??
+              detail.ProductId;
+
+            try {
+              const productRes = await productsApi.get(productId);
+              return { ...detail, product: productRes.data };
+            } catch {
+              // Keep the order line visible even if the product was deleted
+              return detail;
+            }
+          })
+        );
+
+        setDetailsByOrder((previous) => ({
+          ...previous,
+          [orderId]: enriched,
+        }));
       } catch {
         setDetailsByOrder((prev) => ({ ...prev, [orderId]: [] }));
       } finally {
@@ -67,8 +108,13 @@ export default function Orders() {
 
   return (
     <div className="max-w-3xl mx-auto px-5 py-12">
-      <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">ORDER LOG</p>
-      <h1 className="font-[var(--font-display)] text-3xl font-semibold mb-8">Your orders</h1>
+      <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">
+        Order history
+      </p>
+      <h1 className="font-[var(--font-display)] text-3xl font-semibold mb-2">Your orders</h1>
+      <p className="text-[var(--color-ink-soft)] text-sm mb-8">
+        See what you bought and follow each order from purchase to delivery.
+      </p>
 
       {loading && <p className="text-[var(--color-ink-soft)]">Loading…</p>}
       {error && <p className="text-sm text-[var(--color-signal)] mb-4">{error}</p>}
@@ -127,15 +173,43 @@ export default function Orders() {
                   ) : (detailsByOrder[id] || []).length === 0 ? (
                     <p className="text-xs text-[var(--color-ink-soft)]">No line items found for this order.</p>
                   ) : (
-                    <div className="space-y-1">
-                      {detailsByOrder[id].map((d, idx) => (
-                        <div key={idx} className="flex justify-between text-sm">
-                          <span>Product #{d.product_id ?? d.productId} × {d.quantity ?? d.Quantity}</span>
-                          <span className="font-[var(--font-mono)]">
-                            ${Number(d.price ?? d.Price ?? 0).toFixed(2)}
-                          </span>
-                        </div>
-                      ))}
+                    <div>
+                      {detailsByOrder[id].map((d, idx) => {
+                        const productId = d.product_id ?? d.productId ?? d.ProductId;
+                        const product = d.product;
+                        const productName = product?.product_name ?? `Product #${productId}`;
+                        const quantity = d.quantity ?? d.Quantity ?? 1;
+                        const price = d.price ?? d.Price ?? 0;
+                        const category = categories.find(
+                          (item) => item.category_id === product?.category_id
+                        );
+
+                        return (
+                          <div key={idx} className="order-line-item">
+                            {/* Product thumbnail */}
+                            <div className="order-line-art">
+                              <ProductArt
+                                product={product ?? { product_id: productId }}
+                                alt=""
+                                className="w-full h-full object-contain p-1"
+                              />
+                            </div>
+
+                            {/* Name + subtitle */}
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium truncate text-sm">{productName}</p>
+                              <p className="text-xs text-[var(--color-ink-soft)]">
+                                {product?.brand || category?.category_name || "Gadget"} · Qty {quantity}
+                              </p>
+                            </div>
+
+                            {/* Saved price */}
+                            <span className="font-[var(--font-mono)] text-sm flex-shrink-0">
+                              ${Number(price).toFixed(2)}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

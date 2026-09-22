@@ -79,7 +79,7 @@ export default function ProductDetail() {
     ? (category.category_name ?? category.name ?? `Category #${categoryId}`)
     : categoryId != null ? `Category #${categoryId}` : null;
 
-  const skuCode = `PART-${String(id).padStart(4, "0")}`;
+
   const inStock = typeof stock === "number" && stock > 0;
 
   async function handleAdd() {
@@ -189,7 +189,7 @@ export default function ProductDetail() {
           {/* Name & Price */}
           <div>
             {brand && (
-              <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1 uppercase tracking-widest">
+              <p className="text-sm text-[var(--color-ink-soft)] mb-1">
                 {brand}
               </p>
             )}
@@ -201,14 +201,13 @@ export default function ProductDetail() {
             </p>
           </div>
 
-          {/* ── Specs sheet ── */}
+          {/* ── Product details sheet ── */}
           <div className="spec-ticket rounded-md p-4" style={{ "--spec-ticket-divider": "hidden" }}>
             <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-3 uppercase tracking-widest">
-              Specifications
+              Product details
             </p>
             <table className="w-full">
               <tbody>
-                <SpecRow label="SKU"       value={skuCode} />
                 <SpecRow label="Brand"     value={brand} />
                 <SpecRow label="Category"  value={categoryName} />
                 <SpecRow label="Processor" value={product.processor} />

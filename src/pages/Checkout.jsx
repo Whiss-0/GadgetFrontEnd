@@ -100,7 +100,7 @@ export default function Checkout() {
 
   return (
     <div className="max-w-lg mx-auto px-5 py-12">
-      <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">CHECKOUT</p>
+      <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">Secure checkout</p>
       <h1 className="font-[var(--font-display)] text-3xl font-semibold mb-8">Complete your order</h1>
 
       <div className="spec-ticket rounded-md p-6">
@@ -208,9 +208,12 @@ export default function Checkout() {
                 </svg>
               </div>
 
-              <h3 className="modal-title">Transaction Confirmed</h3>
+              <h3 className="modal-title">Order placed</h3>
               <p className="modal-description">
-                Your order for <strong id="purchased-item-name">{displayItems.length === 1 ? (displayItems[0].name ?? displayItems[0].Name ?? "your item") : `${displayItems.length} items`}</strong> has been processed successfully.
+                Thanks for your order.{" "}
+                {displayItems.length === 1
+                  ? <>We're getting <strong id="purchased-item-name">{displayItems[0].name ?? displayItems[0].Name ?? "your item"}</strong> ready for you.</>  
+                  : "We're getting your items ready for you."}
               </p>
 
               <div className="summary-card">
@@ -219,7 +222,7 @@ export default function Checkout() {
                   <span className="status-badge">Processing</span>
                 </div>
                 <div className="summary-row">
-                  <span>Total Paid</span>
+                  <span>Order total</span>
                   <strong className="summary-price">${displayTotal.toFixed(2)}</strong>
                 </div>
               </div>

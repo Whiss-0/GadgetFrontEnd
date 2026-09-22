@@ -2375,3 +2375,192 @@ input[type="date"] {
     backdrop-filter: none;
   }
 }
+
+/* ============================================================
+   PURCHASE FLOW — Cart, Checkout, and related components
+   ============================================================ */
+
+/* Page wrapper */
+.cart-page {
+  /* intentional: provides named scope for nested overrides */
+}
+
+/* Two-column layout: items | summary */
+.cart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  align-items: start;
+  gap: 1.25rem;
+}
+
+/* Single cart item row */
+.cart-item {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: 1px dashed var(--color-line);
+}
+
+.cart-item:first-child {
+  padding-top: 0;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Product thumbnail container */
+.cart-item-art {
+  width: 4.25rem;
+  height: 4.25rem;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-paper);
+  flex-shrink: 0;
+}
+
+/* Text info area */
+.cart-item-info {
+  min-width: 0;
+}
+
+/* Actions area: quantity stepper + price + remove */
+.cart-item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* Quantity stepper pill */
+.quantity-stepper {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 7px;
+  background: var(--color-panel);
+}
+
+/* Stepper buttons (− and +) */
+.qty-btn {
+  padding: 0.4rem 0.7rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--color-ink-soft);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+  min-width: 2rem;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover:not(:disabled) {
+  background: var(--color-circuit-soft);
+  color: var(--color-circuit);
+}
+
+.qty-btn:focus-visible {
+  outline: 2px solid var(--color-circuit);
+  outline-offset: -2px;
+}
+
+.qty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Displayed quantity value */
+.qty-display {
+  padding: 0.4rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  min-width: 2rem;
+  text-align: center;
+  border-left: 1px solid var(--color-line);
+  border-right: 1px solid var(--color-line);
+  user-select: none;
+}
+
+/* Sticky order summary sidebar */
+.cart-summary {
+  position: sticky;
+  top: 5rem;
+}
+
+/* ── Responsive: stack below ~760px ── */
+@media (max-width: 759px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-summary {
+    position: static;
+  }
+}
+
+/* ── Very narrow: wrap actions to second row ── */
+@media (max-width: 420px) {
+  .cart-item {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+
+  .cart-item-actions {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+/* ============================================================
+   ORDER HISTORY — Enriched order line items
+   ============================================================ */
+
+.order-line-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px dashed var(--color-line);
+}
+
+.order-line-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.order-line-art {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 7px;
+  background: var(--color-panel);
+}
+
+/* Responsive: compact on narrow screens */
+@media (max-width: 520px) {
+  .order-line-item {
+    gap: 0.55rem;
+  }
+
+  .order-line-art {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+}
