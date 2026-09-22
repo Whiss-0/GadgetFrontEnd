@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ordersApi } from "../../api/client";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const STATUS_OPTIONS = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
 
@@ -7,6 +8,7 @@ export default function OrdersAdmin() {
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
+  const [orderToCancel, setOrderToCancel] = useState(null); // { id, displayId }
 
   function load() {
     // GET /api/order requires AdminAccess — this page is only reachable by admins (RequireAdmin)
@@ -24,12 +26,33 @@ export default function OrdersAdmin() {
   useEffect(load, []);
 
   async function handleStatusChange(id, status) {
+    // Cancelled requires confirmation — handled by the dialog flow
+    if (status === "Cancelled") {
+      const displayId = String(id).padStart(5, "0");
+      setOrderToCancel({ id, displayId });
+      return;
+    }
     setUpdatingId(id);
     try {
       await ordersApi.updateStatus(id, status);
       load();
     } catch (err) {
       setError(err.response?.data?.message || "Couldn't update order status.");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  async function confirmCancelOrder() {
+    if (!orderToCancel) return;
+    const { id } = orderToCancel;
+    setUpdatingId(id);
+    try {
+      await ordersApi.updateStatus(id, "Cancelled");
+      setOrderToCancel(null);
+      load();
+    } catch (err) {
+      setError(err.response?.data?.message || "Couldn't cancel this order.");
     } finally {
       setUpdatingId(null);
     }
@@ -76,6 +99,19 @@ export default function OrdersAdmin() {
           <p className="text-[var(--color-dark-ink)]/50">No orders yet.</p>
         )}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(orderToCancel)}
+        title="Cancel this order for the customer?"
+        description={orderToCancel ? `Order #${orderToCancel.displayId} will be permanently marked as cancelled.` : ""}
+        warning="This changes the customer's order record and may affect fulfilment and revenue reporting. Check the order details before continuing."
+        confirmLabel="Yes, cancel order"
+        cancelLabel="Go back"
+        tone="danger"
+        busy={updatingId === orderToCancel?.id}
+        onConfirm={confirmCancelOrder}
+        onCancel={() => setOrderToCancel(null)}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { usersApi } from "../../api/client";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const ROLES = [
   { id: 1, label: "Admin" },
@@ -7,9 +8,57 @@ const ROLES = [
   { id: 3, label: "User" },
 ];
 
+// Display label used in dialogs — "Staff" is more understandable than "Moderator"
+function roleDisplayLabel(roleId) {
+  if (roleId === 1) return "Admin";
+  if (roleId === 2) return "Staff";
+  return "Customer";
+}
+
+// Build the appropriate dialog config based on the requested role change
+function buildRoleDialogProps(change) {
+  if (!change) return null;
+  const { name, currentRole, nextRoleId } = change;
+  const currentLabel = roleDisplayLabel(currentRole);
+
+  if (nextRoleId === 1) {
+    return {
+      title: "Give this person admin access?",
+      description: `${name} will change from ${currentLabel} to Admin.`,
+      warning:
+        "This is a high-impact change. Admins can manage users, change roles, edit products, and view private store activity. Only continue if you fully trust this person.",
+      confirmLabel: "Yes, give admin access",
+      tone: "danger",
+    };
+  }
+
+  if (nextRoleId === 2) {
+    return {
+      title: "Give this person staff access?",
+      description: `${name} will change from ${currentLabel} to Staff.`,
+      warning:
+        "Staff can manage orders and access customer activity. Confirm that this person should have access to store operations.",
+      confirmLabel: "Yes, give staff access",
+      tone: "warning",
+    };
+  }
+
+  // Downgrading from Admin or Staff back to Customer
+  return {
+    title: "Remove this person's staff access?",
+    description: `${name} will change from ${currentLabel} to Customer.`,
+    warning:
+      "This will remove the person's staff or admin access and return them to a customer account.",
+    confirmLabel: "Remove staff access",
+    tone: "warning",
+  };
+}
+
 export default function UsersAdmin() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
+  const [roleChange, setRoleChange] = useState(null); // { id, name, currentRole, nextRoleId }
+  const [savingRole, setSavingRole] = useState(false);
 
   function load() {
     usersApi
@@ -20,15 +69,32 @@ export default function UsersAdmin() {
 
   useEffect(load, []);
 
-  async function handleRoleChange(id, roleId) {
+  function handleRoleSelectChange(u, nextRoleId) {
+    const id = u.User_ID || u.user_ID;
+    const currentRole = u.Role_ID || u.role_ID || 3;
+    const name = u.Name || u.name || "This user";
+
+    // No-op if same role
+    if (nextRoleId === currentRole) return;
+
+    setRoleChange({ id, name, currentRole, nextRoleId });
+  }
+
+  async function confirmRoleChange() {
+    if (!roleChange) return;
+    setSavingRole(true);
     try {
-      // PUT /api/user/{id} with body { Role_ID } — matches UpdateUserDto
-      await usersApi.updateRole(id, roleId);
+      await usersApi.updateRole(roleChange.id, roleChange.nextRoleId);
+      setRoleChange(null);
       load();
     } catch (err) {
       setError(err.response?.data?.message || "Couldn't update role.");
+    } finally {
+      setSavingRole(false);
     }
   }
+
+  const dialogProps = buildRoleDialogProps(roleChange);
 
   return (
     <div className="admin-glass-panel rounded-xl p-6">
@@ -64,7 +130,8 @@ export default function UsersAdmin() {
                 <span className="text-xs font-medium text-[var(--color-dark-ink)]/50 hidden sm:block">Role:</span>
                 <select
                   value={roleId}
-                  onChange={(e) => handleRoleChange(id, Number(e.target.value))}
+                  disabled={savingRole && roleChange?.id === id}
+                  onChange={(e) => handleRoleSelectChange(u, Number(e.target.value))}
                   className="admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-1.5 text-sm text-white outline-none cursor-pointer"
                 >
                   {ROLES.map((r) => (
@@ -81,6 +148,21 @@ export default function UsersAdmin() {
           <p className="text-[var(--color-dark-ink)]/50">No users found.</p>
         )}
       </div>
+
+      {dialogProps && (
+        <ConfirmDialog
+          open={Boolean(roleChange)}
+          title={dialogProps.title}
+          description={dialogProps.description}
+          warning={dialogProps.warning}
+          confirmLabel={dialogProps.confirmLabel}
+          cancelLabel="Go back"
+          tone={dialogProps.tone}
+          busy={savingRole}
+          onConfirm={confirmRoleChange}
+          onCancel={() => setRoleChange(null)}
+        />
+      )}
     </div>
   );
 }

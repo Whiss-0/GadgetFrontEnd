@@ -1,0 +1,389 @@
+[1mdiff --git a/src/components/ConfirmDialog.jsx b/src/components/ConfirmDialog.jsx[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f808815[m
+[1m--- /dev/null[m
+[1m+++ b/src/components/ConfirmDialog.jsx[m
+[36m@@ -0,0 +1,57 @@[m
+[32m+[m[32mimport { useEffect, useRef } from "react";[m
+[32m+[m
+[32m+[m[32mexport default function ConfirmDialog({[m
+[32m+[m[32m  open,[m
+[32m+[m[32m  title,[m
+[32m+[m[32m  description,[m
+[32m+[m[32m  warning,[m
+[32m+[m[32m  confirmLabel = "Confirm",[m
+[32m+[m[32m  cancelLabel = "Go back",[m
+[32m+[m[32m  tone = "warning",[m
+[32m+[m[32m  busy = false,[m
+[32m+[m[32m  onConfirm,[m
+[32m+[m[32m  onCancel,[m
+[32m+[m[32m}) {[m
+[32m+[m[32m  const confirmRef = useRef(null);[m
+[32m+[m
+[32m+[m[32m  useEffect(() => {[m
+[32m+[m[32m    if (!open) return undefined;[m
+[32m+[m[32m    confirmRef.current?.focus();[m
+[32m+[m[32m    function handleKeyDown(event) {[m
+[32m+[m[32m      if (event.key === "Escape" && !busy) onCancel();[m
+[32m+[m[32m    }[m
+[32m+[m[32m    document.addEventListener("keydown", handleKeyDown);[m
+[32m+[m[32m    return () => document.removeEventListener("keydown", handleKeyDown);[m
+[32m+[m[32m  }, [open, busy, onCancel]);[m
+[32m+[m
+[32m+[m[32m  if (!open) return null;[m
+[32m+[m
+[32m+[m[32m  return ([m
+[32m+[m[32m    <div className="confirm-backdrop" role="presentation" onMouseDown={(event) => {[m
+[32m+[m[32m      if (event.target === event.currentTarget && !busy) onCancel();[m
+[32m+[m[32m    }}>[m
+[32m+[m[32m      <section[m
+[32m+[m[32m        className={`confirm-dialog confirm-dialog-${tone}`}[m
+[32m+[m[32m        role="alertdialog"[m
+[32m+[m[32m        aria-modal="true"[m
+[32m+[m[32m        aria-labelledby="confirm-dialog-title"[m
+[32m+[m[32m        aria-describedby="confirm-dialog-description"[m
+[32m+[m[32m      >[m
+[32m+[m[32m        <div className="confirm-dialog-icon" aria-hidden="true">!</div>[m
+[32m+[m[32m        <div className="confirm-dialog-content">[m
+[32m+[m[32m          <h2 id="confirm-dialog-title">{title}</h2>[m
+[32m+[m[32m          <p id="confirm-dialog-description">{description}</p>[m
+[32m+[m[32m          {warning && <p className="confirm-dialog-warning">{warning}</p>}[m
+[32m+[m[32m          <div className="confirm-dialog-actions">[m
+[32m+[m[32m            <button type="button" className="confirm-dialog-cancel" onClick={onCancel} disabled={busy}>[m
+[32m+[m[32m              {cancelLabel}[m
+[32m+[m[32m            </button>[m
+[32m+[m[32m            <button ref={confirmRef} type="button" className="confirm-dialog-confirm" onClick={onConfirm} disabled={busy}>[m
+[32m+[m[32m              {busy ? "Please wait…" : confirmLabel}[m
+[32m+[m[32m            </button>[m
+[32m+[m[32m          </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m      </section>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m  );[m
+[32m+[m[32m}[m
+[1mdiff --git a/src/index.css b/src/index.css[m
+[1mindex 38e0651..f59a299 100644[m
+[1m--- a/src/index.css[m
+[1m+++ b/src/index.css[m
+[36m@@ -2195,4 +2195,108 @@[m [minput[type="date"] {[m
+   .activity-filter-group {[m
+     flex: 1 1 100%;[m
+   }[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m/* ============================================================[m
+[32m+[m[32m   CONFIRMATION DIALOGS — deliberate friction for high-impact actions[m
+[32m+[m[32m   ============================================================ */[m
+[32m+[m[32m.confirm-backdrop {[m
+[32m+[m[32m  position: fixed;[m
+[32m+[m[32m  inset: 0;[m
+[32m+[m[32m  z-index: 100;[m
+[32m+[m[32m  display: grid;[m
+[32m+[m[32m  place-items: center;[m
+[32m+[m[32m  padding: 1.25rem;[m
+[32m+[m[32m  background: rgba(10, 15, 24, 0.58);[m
+[32m+[m[32m  backdrop-filter: blur(5px);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog {[m
+[32m+[m[32m  display: flex;[m
+[32m+[m[32m  align-items: flex-start;[m
+[32m+[m[32m  gap: 1rem;[m
+[32m+[m[32m  width: min(100%, 31rem);[m
+[32m+[m[32m  padding: 1.35rem;[m
+[32m+[m[32m  border: 1px solid var(--color-line);[m
+[32m+[m[32m  border-radius: 16px;[m
+[32m+[m[32m  background: var(--color-panel);[m
+[32m+[m[32m  color: var(--color-ink);[m
+[32m+[m[32m  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog-icon {[m
+[32m+[m[32m  display: grid;[m
+[32m+[m[32m  flex: 0 0 auto;[m
+[32m+[m[32m  place-items: center;[m
+[32m+[m[32m  width: 2rem;[m
+[32m+[m[32m  height: 2rem;[m
+[32m+[m[32m  border-radius: 50%;[m
+[32m+[m[32m  background: color-mix(in srgb, var(--color-gold) 18%, transparent);[m
+[32m+[m[32m  color: var(--color-gold);[m
+[32m+[m[32m  font-family: var(--font-display);[m
+[32m+[m[32m  font-weight: 700;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog-danger .confirm-dialog-icon {[m
+[32m+[m[32m  background: color-mix(in srgb, var(--color-signal) 16%, transparent);[m
+[32m+[m[32m  color: var(--color-signal);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog-content { min-width: 0; flex: 1; }[m
+[32m+[m[32m.confirm-dialog h2 {[m
+[32m+[m[32m  margin: 0;[m
+[32m+[m[32m  font-family: var(--font-display);[m
+[32m+[m[32m  font-size: 1.12rem;[m
+[32m+[m[32m  font-weight: 650;[m
+[32m+[m[32m  letter-spacing: -0.01em;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog-content > p {[m
+[32m+[m[32m  margin-top: 0.55rem;[m
+[32m+[m[32m  color: var(--color-ink-soft);[m
+[32m+[m[32m  font-size: 0.88rem;[m
+[32m+[m[32m  line-height: 1.55;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog .confirm-dialog-warning {[m
+[32m+[m[32m  margin-top: 0.8rem;[m
+[32m+[m[32m  padding: 0.7rem 0.8rem;[m
+[32m+[m[32m  border-left: 3px solid var(--color-gold);[m
+[32m+[m[32m  background: color-mix(in srgb, var(--color-gold) 9%, transparent);[m
+[32m+[m[32m  color: var(--color-ink);[m
+[32m+[m[32m  font-size: 0.8rem;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog-danger .confirm-dialog-warning {[m
+[32m+[m[32m  border-left-color: var(--color-signal);[m
+[32m+[m[32m  background: color-mix(in srgb, var(--color-signal) 9%, transparent);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog-actions {[m
+[32m+[m[32m  display: flex;[m
+[32m+[m[32m  justify-content: flex-end;[m
+[32m+[m[32m  gap: 0.65rem;[m
+[32m+[m[32m  margin-top: 1.15rem;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog-actions button {[m
+[32m+[m[32m  min-height: 2.45rem;[m
+[32m+[m[32m  padding: 0.5rem 0.8rem;[m
+[32m+[m[32m  border-radius: 7px;[m
+[32m+[m[32m  font-size: 0.8rem;[m
+[32m+[m[32m  font-weight: 650;[m
+[32m+[m[32m  transition: background 150ms ease, border-color 150ms ease, opacity 150ms ease;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m.confirm-dialog-actions button:disabled { cursor: not-allowed; opacity: 0.55; }[m
+[32m+[m[32m.confirm-dialog-cancel { border: 1px solid var(--color-line); color: var(--color-ink-soft); background: transparent; }[m
+[32m+[m[32m.confirm-dialog-cancel:hover:not(:disabled) { border-color: var(--color-ink-soft); color: var(--color-ink); }[m
+[32m+[m[32m.confirm-dialog-confirm { border: 1px solid var(--color-gold); background: var(--color-gold); color: #fff; }[m
+[32m+[m[32m.confirm-dialog-danger .confirm-dialog-confirm { border-color: var(--color-signal); background: var(--color-signal); }[m
+[32m+[m[32m.confirm-dialog-confirm:hover:not(:disabled) { opacity: 0.88; }[m
+[32m+[m
+[32m+[m[32m@media (max-width: 520px) {[m
+[32m+[m[32m  .confirm-dialog { padding: 1.1rem; }[m
+[32m+[m[32m  .confirm-dialog-actions { flex-direction: column-reverse; }[m
+[32m+[m[32m  .confirm-dialog-actions button { width: 100%; }[m
+[32m+[m[32m}[m
+[1mdiff --git a/src/pages/Orders.jsx b/src/pages/Orders.jsx[m
+[1mindex 4ea8811..a6f2e9e 100644[m
+[1m--- a/src/pages/Orders.jsx[m
+[1m+++ b/src/pages/Orders.jsx[m
+[36m@@ -1,5 +1,6 @@[m
+ import { useEffect, useState } from "react";[m
+ import { ordersApi, orderDetailApi } from "../api/client";[m
+[32m+[m[32mimport ConfirmDialog from "../components/ConfirmDialog";[m
+ [m
+ export default function Orders() {[m
+   const [orders, setOrders] = useState([]);[m
+[36m@@ -9,6 +10,7 @@[m [mexport default function Orders() {[m
+   const [detailsByOrder, setDetailsByOrder] = useState({});[m
+   const [detailsLoading, setDetailsLoading] = useState(false);[m
+   const [cancellingId, setCancellingId] = useState(null);[m
+[32m+[m[32m  const [orderToCancel, setOrderToCancel] = useState(null);[m
+ [m
+   useEffect(() => {[m
+     ordersApi[m
+[36m@@ -38,6 +40,10 @@[m [mexport default function Orders() {[m
+     }[m
+   }[m
+ [m
+[32m+[m[32m  function requestCancel(order) {[m
+[32m+[m[32m    setOrderToCancel(order);[m
+[32m+[m[32m  }[m
+[32m+[m
+   async function toggleExpand(orderId) {[m
+     if (expandedId === orderId) {[m
+       setExpandedId(null);[m
+[36m@@ -98,7 +104,7 @@[m [mexport default function Orders() {[m
+                     <button[m
+                       onClick={(e) => {[m
+                         e.stopPropagation(); // don't trigger the row's expand/collapse click[m
+[31m-                        handleCancel(id);[m
+[32m+[m[32m                        requestCancel({ id, total });[m
+                       }}[m
+                       disabled={cancellingId === id}[m
+                       className="text-alert text-xs disabled:opacity-50"[m
+[36m@@ -136,6 +142,22 @@[m [mexport default function Orders() {[m
+           );[m
+         })}[m
+       </div>[m
+[32m+[m
+[32m+[m[32m      <ConfirmDialog[m
+[32m+[m[32m        open={Boolean(orderToCancel)}[m
+[32m+[m[32m        title="Cancel this order?"[m
+[32m+[m[32m        description={orderToCancel ? `Order #${orderToCancel.id} will be marked as cancelled.` : ""}[m
+[32m+[m[32m        warning="This cannot be undone from your account. If you still want the items, you will need to place a new order."[m
+[32m+[m[32m        confirmLabel="Yes, cancel order"[m
+[32m+[m[32m        tone="warning"[m
+[32m+[m[32m        busy={cancellingId === orderToCancel?.id}[m
+[32m+[m[32m        onCancel={() => setOrderToCancel(null)}[m
+[32m+[m[32m        onConfirm={async () => {[m
+[32m+[m[32m          if (!orderToCancel) return;[m
+[32m+[m[32m          await handleCancel(orderToCancel.id);[m
+[32m+[m[32m          setOrderToCancel(null);[m
+[32m+[m[32m        }}[m
+[32m+[m[32m      />[m
+     </div>[m
+   );[m
+ }[m
+[1mdiff --git a/src/pages/admin/OrdersAdmin.jsx b/src/pages/admin/OrdersAdmin.jsx[m
+[1mindex 0af901d..5845cdf 100644[m
+[1m--- a/src/pages/admin/OrdersAdmin.jsx[m
+[1m+++ b/src/pages/admin/OrdersAdmin.jsx[m
+[36m@@ -1,5 +1,6 @@[m
+ import { useEffect, useState } from "react";[m
+ import { ordersApi } from "../../api/client";[m
+[32m+[m[32mimport ConfirmDialog from "../../components/ConfirmDialog";[m
+ [m
+ const STATUS_OPTIONS = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];[m
+ [m
+[36m@@ -7,6 +8,7 @@[m [mexport default function OrdersAdmin() {[m
+   const [orders, setOrders] = useState([]);[m
+   const [error, setError] = useState("");[m
+   const [updatingId, setUpdatingId] = useState(null);[m
+[32m+[m[32m  const [orderToCancel, setOrderToCancel] = useState(null);[m
+ [m
+   function load() {[m
+     // GET /api/order requires AdminAccess — this page is only reachable by admins (RequireAdmin)[m
+[36m@@ -35,6 +37,15 @@[m [mexport default function OrdersAdmin() {[m
+     }[m
+   }[m
+ [m
+[32m+[m[32m  function requestStatusChange(order, status) {[m
+[32m+[m[32m    const id = order.order_id ?? order.orderId ?? order.OrderId;[m
+[32m+[m[32m    if (status === "Cancelled") {[m
+[32m+[m[32m      setOrderToCancel({ id, userId: order.user_id ?? order.userId, total: order.total_amount ?? order.totalAmount ?? 0 });[m
+[32m+[m[32m      return;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    handleStatusChange(id, status);[m
+[32m+[m[32m  }[m
+[32m+[m
+   return ([m
+     <div className="admin-glass-panel rounded-xl p-6">[m
+       {error && <p className="text-sm text-[var(--color-signal)] mb-4">{error}</p>}[m
+[36m@@ -59,7 +70,7 @@[m [mexport default function OrdersAdmin() {[m
+               <select[m
+                 value={o.status ?? "Pending"}[m
+                 disabled={updatingId === id}[m
+[31m-                onChange={(e) => handleStatusChange(id, e.target.value)}[m
+[32m+[m[32m                onChange={(e) => requestStatusChange(o, e.target.value)}[m
+                 className="admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-1.5 text-xs text-[var(--color-circuit)] outline-none cursor-pointer"[m
+               >[m
+                 {STATUS_OPTIONS.map((s) => ([m
+[36m@@ -76,6 +87,22 @@[m [mexport default function OrdersAdmin() {[m
+           <p className="text-[var(--color-dark-ink)]/50">No orders yet.</p>[m
+         )}[m
+       </div>[m
+[32m+[m
+[32m+[m[32m      <ConfirmDialog[m
+[32m+[m[32m        open={Boolean(orderToCancel)}[m
+[32m+[m[32m        title="Cancel this order for the customer?"[m
+[32m+[m[32m        description={orderToCancel ? `Order #${orderToCancel.id} will be permanently marked as cancelled.` : ""}[m
+[32m+[m[32m        warning="This changes the customer's order record and may affect fulfilment and revenue reporting. Check the order details before continuing."[m
+[32m+[m[32m        confirmLabel="Yes, cancel order"[m
+[32m+[m[32m        tone="danger"[m
+[32m+[m[32m        busy={updatingId === orderToCancel?.id}[m
+[32m+[m[32m        onCancel={() => setOrderToCancel(null)}[m
+[32m+[m[32m        onConfirm={async () => {[m
+[32m+[m[32m          if (!orderToCancel) return;[m
+[32m+[m[32m          await handleStatusChange(orderToCancel.id, "Cancelled");[m
+[32m+[m[32m          setOrderToCancel(null);[m
+[32m+[m[32m        }}[m
+[32m+[m[32m      />[m
+     </div>[m
+   );[m
+ }[m
+[1mdiff --git a/src/pages/admin/UsersAdmin.jsx b/src/pages/admin/UsersAdmin.jsx[m
+[1mindex 15af221..8810d83 100644[m
+[1m--- a/src/pages/admin/UsersAdmin.jsx[m
+[1m+++ b/src/pages/admin/UsersAdmin.jsx[m
+[36m@@ -1,5 +1,6 @@[m
+ import { useEffect, useState } from "react";[m
+ import { usersApi } from "../../api/client";[m
+[32m+[m[32mimport ConfirmDialog from "../../components/ConfirmDialog";[m
+ [m
+ const ROLES = [[m
+   { id: 1, label: "Admin" },[m
+[36m@@ -10,6 +11,8 @@[m [mconst ROLES = [[m
+ export default function UsersAdmin() {[m
+   const [users, setUsers] = useState([]);[m
+   const [error, setError] = useState("");[m
+[32m+[m[32m  const [roleChange, setRoleChange] = useState(null);[m
+[32m+[m[32m  const [savingRole, setSavingRole] = useState(false);[m
+ [m
+   function load() {[m
+     usersApi[m
+[36m@@ -30,6 +33,29 @@[m [mexport default function UsersAdmin() {[m
+     }[m
+   }[m
+ [m
+[32m+[m[32m  function requestRoleChange(user, nextRoleId) {[m
+[32m+[m[32m    const currentRoleId = user.Role_ID || user.role_ID || 3;[m
+[32m+[m[32m    if (currentRoleId === nextRoleId) return;[m
+[32m+[m[32m    setRoleChange({[m
+[32m+[m[32m      id: user.User_ID || user.user_ID,[m
+[32m+[m[32m      name: user.Name || user.name || "this user",[m
+[32m+[m[32m      currentRole: ROLES.find((role) => role.id === currentRoleId)?.label || "User",[m
+[32m+[m[32m      nextRoleId,[m
+[32m+[m[32m      nextRole: ROLES.find((role) => role.id === nextRoleId)?.label || "User",[m
+[32m+[m[32m    });[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  async function confirmRoleChange() {[m
+[32m+[m[32m    if (!roleChange) return;[m
+[32m+[m[32m    setSavingRole(true);[m
+[32m+[m[32m    try {[m
+[32m+[m[32m      await handleRoleChange(roleChange.id, roleChange.nextRoleId);[m
+[32m+[m[32m      setRoleChange(null);[m
+[32m+[m[32m    } finally {[m
+[32m+[m[32m      setSavingRole(false);[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+   return ([m
+     <div className="admin-glass-panel rounded-xl p-6">[m
+       {error && <p className="text-sm text-[var(--color-signal)] mb-4">{error}</p>}[m
+[36m@@ -64,7 +90,7 @@[m [mexport default function UsersAdmin() {[m
+                 <span className="text-xs font-medium text-[var(--color-dark-ink)]/50 hidden sm:block">Role:</span>[m
+                 <select[m
+                   value={roleId}[m
+[31m-                  onChange={(e) => handleRoleChange(id, Number(e.target.value))}[m
+[32m+[m[32m                  onChange={(e) => requestRoleChange(u, Number(e.target.value))}[m
+                   className="admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-1.5 text-sm text-white outline-none cursor-pointer"[m
+                 >[m
+                   {ROLES.map((r) => ([m
+[36m@@ -81,6 +107,22 @@[m [mexport default function UsersAdmin() {[m
+           <p className="text-[var(--color-dark-ink)]/50">No users found.</p>[m
+         )}[m
+       </div>[m
+[32m+[m
+[32m+[m[32m      <ConfirmDialog[m
+[32m+[m[32m        open={Boolean(roleChange)}[m
+[32m+[m[32m        title={roleChange?.nextRole === "Admin" ? "Give this person admin access?" : "Change this person's access?"}[m
+[32m+[m[32m        description={roleChange ? `${roleChange.name} will change from ${roleChange.currentRole} to ${roleChange.nextRole}.` : ""}[m
+[32m+[m[32m        warning={roleChange?.nextRole === "Admin"[m
+[32m+[m[32m          ? "This is a high-impact change. Admins can manage users, change roles, edit products, and view private store activity. Only continue if you fully trust this person."[m
+[32m+[m[32m          : roleChange?.nextRole === "Moderator"[m
+[32m+[m[32m            ? "Staff can manage orders and access customer activity. Confirm that this person should have access to store operations."[m
+[32m+[m[32m            : "This will remove the person's staff or admin access and return them to a customer account."}[m
+[32m+[m[32m        confirmLabel={roleChange?.nextRole === "Admin" ? "Yes, give admin access" : "Confirm access change"}[m
+[32m+[m[32m        tone={roleChange?.nextRole === "Admin" ? "danger" : "warning"}[m
+[32m+[m[32m        busy={savingRole}[m
+[32m+[m[32m        onCancel={() => setRoleChange(null)}[m
+[32m+[m[32m        onConfirm={confirmRoleChange}[m
+[32m+[m[32m      />[m
+     </div>[m
+   );[m
+ }[m

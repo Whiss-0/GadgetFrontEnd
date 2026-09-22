@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ordersApi, orderDetailApi } from "../api/client";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -9,6 +10,7 @@ export default function Orders() {
   const [detailsByOrder, setDetailsByOrder] = useState({});
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState(null);
+  const [orderToCancel, setOrderToCancel] = useState(null); // { id, total }
 
   useEffect(() => {
     ordersApi
@@ -35,7 +37,13 @@ export default function Orders() {
       alert(err.response?.data?.message || "Couldn't cancel this order.");
     } finally {
       setCancellingId(null);
+      setOrderToCancel(null);
     }
+  }
+
+  async function confirmCancel() {
+    if (!orderToCancel) return;
+    await handleCancel(orderToCancel.id);
   }
 
   async function toggleExpand(orderId) {
@@ -98,7 +106,7 @@ export default function Orders() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // don't trigger the row's expand/collapse click
-                        handleCancel(id);
+                        setOrderToCancel({ id, total });
                       }}
                       disabled={cancellingId === id}
                       className="text-alert text-xs disabled:opacity-50"
@@ -136,6 +144,19 @@ export default function Orders() {
           );
         })}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(orderToCancel)}
+        title="Cancel this order?"
+        description={orderToCancel ? `Order #${String(orderToCancel.id).padStart(5, "0")} will be marked as cancelled.` : ""}
+        warning="This cannot be undone from your account. If you still want the items, you will need to place a new order."
+        confirmLabel="Yes, cancel order"
+        cancelLabel="Go back"
+        tone="warning"
+        busy={cancellingId === orderToCancel?.id}
+        onConfirm={confirmCancel}
+        onCancel={() => setOrderToCancel(null)}
+      />
     </div>
   );
 }
