@@ -95,33 +95,24 @@ export default function Checkout() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-5 py-12">
-      <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">Secure checkout</p>
-      <h1 className="font-[var(--font-display)] text-3xl font-semibold mb-8">Complete your order</h1>
+    <div className="max-w-xl mx-auto px-5 py-8 sm:py-12">
+      <h1 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold mb-2">Complete your order</h1>
+      <p className="text-[var(--color-ink-soft)] text-sm mb-8">
+        Review your delivery details and choose your preferred payment method.
+      </p>
 
-      <div className="spec-ticket rounded-md p-6">
-        {/* Order summary */}
-        <div className="pb-6 mb-6 border-b border-dashed border-[var(--color-line)]">
-          {items.map((i, idx) => {
-            const name = i.name ?? i.Name ?? `Product #${i.product_ID ?? i.product_id}`;
-            const price = i.price ?? i.Price ?? 0;
-            const quantity = i.quantity ?? i.Quantity ?? 1;
-            return (
-              <div key={idx} className="flex justify-between text-sm mb-1">
-                <span>{name} × {quantity}</span>
-                <span className="font-[var(--font-mono)]">${(price * quantity).toFixed(2)}</span>
-              </div>
-            );
-          })}
-          <div className="flex justify-between font-semibold mt-3 pt-3 border-t border-[var(--color-line)]">
-            <span>Total</span>
-            <span className="font-[var(--font-mono)] text-[var(--color-gold)]">${total.toFixed(2)}</span>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Section 1: Shipping details */}
+        <div className="spec-ticket rounded-xl p-6 border border-[var(--color-line)] bg-[var(--color-panel)]">
+          <h2 className="font-[var(--font-display)] text-base font-semibold mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-[var(--color-circuit-soft)] text-[var(--color-circuit)] text-xs flex items-center justify-center font-bold">1</span>
+            Shipping details
+          </h2>
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="address">Shipping address</label>
+              <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1" htmlFor="address">
+                Full delivery address
+              </label>
               <textarea
                 id="address"
                 required
@@ -129,11 +120,14 @@ export default function Checkout() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 disabled={step === "processing"}
-                className="w-full border border-[var(--color-line)] rounded px-3 py-2 bg-white focus:border-[var(--color-circuit)] outline-none disabled:opacity-50"
+                placeholder="Street address, apartment/suite, city, postal code"
+                className="w-full border border-[var(--color-line)] rounded-lg p-3 bg-white dark:bg-slate-900 focus:border-[var(--color-circuit)] outline-none text-sm disabled:opacity-50"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="phone">Phone number</label>
+              <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1" htmlFor="phone">
+                Contact phone number
+              </label>
               <input
                 id="phone"
                 type="tel"
@@ -142,55 +136,88 @@ export default function Checkout() {
                 onChange={(e) => setPhone(e.target.value)}
                 disabled={step === "processing"}
                 placeholder="+63 9XX XXX XXXX"
-                className="w-full border border-[var(--color-line)] rounded px-3 py-2 bg-white focus:border-[var(--color-circuit)] outline-none disabled:opacity-50"
+                className="w-full border border-[var(--color-line)] rounded-lg p-3 bg-white dark:bg-slate-900 focus:border-[var(--color-circuit)] outline-none text-sm disabled:opacity-50"
               />
             </div>
+          </div>
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Payment method</label>
-              <div className="space-y-2">
-                {PAYMENT_METHODS.map((m) => (
-                  <label
-                    key={m.id}
-                    className={`flex items-center gap-3 border rounded px-3 py-2 ${step === "processing" ? "cursor-not-allowed opacity-50" : "cursor-pointer"} transition-colors ${
-                      method === m.id ? "border-[var(--color-circuit)] bg-[var(--color-circuit)]/5" : "border-[var(--color-line)]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      value={m.id}
-                      checked={method === m.id}
-                      onChange={() => setMethod(m.id)}
-                      disabled={step === "processing"}
-                    />
-                    <span className="text-sm">{m.label}</span>
-                  </label>
-                ))}
-              </div>
-              {method !== "COD" && (
-                <p className="text-xs text-[var(--color-ink-soft)] mt-2">
-                  Demo project — payment is simulated, no real transaction is processed.
-                </p>
-              )}
-            </div>
+        {/* Section 2: Payment method */}
+        <div className="spec-ticket rounded-xl p-6 border border-[var(--color-line)] bg-[var(--color-panel)]">
+          <h2 className="font-[var(--font-display)] text-base font-semibold mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-[var(--color-circuit-soft)] text-[var(--color-circuit)] text-xs flex items-center justify-center font-bold">2</span>
+            Payment method
+          </h2>
+          <div className="space-y-2.5">
+            {PAYMENT_METHODS.map((m) => (
+              <label
+                key={m.id}
+                className={`flex items-center gap-3 border rounded-lg p-3.5 ${
+                  step === "processing" ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                } transition-all ${
+                  method === m.id
+                    ? "border-[var(--color-circuit)] bg-[var(--color-circuit-soft)]/20"
+                    : "border-[var(--color-line)] hover:border-[var(--color-circuit)]/50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value={m.id}
+                  checked={method === m.id}
+                  onChange={() => setMethod(m.id)}
+                  disabled={step === "processing"}
+                  className="accent-[var(--color-circuit)]"
+                />
+                <span className="text-sm font-medium">{m.label}</span>
+              </label>
+            ))}
+          </div>
+          <p className="text-xs text-[var(--color-ink-soft)] mt-3">
+            This demo uses simulated payment. No real payment is processed.
+          </p>
+        </div>
 
-            {error && <p className="text-sm text-[var(--color-signal)]">{error}</p>}
+        {/* Section 3: Review your order */}
+        <div className="spec-ticket rounded-xl p-6 border border-[var(--color-line)] bg-[var(--color-panel)]">
+          <h2 className="font-[var(--font-display)] text-base font-semibold mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-[var(--color-circuit-soft)] text-[var(--color-circuit)] text-xs flex items-center justify-center font-bold">3</span>
+            Review your order
+          </h2>
+          <div className="space-y-2 pb-4 border-b border-[var(--color-line)]">
+            {items.map((i, idx) => {
+              const name = i.name ?? i.Name ?? `Product #${i.product_ID ?? i.product_id}`;
+              const price = i.price ?? i.Price ?? 0;
+              const quantity = i.quantity ?? i.Quantity ?? 1;
+              return (
+                <div key={idx} className="flex justify-between text-sm">
+                  <span className="text-[var(--color-ink)] truncate max-w-[70%]">{name} <span className="text-[var(--color-ink-soft)] text-xs">× {quantity}</span></span>
+                  <span className="font-[var(--font-mono)]">${(price * quantity).toFixed(2)}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-between font-semibold mt-4 text-base">
+            <span>Total amount</span>
+            <span className="font-[var(--font-mono)] text-xl text-[var(--color-gold)]">${total.toFixed(2)}</span>
+          </div>
+        </div>
 
-            <button
-               type="submit"
-               disabled={step === "processing"}
-               className="btn-primary w-full py-3 rounded"
-            >
-              {step === "processing" ? (
-                <span className="btn-loading-content">
-                  <span className="spinner"></span>
-                  <span>Processing...</span>
-                </span>
-              ) : method === "COD" ? "Place order" : "Pay & place order"}
-            </button>
-          </form>
-      </div>
+        {error && <p className="text-sm text-[var(--color-signal)]" role="alert">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={step === "processing"}
+          className="btn-primary w-full py-3.5 rounded-lg font-semibold text-base shadow-sm"
+        >
+          {step === "processing" ? (
+            <span className="btn-loading-content flex items-center justify-center gap-2">
+              <span className="spinner"></span>
+              <span>Processing order…</span>
+            </span>
+          ) : "Place order"}
+        </button>
+      </form>
 
       {step === "done" && (() => {
         const displayItems = completedOrder?.items ?? items;

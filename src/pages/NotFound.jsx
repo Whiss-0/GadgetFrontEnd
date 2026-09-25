@@ -26,9 +26,9 @@ export default function NotFound() {
         <div className="flex flex-wrap gap-3 justify-center">
           <Link
             to="/"
-            className="btn-primary px-5 py-2.5 rounded text-sm font-semibold"
+            className="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold"
           >
-            Browse the catalog
+            Back to shop
           </Link>
           <button
             onClick={() => navigate(-1)}

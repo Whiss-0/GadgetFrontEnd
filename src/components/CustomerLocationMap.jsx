@@ -40,11 +40,10 @@ export default function CustomerLocationMap({
       {/* Header */}
       <div className="admin-location-header">
         <div>
-          <p className="admin-section-kicker">Where orders are coming from</p>
+          <p className="admin-section-kicker">Delivery insights</p>
           <h2 id="location-heading" className="admin-location-title">Customer locations</h2>
           <p className="admin-location-subtitle">
-            A privacy-friendly view of the areas your customers order from most often.
-            Exact street addresses are never shown here.
+            Where orders are coming from during this period.
           </p>
         </div>
 
@@ -103,7 +102,7 @@ export default function CustomerLocationMap({
           <div
             className="location-map"
             role="img"
-            aria-label="Abstract map showing the busiest customer areas"
+            aria-label="Approximate area visualization of customer delivery regions"
           >
             {/* Grid lines */}
             <div className="location-map-grid" aria-hidden="true">

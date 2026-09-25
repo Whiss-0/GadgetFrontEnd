@@ -15,10 +15,10 @@ export default function SiteFooter() {
         </div>
 
         <nav className="site-footer-links" aria-label="Footer navigation">
-          <Link to="/">Catalog</Link>
+          <Link to="/">Shop</Link>
           {isAuthenticated && <Link to="/orders">Orders</Link>}
           {isAuthenticated && <Link to="/wishlist">Wishlist</Link>}
-          {isAuthenticated && <Link to="/settings">Account</Link>}
+          <Link to={isAuthenticated ? "/settings" : "/login"}>Account</Link>
         </nav>
 
         <p className="site-footer-note">Reliable gear. Clear choices.</p>

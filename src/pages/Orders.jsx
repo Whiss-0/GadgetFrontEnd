@@ -123,25 +123,22 @@ export default function Orders() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-5 py-12">
-      <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">
-        Order history
-      </p>
-      <h1 className="font-[var(--font-display)] text-3xl font-semibold mb-2">Your orders</h1>
+    <div className="max-w-3xl mx-auto px-5 py-8 sm:py-12">
+      <h1 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold mb-2">Your orders</h1>
       <p className="text-[var(--color-ink-soft)] text-sm mb-8">
-        See what you bought and follow each order from purchase to delivery.
+        Track previous purchases and see what is happening with each order.
       </p>
 
       {loading && <p className="text-[var(--color-ink-soft)]">Loading…</p>}
       {error && <p className="text-sm text-[var(--color-signal)] mb-4">{error}</p>}
 
       {!loading && !error && orders.length === 0 && (
-        <div className="empty-state-card">
-          <p className="font-[var(--font-display)] font-semibold text-base mb-2">No orders yet</p>
-          <p className="text-[var(--color-ink-soft)] text-sm mb-5">
-            When you find something you like, your order details and delivery progress will appear here.
+        <div className="empty-state-card text-center p-8 sm:p-12 border border-[var(--color-line)] rounded-xl bg-[var(--color-panel)]">
+          <p className="font-[var(--font-display)] font-semibold text-lg mb-2">No orders yet</p>
+          <p className="text-[var(--color-ink-soft)] text-sm mb-6 max-w-md mx-auto">
+            When you find something you like, your order details will appear here.
           </p>
-          <Link to="/" className="btn-primary px-5 py-2.5 rounded text-sm font-semibold inline-block">
+          <Link to="/" className="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold inline-block">
             Browse the catalog
           </Link>
         </div>
@@ -159,17 +156,17 @@ export default function Orders() {
           const isOpen = expandedId === id;
 
           return (
-            <div key={id} className="spec-ticket rounded-md overflow-hidden">
+            <div key={id} className="spec-ticket rounded-xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-panel)]">
               <button
                 onClick={() => toggleExpand(id)}
                 className="w-full p-4 flex items-center justify-between text-left"
               >
                 <div>
-                  <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)]">
-                    PO-{String(id).padStart(5, "0")}
+                  <p className="font-semibold text-sm text-[var(--color-ink)]">
+                    Order #{id}
                   </p>
-                  <p className="text-sm text-[var(--color-ink-soft)]">
-                    {date ? new Date(date).toLocaleDateString() : ""}
+                  <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+                    {date ? new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

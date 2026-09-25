@@ -62,6 +62,8 @@ function getEventIcon(type) {
 // ---- Sub-components ----
 
 function ActivityItem({ log, showRole }) {
+  const actorName = log.Actor_Name || (log.User_ID ? `User #${log.User_ID}` : null);
+
   return (
     <li className="activity-item">
       <span className="activity-marker" aria-hidden="true">
@@ -72,11 +74,18 @@ function ActivityItem({ log, showRole }) {
           <span className="activity-type">
             {EVENT_LABELS[log.Activity_Type] ?? log.Activity_Type}
           </span>
-          {showRole && log.Actor_Role && (
-            <span className={`activity-state ${ROLE_COLORS[log.Actor_Role] ?? ""}`}>
-              {log.Actor_Role}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {showRole && actorName && (
+              <span className="text-xs text-[var(--color-dark-ink)]/70 font-medium">
+                {actorName}
+              </span>
+            )}
+            {showRole && log.Actor_Role && (
+              <span className={`activity-state ${ROLE_COLORS[log.Actor_Role] ?? ""}`}>
+                {log.Actor_Role}
+              </span>
+            )}
+          </div>
         </div>
         <p className="activity-desc">{log.Description}</p>
         <div className="activity-item-meta">
@@ -163,13 +172,11 @@ export default function ActivityLog() {
   const [filters, setFilters] = useState({ from: "", to: "", type: "", actorRole: "" });
 
   // Determine heading copy based on role
-  const heading = isAdmin ? "Store oversight" : isMod ? "Customer activity" : "Your activity";
-  const kicker = "Activity log";
-  const lede = isAdmin
-    ? "A clear record of customer, staff, and account activity across the store."
-    : isMod
-    ? "A clear record of customer activity and orders."
-    : "A private record of your sign-ins, orders, and account changes.";
+  const heading = "Activity";
+  const kicker = "Audit log";
+  const lede = (isAdmin || isMod)
+    ? "Review recent account and store activity."
+    : "Review your recent account and store activity.";
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -235,7 +242,10 @@ export default function ActivityLog() {
       {!loading && !error && logs.length === 0 && (
         <div className="activity-state activity-state-empty">
           <span aria-hidden="true">◷</span>
-          <span>No activity in this range.</span>
+          <div className="text-center">
+            <p className="font-semibold text-white mb-1">No activity to show</p>
+            <p className="text-xs text-[var(--color-dark-ink)]/60">New account and store actions will appear here.</p>
+          </div>
         </div>
       )}
 

@@ -59,7 +59,7 @@ export default function Login() {
               {mfaStep ? "Verify your sign-in" : "Welcome back"}
             </h1>
             <p className="auth-lede">
-              {mfaStep ? "Enter the six-digit code sent to your email to finish logging in." : "Sign in to pick up where you left off."}
+              {mfaStep ? "Enter the six-digit code sent to your email to finish logging in." : "Sign in to manage your orders and saved items."}
             </p>
           </div>
 
@@ -119,8 +119,8 @@ export default function Login() {
 
           {!mfaStep && (
             <div className="auth-links">
-              <Link to="/forgot-password">Forgot password?</Link>
-              <Link to="/register" className="auth-create-link">Create account <span aria-hidden="true">→</span></Link>
+              <Link to="/forgot-password">Forgot your password?</Link>
+              <Link to="/register" className="auth-create-link">Create an account <span aria-hidden="true">→</span></Link>
             </div>
           )}
         </section>

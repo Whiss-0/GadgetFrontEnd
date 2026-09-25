@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import client, { productsApi, categoriesApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { useToast } from "../hooks/useToast";
 import ProductCard from "../components/ProductCard";
 
 export default function Home() {
@@ -17,7 +18,7 @@ export default function Home() {
   const [retryNonce, setRetryNonce] = useState(0);
   const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
-  const [toast, setToast] = useState(null);
+  const toast = useToast();
 
   useEffect(() => {
     categoriesApi
@@ -55,17 +56,15 @@ export default function Home() {
     const name = typeof productOrId === "object" ? productOrId.product_name : "Product";
 
     if (!isAuthenticated) {
-      setToast({ text: "Log in to add items to your cart.", type: "error" });
-      setTimeout(() => setToast(null), 2500);
+      toast.show("Log in to add items to your cart.", { tone: "error" });
       return;
     }
     try {
       await addItem(id, 1);
-      setToast({ text: `"${name}" added to your cart.`, type: "success" });
+      toast.show(`"${name}" added to your cart.`, { tone: "success" });
     } catch (err) {
-      setToast({ text: err.response?.data?.message || "Couldn't add to cart.", type: "error" });
+      toast.show(err.response?.data?.message || "Couldn't add to cart.", { tone: "error" });
     }
-    setTimeout(() => setToast(null), 2500);
   }
 
   const visibleProducts = selectedCategory
@@ -73,47 +72,55 @@ export default function Home() {
     : products;
 
   return (
-    <div className="catalog-page max-w-6xl mx-auto px-5 py-8 sm:py-12">
-      <section className="catalog-hero mb-10">
+    <div className="catalog-page max-w-6xl mx-auto px-5 py-6 sm:py-10">
+      <section className="catalog-hero mb-8 sm:mb-10">
         <div className="catalog-hero-copy">
-          <p className="eyebrow mb-3"><span className="eyebrow-dot" /> Good gear, thoughtfully chosen</p>
-          <h1 className="font-[var(--font-display)] text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.05]">Technology you'll love using.<br /><span className="hero-accent">No filler.</span></h1>
-          <p className="catalog-hero-description">From everyday essentials to the piece that finishes your desk, find reliable tech that fits the way you work, play, and live.</p>
-          <div className="catalog-hero-stats" aria-label="Catalog highlights">
-            <span><strong>{totalCount || "—"}</strong> products to explore</span>
-            <span><strong>24-hour</strong> dispatch</span>
-            <span><strong>Simple</strong> returns</span>
+          <p className="eyebrow mb-2">Curated tech store</p>
+          <h1 className="font-[var(--font-display)] text-3xl sm:text-5xl font-semibold tracking-tight leading-[1.1]">
+            Technology you'll enjoy using.
+          </h1>
+          <p className="catalog-hero-description mt-2 mb-5 text-base sm:text-lg text-[var(--color-ink-soft)] max-w-xl">
+            Thoughtful gadgets for work, play, and everyday life.
+          </p>
+          <div className="flex flex-wrap items-center gap-4">
+            <a
+              href="#products"
+              className="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold inline-flex items-center gap-2"
+            >
+              Shop products
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="19 12 12 19 5 12"></polyline>
+              </svg>
+            </a>
+            <span className="text-xs sm:text-sm text-[var(--color-ink-soft)] font-medium">
+              {totalCount > 0 ? `${totalCount} products to explore` : "Carefully selected gear"}
+            </span>
           </div>
         </div>
-        <div className="catalog-hero-art" aria-hidden="true">
-          <span className="hero-art-shape" />
-          <span className="hero-art-dot" />
+
+        {/* Restrained trust row */}
+        <div className="catalog-trust-row grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-[var(--color-line)] text-xs text-[var(--color-ink-soft)]" aria-label="Store commitments">
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-circuit)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Secure checkout</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-circuit)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <span>Fast dispatch</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-circuit)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <span>Easy returns</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-circuit)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Helpful support</span>
+          </div>
         </div>
       </section>
 
-      {toast && (
-        <div
-          role="status"
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl border transition-all duration-300 ${
-            toast.type === "error"
-              ? "bg-red-50 dark:bg-red-950/80 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800"
-              : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border-emerald-500/40 dark:border-cyan-500/40 shadow-emerald-500/10 dark:shadow-cyan-500/20"
-          }`}
-        >
-          {toast.type === "error" ? (
-            <span className="flex-shrink-0 text-red-500">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </span>
-          ) : (
-            <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-cyan-950 flex items-center justify-center text-emerald-600 dark:text-cyan-400 font-bold text-xs flex-shrink-0">
-              ✓
-            </span>
-          )}
-          <span className="text-sm font-semibold">{toast.text}</span>
-        </div>
-      )}
-
-      <section className="catalog-toolbar mb-7" aria-label="Catalog filters">
+      <section id="products" className="catalog-toolbar mb-6 scroll-mt-20" aria-label="Catalog filters">
         <div className="search-field-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" className="search-icon"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
           <input
@@ -123,27 +130,38 @@ export default function Home() {
               setSearchTerm(e.target.value);
               setPage(1);
             }}
-            placeholder="Search products or brands…"
+            placeholder="Search products or brands"
             aria-label="Search products or brands"
             className="catalog-search"
           />
-          {searchTerm && <button type="button" className="search-clear" onClick={() => { setSearchTerm(""); setPage(1); }} aria-label="Clear search">×</button>}
+          {searchTerm && (
+            <button
+              type="button"
+              className="search-clear"
+              onClick={() => { setSearchTerm(""); setPage(1); }}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
         </div>
-        <div className="catalog-toolbar-meta">{loading ? "Finding products…" : `${visibleProducts.length} ${visibleProducts.length === 1 ? "result" : "results"}`}</div>
+        <div className="catalog-toolbar-meta text-xs sm:text-sm">
+          {loading ? "Finding products…" : `${visibleProducts.length} ${visibleProducts.length === 1 ? "product" : "products"}`}
+        </div>
       </section>
 
       {categories.length > 0 && (
-        <div className="category-filter-row flex flex-wrap gap-2 mb-6" aria-label="Filter by category">
-          <span className="category-filter-label">Browse by</span>
+        <div className="category-filter-row flex flex-wrap items-center gap-2 mb-6" aria-label="Filter by category">
+          <span className="category-filter-label text-xs text-[var(--color-ink-soft)] font-medium mr-1">Categories:</span>
           <button
             type="button"
             onClick={() => setSelectedCategory(null)}
             aria-pressed={selectedCategory === null}
-            className={`filter-pill text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
+            className={`filter-pill text-xs font-medium capitalize px-3 py-1.5 rounded-full border transition-colors ${
               selectedCategory === null ? "active" : ""
             }`}
           >
-            All
+            All products
           </button>
           {categories.map((c) => (
             <button
@@ -151,13 +169,22 @@ export default function Home() {
               key={c.category_id}
               onClick={() => setSelectedCategory(c.category_id)}
               aria-pressed={selectedCategory === c.category_id}
-              className={`filter-pill text-xs font-semibold uppercase px-3 py-1.5 rounded-full border transition-colors ${
+              className={`filter-pill text-xs font-medium capitalize px-3 py-1.5 rounded-full border transition-colors ${
                 selectedCategory === c.category_id ? "active" : ""
               }`}
             >
               {c.category_name}
             </button>
           ))}
+          {(selectedCategory !== null || searchTerm) && (
+            <button
+              type="button"
+              onClick={() => { setSelectedCategory(null); setSearchTerm(""); setPage(1); }}
+              className="text-xs text-[var(--color-circuit)] hover:underline ml-auto font-medium"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       )}
 

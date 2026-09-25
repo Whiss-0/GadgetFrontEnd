@@ -21,23 +21,21 @@ export default function Cart() {
   }
 
   return (
-    <div className="cart-page max-w-5xl mx-auto px-5 py-12">
-      <p className="font-[var(--font-mono)] text-xs text-[var(--color-circuit)] mb-1">
-        Your selection
-      </p>
-      <h1 className="font-[var(--font-display)] text-3xl font-semibold mb-2">Your cart</h1>
+    <div className="cart-page max-w-5xl mx-auto px-5 py-8 sm:py-12">
+      <h1 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold mb-2">Your cart</h1>
       <p className="text-[var(--color-ink-soft)] text-sm mb-8">
-        A quick review before you place your order.
+        Review your items before proceeding to checkout.
       </p>
 
       {items.length === 0 ? (
-        <div className="spec-ticket rounded-md p-8 text-center">
-          <p className="text-[var(--color-ink-soft)] mb-5">
-            Your cart is empty. Have a look around and find something you'll enjoy using.
+        <div className="spec-ticket rounded-xl p-8 sm:p-12 text-center border border-[var(--color-line)] bg-[var(--color-panel)] max-w-lg mx-auto">
+          <p className="font-[var(--font-display)] text-xl font-semibold mb-2">Your cart is empty</p>
+          <p className="text-[var(--color-ink-soft)] text-sm mb-6">
+            Have a look around and find something you'll enjoy using.
           </p>
           <button
             onClick={() => navigate("/")}
-            className="btn-secondary px-5 py-2.5 rounded text-sm font-semibold"
+            className="btn-primary px-6 py-2.5 rounded-lg text-sm font-semibold"
           >
             Continue shopping
           </button>
@@ -45,7 +43,7 @@ export default function Cart() {
       ) : (
         <div className="cart-layout">
           {/* Left column — cart items */}
-          <div className="spec-ticket rounded-md p-6">
+          <div className="spec-ticket rounded-xl p-4 sm:p-6 border border-[var(--color-line)] bg-[var(--color-panel)]">
             <div className="space-y-0">
               {items.map((item) => {
                 // cart_id is the primary key from the cart table
@@ -124,31 +122,39 @@ export default function Cart() {
           </div>
 
           {/* Right column — order summary */}
-          <aside className="cart-summary spec-ticket rounded-md p-6">
-            <p className="font-[var(--font-display)] font-semibold text-base mb-4">
+          <aside className="cart-summary spec-ticket rounded-xl p-6 border border-[var(--color-line)] bg-[var(--color-panel)]">
+            <h2 className="font-[var(--font-display)] font-semibold text-lg mb-4">
               Order summary
-            </p>
+            </h2>
 
-            <p className="text-sm text-[var(--color-ink-soft)] mb-4">
-              {items.length} {items.length === 1 ? "product" : "products"}
-            </p>
+            <div className="space-y-2.5 text-sm pb-4 border-b border-[var(--color-line)]">
+              <div className="flex justify-between text-[var(--color-ink-soft)]">
+                <span>Subtotal ({items.reduce((sum, i) => sum + (i.quantity || 1), 0)} items)</span>
+                <span className="font-[var(--font-mono)] text-[var(--color-ink)]">${total.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-[var(--color-ink-soft)] text-xs">
+                <span>Shipping</span>
+                <span className="text-[var(--color-ink)]">Calculated at checkout</span>
+              </div>
+            </div>
 
-            <div className="flex items-center justify-between border-t border-dashed border-[var(--color-line)] pt-4 mb-5">
-              <span className="font-[var(--font-display)] font-semibold">Total</span>
-              <span className="font-[var(--font-mono)] font-semibold text-xl text-[var(--color-gold)]">
+            <div className="flex items-center justify-between pt-4 mb-6">
+              <span className="font-[var(--font-display)] font-semibold text-base">Total</span>
+              <span className="font-[var(--font-mono)] font-bold text-2xl text-[var(--color-gold)]">
                 ${total.toFixed(2)}
               </span>
             </div>
 
             <button
               onClick={() => navigate("/checkout")}
-              className="checkout-btn btn-primary w-full font-semibold py-3 rounded mb-3"
+              className="checkout-btn btn-primary w-full font-semibold py-3 rounded-lg mb-3 flex items-center justify-center gap-2"
             >
-              Continue to checkout
+              Proceed to checkout
+              <span aria-hidden="true">→</span>
             </button>
             <button
               onClick={() => navigate("/")}
-              className="btn-secondary w-full font-semibold py-2.5 rounded text-sm"
+              className="btn-secondary w-full font-semibold py-2.5 rounded-lg text-sm"
             >
               Continue shopping
             </button>

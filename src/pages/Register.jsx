@@ -33,7 +33,7 @@ export default function Register() {
     <div className="max-w-sm mx-auto mt-16 px-5">
       <div className="spec-ticket rounded-md p-6 pt-8">
         <p className="text-sm text-[var(--color-ink-soft)] mb-1">Start with Gadget Store</p>
-        <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6">Create account</h1>
+        <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6">Create an account</h1>
 
         {success ? (
           <p className="mt-10 text-sm text-[var(--color-circuit)] font-medium">
@@ -82,7 +82,7 @@ export default function Register() {
               disabled={loading}
               className="w-full btn-primary font-semibold py-2 rounded disabled:opacity-50"
             >
-              {loading ? "Creating…" : "Create account"}
+              {loading ? "Creating…" : "Create an account"}
             </button>
           </form>
         )}

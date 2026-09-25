@@ -55,13 +55,29 @@ export default function ProductCard({ product, onAddToCart }) {
     }
   }
 
+  const stockLabel =
+    typeof stock === "number"
+      ? stock === 0
+        ? "Out of stock"
+        : stock <= 3
+        ? `Only ${stock} left`
+        : "In stock"
+      : "";
+
+  const availabilityKicker =
+    stock === 0
+      ? "Out of stock"
+      : stock <= 3
+      ? `Only ${stock} left`
+      : "Ready to ship";
+
   return (
     <div className={`product-card ${stock === 0 ? "out-of-stock" : ""}`}>
       <div className="product-image-wrap main-image-container">
         <div className="product-image-stage" aria-hidden="true" />
 
         <span className="product-image-kicker">
-          {stock === 0 ? "Currently unavailable" : "Ready to ship"}
+          {availabilityKicker}
         </span>
 
         <button
@@ -92,12 +108,16 @@ export default function ProductCard({ product, onAddToCart }) {
           {name}
         </Link>
         
-        <div className="product-meta">
-          {product.brand ? `${product.brand} · ` : ""}
-          {typeof stock === "number" ? (stock > 0 ? `${stock} in stock` : "Out of stock") : ""}
+        <div className="product-meta flex items-center justify-between text-xs text-[var(--color-ink-soft)]">
+          <span>{product.brand || ""}</span>
+          {stockLabel && (
+            <span className={stock === 0 ? "text-[var(--color-signal)]" : stock <= 3 ? "text-amber-600 dark:text-amber-400 font-medium" : ""}>
+              {stockLabel}
+            </span>
+          )}
         </div>
 
-        <div className="mt-auto pt-2 flex items-center justify-between">
+        <div className="mt-auto pt-2 flex items-center justify-between gap-2">
           <span className="product-price">
             ${Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
@@ -109,7 +129,7 @@ export default function ProductCard({ product, onAddToCart }) {
               added ? "!bg-emerald-600 dark:!bg-cyan-600 text-white" : ""
             }`}
           >
-            {stock === 0 ? "Unavailable" : adding ? "Adding…" : added ? "Added" : "Add to cart"}
+            {stock === 0 ? "Out of stock" : adding ? "Adding…" : added ? "Added" : "Add to cart"}
           </button>
         </div>
       </div>

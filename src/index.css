@@ -75,6 +75,11 @@ html.dark {
   --color-signal: #EF4444;
   --color-header-bg: #050810;
   --color-header-text: #E2E8F0;
+
+  --color-dark-bg: #080D1A;
+  --color-dark-panel: #0F1629;
+  --color-dark-line: #1A2540;
+  --color-dark-ink: #E2E8F0;
 }
 
 body {
@@ -3175,4 +3180,286 @@ html.dark .product-art-image[data-art-source="fallback"] {
   .product-card:hover .product-art-image {
     transform: none;
   }
+}
+
+/* ============================================================
+   Admin operations polish
+   ============================================================ */
+
+/* Primary operational buttons */
+.admin-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--color-circuit);
+  color: #080D1A;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: opacity 160ms ease, transform 160ms ease;
+  cursor: pointer;
+}
+
+.admin-btn-primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.admin-btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.admin-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary ghost action buttons */
+.admin-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: color-mix(in srgb, var(--color-dark-panel) 80%, transparent);
+  border: 1px solid var(--color-dark-line);
+  color: var(--color-dark-ink);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.375rem;
+  transition: all 160ms ease;
+  cursor: pointer;
+}
+
+.admin-btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-circuit);
+  color: var(--color-circuit);
+}
+
+/* Operational tab navigation */
+.admin-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--color-dark-line);
+  padding-bottom: 0;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.admin-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-tab-nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--color-dark-ink) 65%, transparent);
+  border-bottom: 2px solid transparent;
+  transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease;
+  white-space: nowrap;
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+}
+
+.admin-tab-nav-item:hover {
+  color: var(--color-dark-ink);
+  background: color-mix(in srgb, var(--color-dark-panel) 60%, transparent);
+}
+
+.admin-tab-nav-item.active {
+  color: #FFFFFF;
+  font-weight: 600;
+  border-bottom-color: var(--color-circuit);
+  background: color-mix(in srgb, var(--color-circuit) 10%, transparent);
+}
+
+.admin-tab-nav-item:focus-visible {
+  outline: 2px solid var(--color-circuit);
+  outline-offset: -2px;
+}
+
+/* Metric / KPI cards */
+.admin-metric-card {
+  background: var(--color-dark-panel);
+  border: 1px solid var(--color-dark-line);
+  border-radius: 0.625rem;
+  padding: 1.125rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  transition: border-color 180ms ease;
+}
+
+.admin-metric-card:hover {
+  border-color: color-mix(in srgb, var(--color-circuit) 40%, var(--color-dark-line));
+}
+
+.admin-metric-interactive {
+  cursor: pointer;
+  text-align: left;
+}
+
+.admin-metric-interactive:hover {
+  border-color: var(--color-circuit);
+}
+
+/* Operational attention items */
+.admin-attention-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--color-dark-panel) 85%, transparent);
+  border: 1px solid var(--color-dark-line);
+  transition: all 160ms ease;
+  text-decoration: none;
+}
+
+.admin-attention-card:hover {
+  background: var(--color-dark-panel);
+  border-color: color-mix(in srgb, var(--color-circuit) 50%, var(--color-dark-line));
+}
+
+.admin-attention-card.is-urgent {
+  border-color: color-mix(in srgb, var(--color-signal) 40%, transparent);
+}
+
+.admin-attention-card.is-urgent:hover {
+  border-color: var(--color-signal);
+}
+
+/* Operational status badges */
+.admin-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.admin-status-badge::before {
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background-color: currentColor;
+}
+
+.admin-status-pending {
+  background: rgba(245, 158, 11, 0.12);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.admin-status-processing {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60A5FA;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.admin-status-shipped {
+  background: rgba(167, 139, 250, 0.14);
+  color: #C4B5FD;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.admin-status-delivered {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.admin-status-cancelled {
+  background: rgba(239, 68, 68, 0.12);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-stock-ok {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.admin-stock-low {
+  background: rgba(245, 158, 11, 0.12);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.admin-stock-out {
+  background: rgba(239, 68, 68, 0.12);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Admin responsive tables */
+.admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.admin-table th {
+  padding: 0.75rem 1rem;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--color-dark-ink) 55%, transparent);
+  border-bottom: 1px solid var(--color-dark-line);
+  font-weight: 600;
+}
+
+.admin-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-dark-line) 60%, transparent);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tr:hover td {
+  background: color-mix(in srgb, var(--color-dark-panel) 60%, transparent);
+}
+
+/* Form fieldsets in product admin */
+.admin-fieldset {
+  border: 1px solid var(--color-dark-line);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-fieldset-legend {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-circuit);
+  padding: 0 0.4rem;
 }
