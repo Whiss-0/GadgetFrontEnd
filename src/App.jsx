@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import SiteFooter from "./components/SiteFooter";
 import { RequireAuth, RequireAdmin } from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="users" element={<UsersAdmin />} />
         </Route>
       </Routes>
+      <SiteFooter />
     </div>
   );
 }

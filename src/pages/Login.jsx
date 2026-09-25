@@ -41,7 +41,7 @@ export default function Login() {
       <div className="auth-frame">
         <aside className="auth-visual" aria-label="Gadget Store benefits">
           <div>
-            <p className="auth-visual-code">GADGET/STORE</p>
+            <p className="auth-visual-code">A better way to shop for tech</p>
             <h2>Welcome back.<br /><span>Your setup is waiting.</span></h2>
             <p className="auth-visual-copy">Pick up where you left off, keep your favorites close, and make checkout easy.</p>
           </div>

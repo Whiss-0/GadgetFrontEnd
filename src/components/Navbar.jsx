@@ -121,7 +121,7 @@ export default function Navbar() {
         <Link to="/" className="font-[var(--font-display)] font-semibold text-lg tracking-tight flex items-center gap-2 z-10 logo-text" aria-label="Gadget Store home">
           <span className="flex items-center whitespace-nowrap">
             <Pin />
-            GADGET<span className="text-[var(--color-circuit)]">/</span>STORE
+            Gadget<span className="text-[var(--color-circuit)]">/</span>Store
           </span>
           <RoleBadge isAdmin={isAdmin} isMod={isMod} />
         </Link>

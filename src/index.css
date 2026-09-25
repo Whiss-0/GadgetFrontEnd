@@ -36,6 +36,10 @@
   --color-header-bg: #14181F;
   /* top navbar background */
   --color-header-text: #FFFFFF;
+
+  /* Shared card geometry */
+  --radius-card: 14px;
+  --shadow-card: 0 8px 26px rgba(20, 24, 31, 0.055);
 }
 
 html.dark {
@@ -107,13 +111,16 @@ body {
   position: relative;
   background: var(--color-panel);
   border: 1px solid var(--color-line);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease;
 }
 
+/* Content cards should not rise on hover — calm, professional feel */
 .spec-ticket:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
-  border-color: var(--color-circuit);
+  transform: none;
+  box-shadow: var(--shadow-card);
+  border-color: var(--color-line);
 }
 
 .spec-ticket::before {
@@ -400,18 +407,25 @@ select:focus {
 .product-card {
   background-color: var(--color-panel);
   border: 1px solid var(--color-line);
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
+/* Small, tasteful lift — product cards benefit from some interactivity */
 .product-card:hover {
   border-color: var(--color-circuit);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(20, 24, 31, 0.09);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card:hover {
+    transform: none;
+  }
 }
 
 .product-card.out-of-stock .main-image-container {
@@ -685,17 +699,18 @@ select:focus {
 }
 
 .admin-item-card {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background: var(--color-circuit-soft);
-  backdrop-filter: blur(8px);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  background: var(--color-panel);
   border: 1px solid var(--color-line);
+  transition: box-shadow 0.2s ease;
 }
 
+/* Admin cards: calm — no lift, no accent glow */
 .admin-item-card:hover {
-  transform: translateY(-2px) scale(1.002);
-  box-shadow: 0 10px 25px -5px var(--color-circuit-soft);
-  border-color: var(--color-circuit);
-  background: linear-gradient(to right, var(--color-panel), var(--color-circuit-soft));
+  transform: none;
+  box-shadow: var(--shadow-card);
+  border-color: var(--color-line);
 }
 
 .admin-input-premium {
@@ -2562,5 +2577,90 @@ input[type="date"] {
   .order-line-art {
     width: 2.4rem;
     height: 2.4rem;
+  }
+}
+
+/* ============================================================
+   SITE FOOTER
+   ============================================================ */
+
+.site-footer {
+  margin-top: 4rem;
+  border-top: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-panel) 74%, var(--color-paper));
+}
+
+.site-footer-inner {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  align-items: start;
+  gap: 2rem;
+  width: min(100% - 2.5rem, 72rem);
+  margin: 0 auto;
+  padding: 2.5rem 0;
+}
+
+.site-footer-logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--color-ink);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  transition: color 0.15s ease;
+}
+
+.site-footer-logo span {
+  color: var(--color-circuit);
+}
+
+.site-footer-logo:hover {
+  color: var(--color-circuit);
+}
+
+.site-footer-brand p {
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+  line-height: 1.5;
+  max-width: 26ch;
+}
+
+.site-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.site-footer-links a {
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.site-footer-links a:hover {
+  color: var(--color-circuit);
+}
+
+.site-footer-note {
+  font-size: 0.8125rem;
+  color: var(--color-ink-soft);
+  opacity: 0.65;
+  line-height: 1.5;
+  align-self: end;
+  text-align: right;
+}
+
+/* Stack to single column on mobile */
+@media (max-width: 640px) {
+  .site-footer-inner {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2rem 0;
+  }
+
+  .site-footer-note {
+    text-align: left;
   }
 }

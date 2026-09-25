@@ -32,7 +32,7 @@ export default function Register() {
   return (
     <div className="max-w-sm mx-auto mt-16 px-5">
       <div className="spec-ticket rounded-md p-6 pt-8">
-        <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mb-1">JOIN GADGET/STORE</p>
+        <p className="text-sm text-[var(--color-ink-soft)] mb-1">Start with Gadget Store</p>
         <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6">Create account</h1>
 
         {success ? (
