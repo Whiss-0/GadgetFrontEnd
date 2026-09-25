@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import SiteFooter from "./components/SiteFooter";
 import { RequireAuth, RequireAdmin } from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
+import ToastProvider from "./components/ToastProvider";
 
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
@@ -16,6 +17,7 @@ import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Settings from "./pages/Settings";
 import Wishlist from "./pages/Wishlist";
+import NotFound from "./pages/NotFound";
 
 import AdminLayout from "./pages/admin/AdminLayout";
 import ProductsAdmin from "./pages/admin/ProductsAdmin";
@@ -33,33 +35,38 @@ export default function App() {
   }, [isMod]);
 
   return (
-    <div
-      data-theme={isMod ? "staff" : undefined}
-      className="theme-body min-h-screen"
-    >
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+    <ToastProvider>
+      <div
+        data-theme={isMod ? "staff" : undefined}
+        className="theme-body min-h-screen"
+      >
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-        <Route path="/cart" element={<RequireAuth><Cart /></RequireAuth>} />
-        <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
-        <Route path="/orders" element={<RequireAuth><Orders /></RequireAuth>} />
-        <Route path="/wishlist" element={<RequireAuth><Wishlist /></RequireAuth>} />
-        <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
-        <Route path="/activity" element={<RequireAuth><ActivityLog /></RequireAuth>} />
+          <Route path="/cart" element={<RequireAuth><Cart /></RequireAuth>} />
+          <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
+          <Route path="/orders" element={<RequireAuth><Orders /></RequireAuth>} />
+          <Route path="/wishlist" element={<RequireAuth><Wishlist /></RequireAuth>} />
+          <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+          <Route path="/activity" element={<RequireAuth><ActivityLog /></RequireAuth>} />
 
-        <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
-          <Route index element={<ProductsAdmin />} />
-          <Route path="orders" element={<OrdersAdmin />} />
-          <Route path="users" element={<UsersAdmin />} />
-        </Route>
-      </Routes>
-      <SiteFooter />
-    </div>
+          <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+            <Route index element={<ProductsAdmin />} />
+            <Route path="orders" element={<OrdersAdmin />} />
+            <Route path="users" element={<UsersAdmin />} />
+          </Route>
+
+          {/* Catch-all 404 — must be last */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <SiteFooter />
+      </div>
+    </ToastProvider>
   );
 }

@@ -94,6 +94,8 @@ export const ordersApi = {
   listAllAdmin: () => client.get("/api/order"),         // GET /api/order   (admin only)
   updateStatus: (id, status) =>
     client.put(`/api/order/${id}`, { Status: status }), // PUT /api/order/{id}  (mod+)
+  // Atomic checkout: creates order + validates stock + inserts all line items in a single transaction
+  checkout: (data) => client.post("/api/order/checkout", data),
 };
 
 // ---- Order Details ----

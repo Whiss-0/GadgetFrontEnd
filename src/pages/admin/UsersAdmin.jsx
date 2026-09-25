@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { usersApi } from "../../api/client";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import { useToast } from "../../hooks/useToast";
 
 const ROLES = [
   { id: 1, label: "Admin" },
@@ -55,6 +56,7 @@ function buildRoleDialogProps(change) {
 }
 
 export default function UsersAdmin() {
+  const toast = useToast();
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [roleChange, setRoleChange] = useState(null); // { id, name, currentRole, nextRoleId }
@@ -85,10 +87,13 @@ export default function UsersAdmin() {
     setSavingRole(true);
     try {
       await usersApi.updateRole(roleChange.id, roleChange.nextRoleId);
+      const name = roleChange.name;
+      const newLabel = roleDisplayLabel(roleChange.nextRoleId);
       setRoleChange(null);
       load();
+      toast.show(`${name} is now ${newLabel}.`, { tone: "success" });
     } catch (err) {
-      setError(err.response?.data?.message || "Couldn't update role.");
+      toast.show(err.response?.data?.message || "Couldn't update role.", { tone: "error" });
     } finally {
       setSavingRole(false);
     }

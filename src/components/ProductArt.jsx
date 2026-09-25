@@ -59,6 +59,7 @@ export default function ProductArt({ product, alt, className = "" }) {
     // If the API image fails, swap in the local fallback.
     if (e.currentTarget.src !== window.location.origin + fallbackSrc) {
       e.currentTarget.src = fallbackSrc;
+      e.currentTarget.setAttribute("data-art-source", "fallback");
     }
   }
 
@@ -67,6 +68,7 @@ export default function ProductArt({ product, alt, className = "" }) {
       src={hasSrc ? apiImage : fallbackSrc}
       alt={alt ?? product?.product_name ?? "Product image"}
       className={className}
+      data-art-source={hasSrc ? "api" : "fallback"}
       loading="lazy"
       decoding="async"
       onError={handleError}

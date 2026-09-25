@@ -1,14 +1,47 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ordersApi,
   orderDetailApi,
-  productsApi,
   categoriesApi,
 } from "../api/client";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ProductArt from "../components/ProductArt";
+import { useToast } from "../hooks/useToast";
+
+const TIMELINE_STEPS = ["Pending", "Processing", "Shipped", "Delivered"];
+
+function OrderTimeline({ status }) {
+  const isCancelled = status === "Cancelled";
+  if (isCancelled) {
+    return (
+      <div className="order-timeline cancelled">
+        <span className="order-cancelled-badge">Order cancelled</span>
+      </div>
+    );
+  }
+  const currentIdx = TIMELINE_STEPS.indexOf(status);
+  return (
+    <div className="order-timeline">
+      {TIMELINE_STEPS.map((step, idx) => {
+        const done = idx < currentIdx;
+        const active = idx === currentIdx;
+        return (
+          <div key={step} className={`order-timeline-step${done ? " done" : ""}${active ? " active" : ""}`}>
+            <div className="order-timeline-dot" />
+            <span className="order-timeline-label">{step}</span>
+            {idx < TIMELINE_STEPS.length - 1 && (
+              <div className={`order-timeline-connector${done ? " done" : ""}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Orders() {
+  const toast = useToast();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -49,8 +82,9 @@ export default function Orders() {
             : o
         )
       );
+      toast.show("Your order was cancelled.", { tone: "success" });
     } catch (err) {
-      alert(err.response?.data?.message || "Couldn't cancel this order.");
+      toast.show(err.response?.data?.message || "Couldn't cancel this order.", { tone: "error" });
     } finally {
       setCancellingId(null);
       setOrderToCancel(null);
@@ -75,28 +109,10 @@ export default function Orders() {
       try {
         const res = await orderDetailApi.getByOrder(orderId);
         const details = res.data || [];
-
-        // Enrich each line with its product data
-        const enriched = await Promise.all(
-          details.map(async (detail) => {
-            const productId =
-              detail.product_id ??
-              detail.productId ??
-              detail.ProductId;
-
-            try {
-              const productRes = await productsApi.get(productId);
-              return { ...detail, product: productRes.data };
-            } catch {
-              // Keep the order line visible even if the product was deleted
-              return detail;
-            }
-          })
-        );
-
+        // Backend now returns detail.product directly — no per-product fetch needed
         setDetailsByOrder((previous) => ({
           ...previous,
-          [orderId]: enriched,
+          [orderId]: details,
         }));
       } catch {
         setDetailsByOrder((prev) => ({ ...prev, [orderId]: [] }));
@@ -118,8 +134,17 @@ export default function Orders() {
 
       {loading && <p className="text-[var(--color-ink-soft)]">Loading…</p>}
       {error && <p className="text-sm text-[var(--color-signal)] mb-4">{error}</p>}
+
       {!loading && !error && orders.length === 0 && (
-        <p className="text-[var(--color-ink-soft)]">No orders yet.</p>
+        <div className="empty-state-card">
+          <p className="font-[var(--font-display)] font-semibold text-base mb-2">No orders yet</p>
+          <p className="text-[var(--color-ink-soft)] text-sm mb-5">
+            When you find something you like, your order details and delivery progress will appear here.
+          </p>
+          <Link to="/" className="btn-primary px-5 py-2.5 rounded text-sm font-semibold inline-block">
+            Browse the catalog
+          </Link>
+        </div>
       )}
 
       <div className="space-y-3">
@@ -128,6 +153,9 @@ export default function Orders() {
           const status = o.status ?? o.Status ?? "Pending";
           const date = o.order_date ?? o.orderDate ?? o.OrderDate;
           const total = o.total_amount ?? o.totalAmount ?? o.TotalAmount ?? 0;
+          const paymentMethod = o.payment_method ?? o.paymentMethod ?? o.PaymentMethod;
+          const paymentStatus = o.payment_status ?? o.paymentStatus ?? o.PaymentStatus;
+          const shippingAddress = o.shipping_address ?? o.shippingAddress ?? o.ShippingAddress;
           const isOpen = expandedId === id;
 
           return (
@@ -167,13 +195,14 @@ export default function Orders() {
               </button>
 
               {isOpen && (
-                <div className="border-t border-[var(--color-line)] px-4 py-3 bg-[var(--color-paper)]">
+                <div className="border-t border-[var(--color-line)] px-4 py-4 bg-[var(--color-paper)]">
                   {detailsLoading && !detailsByOrder[id] ? (
                     <p className="text-xs text-[var(--color-ink-soft)]">Loading items…</p>
                   ) : (detailsByOrder[id] || []).length === 0 ? (
                     <p className="text-xs text-[var(--color-ink-soft)]">No line items found for this order.</p>
                   ) : (
                     <div>
+                      {/* Line items */}
                       {detailsByOrder[id].map((d, idx) => {
                         const productId = d.product_id ?? d.productId ?? d.ProductId;
                         const product = d.product;
@@ -210,6 +239,30 @@ export default function Orders() {
                           </div>
                         );
                       })}
+
+                      {/* Order meta */}
+                      <div className="order-detail-meta mt-4">
+                        {paymentMethod && (
+                          <div className="order-detail-meta-row">
+                            <span className="order-detail-meta-label">Payment</span>
+                            <span className="order-detail-meta-value">
+                              {paymentMethod}
+                              {paymentStatus ? ` · ${paymentStatus}` : ""}
+                            </span>
+                          </div>
+                        )}
+                        {shippingAddress && (
+                          <div className="order-detail-meta-row">
+                            <span className="order-detail-meta-label">Ship to</span>
+                            <span className="order-detail-meta-value">{shippingAddress}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Timeline */}
+                      <div className="mt-5">
+                        <OrderTimeline status={status} />
+                      </div>
                     </div>
                   )}
                 </div>

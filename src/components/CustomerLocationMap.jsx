@@ -23,7 +23,13 @@ function stablePosition(label, index, total) {
   };
 }
 
-export default function CustomerLocationMap({ locations = [], totalOrders = 0 }) {
+export default function CustomerLocationMap({
+  locations = [],
+  totalOrders = 0,
+  onRefresh,
+  isRefreshing = false,
+  lastRefreshedAt = null,
+}) {
   const hasData = locations.length > 0;
   const topPins = locations.slice(0, 5);
   const topList = locations.slice(0, 6);
@@ -41,12 +47,54 @@ export default function CustomerLocationMap({ locations = [], totalOrders = 0 })
             Exact street addresses are never shown here.
           </p>
         </div>
-        {hasData && (
-          <div className="admin-location-total" aria-label={`${totalOrders} orders in this period`}>
-            <span className="admin-location-total-count">{totalOrders}</span>
-            <span className="admin-location-total-label">orders in this period</span>
+
+        <div className="admin-location-header-right">
+          {hasData && (
+            <div className="admin-location-total" aria-label={`${totalOrders} orders in this period`}>
+              <span className="admin-location-total-count">{totalOrders}</span>
+              <span className="admin-location-total-label">orders in this period</span>
+            </div>
+          )}
+
+          {/* Refresh controls */}
+          <div className="admin-location-actions">
+            {lastRefreshedAt && (
+              <span className="admin-location-refreshed">
+                Updated{" "}
+                {lastRefreshedAt.toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </span>
+            )}
+            <button
+              type="button"
+              className="admin-location-refresh"
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              aria-label="Refresh customer locations"
+            >
+              <svg
+                className={isRefreshing ? "is-spinning" : ""}
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 11a8.1 8.1 0 0 0-14.7-3L3 11" />
+                <path d="M3 4v7h7" />
+                <path d="M4 13a8.1 8.1 0 0 0 14.7 3L21 13" />
+                <path d="M21 20v-7h-7" />
+              </svg>
+              <span>{isRefreshing ? "Refreshing" : "Refresh"}</span>
+            </button>
           </div>
-        )}
+        </div>
       </div>
 
       {hasData ? (

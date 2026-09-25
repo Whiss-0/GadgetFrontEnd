@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { ordersApi } from "../../api/client";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import { useToast } from "../../hooks/useToast";
 
 const STATUS_OPTIONS = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
 
 export default function OrdersAdmin() {
+  const toast = useToast();
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
@@ -37,7 +39,7 @@ export default function OrdersAdmin() {
       await ordersApi.updateStatus(id, status);
       load();
     } catch (err) {
-      setError(err.response?.data?.message || "Couldn't update order status.");
+      toast.show(err.response?.data?.message || "Couldn't update order status.", { tone: "error" });
     } finally {
       setUpdatingId(null);
     }
@@ -51,8 +53,9 @@ export default function OrdersAdmin() {
       await ordersApi.updateStatus(id, "Cancelled");
       setOrderToCancel(null);
       load();
+      toast.show(`Order #${String(id).padStart(5, "0")} was cancelled.`, { tone: "success" });
     } catch (err) {
-      setError(err.response?.data?.message || "Couldn't cancel this order.");
+      toast.show(err.response?.data?.message || "Couldn't cancel this order.", { tone: "error" });
     } finally {
       setUpdatingId(null);
     }

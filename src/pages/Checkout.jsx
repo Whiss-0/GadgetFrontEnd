@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { ordersApi, orderDetailApi, cartApi } from "../api/client";
+import { ordersApi, cartApi } from "../api/client";
 
 const PAYMENT_METHODS = [
   { id: "COD", label: "Cash on delivery" },
@@ -49,29 +49,25 @@ export default function Checkout() {
     }
 
     try {
-      // 1. Create the master order
-      const orderRes = await ordersApi.create({
+      // Atomic checkout: creates the order, validates stock, and inserts all
+      // line items in a single database transaction. If any item fails (e.g.
+      // out of stock), the entire order is rolled back.
+      await ordersApi.checkout({
         totalAmount: total,
         shippingAddress: address,
         phoneNumber: phone,
         paymentMethod: method,
+        items: items.map((item) => ({
+          productId: item.product_id ?? item.productId ?? item.ProductId,
+          quantity: item.quantity ?? item.Quantity ?? 1,
+          price: item.price ?? item.Price ?? 0,
+        })),
       });
-      const orderId = orderRes.data.order_id ?? orderRes.data.orderId ?? orderRes.data.OrderId;
-
-      // 2. Save individual items
-      for (const i of items) {
-        await orderDetailApi.create({
-          orderId: orderId,
-          productId: i.product_id ?? i.productId ?? i.ProductId,
-          quantity: i.quantity ?? i.Quantity ?? 1,
-          price: i.price ?? i.Price ?? 0,
-        });
-      }
 
       // Save order snapshot before cart items are cleared from state
       setCompletedOrder(orderSnapshot);
 
-      // 3. Clear cart if not buy now
+      // Clear cart if not buy now
       if (!buyNow) {
         await cartApi.clear();
         await refresh();
@@ -212,7 +208,7 @@ export default function Checkout() {
               <p className="modal-description">
                 Thanks for your order.{" "}
                 {displayItems.length === 1
-                  ? <>We're getting <strong id="purchased-item-name">{displayItems[0].name ?? displayItems[0].Name ?? "your item"}</strong> ready for you.</>  
+                  ? <>{"We're getting"} <strong id="purchased-item-name">{displayItems[0].name ?? displayItems[0].Name ?? "your item"}</strong>{" ready for you."}</>
                   : "We're getting your items ready for you."}
               </p>
 

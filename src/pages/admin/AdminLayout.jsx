@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { productsApi, ordersApi, usersApi } from "../../api/client";
 import CustomerLocationMap from "../../components/CustomerLocationMap";
+import { useToast } from "../../hooks/useToast";
 
 const tabs = [
   { to: "/admin", label: "Products", end: true },
@@ -69,6 +70,7 @@ function getBroadLocation(address) {
 }
 
 export default function AdminLayout() {
+  const { show } = useToast();
   const [productCount, setProductCount] = useState(0);
   const [lowStockItems, setLowStockItems] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -77,24 +79,48 @@ export default function AdminLayout() {
   const [customStart, setCustomStart] = useState(""); // "YYYY-MM-DD" from <input type="date">
   const [customEnd, setCustomEnd] = useState("");
   const [showLowStock, setShowLowStock] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState(null);
+
+  const loadDashboard = useCallback(async ({ notify = false } = {}) => {
+    setIsRefreshing(true);
+    try {
+      // Products and orders are critical — load together.
+      const [prodRes, orderRes] = await Promise.all([
+        productsApi.list(),
+        ordersApi.listAllAdmin(),
+      ]);
+      const products = prodRes.data || [];
+      const nextOrders = orderRes.data || [];
+      setProductCount(products.length);
+      setLowStockItems(products.filter((p) => (p.stock ?? 0) <= 5));
+      setOrders(nextOrders);
+      setLastRefreshedAt(new Date());
+
+      // Users are loaded separately so a failure here never breaks the main dashboard.
+      usersApi
+        .list()
+        .then((res) => setUsers(res.data || []))
+        .catch(() => {});
+
+      if (notify) {
+        show("Dashboard data is up to date.", { tone: "success" });
+      }
+    } catch (err) {
+      if (notify) {
+        show(
+          err.response?.data?.message || "Couldn't refresh dashboard data.",
+          { tone: "error" }
+        );
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [show]);
 
   useEffect(() => {
-    // Products and orders are critical — load together.
-    Promise.all([productsApi.list(), ordersApi.listAllAdmin()])
-      .then(([prodRes, orderRes]) => {
-        const products = prodRes.data || [];
-        setProductCount(products.length);
-        setLowStockItems(products.filter((p) => (p.stock ?? 0) <= 5));
-        setOrders(orderRes.data || []);
-      })
-      .catch(() => {});
-
-    // Users are loaded separately so a failure here never breaks the main dashboard.
-    usersApi
-      .list()
-      .then((res) => setUsers(res.data || []))
-      .catch(() => {});
-  }, []);
+    loadDashboard();
+  }, [loadDashboard]);
 
   const hasCustomRange = Boolean(customStart || customEnd);
 
@@ -127,6 +153,9 @@ export default function AdminLayout() {
     .reduce((sum, o) => sum + Number(o.total_amount ?? o.totalAmount ?? 0), 0);
 
   // --- Location aggregation (privacy-safe, broad areas only) ---
+  // Order's shipping_address is used first — it reflects where the order was
+  // actually delivered, which may differ from the saved profile address.
+  // Profile address is only a fallback for legacy orders with no saved address.
   const usersById = new Map(
     users.map((user) => [user.User_ID ?? user.user_ID ?? user.userId, user])
   );
@@ -137,10 +166,11 @@ export default function AdminLayout() {
     const userId = order.user_id ?? order.userId ?? order.User_ID;
     const user = usersById.get(userId);
     const rawAddress =
-      user?.Address ??
-      user?.address ??
       order.shipping_address ??
-      order.shippingAddress;
+      order.shippingAddress ??
+      order.ShippingAddress ??
+      user?.Address ??
+      user?.address;
     const label = getBroadLocation(rawAddress);
 
     if (!label) return;
@@ -274,6 +304,9 @@ export default function AdminLayout() {
           <CustomerLocationMap
             locations={customerLocations}
             totalOrders={ordersInPeriod.length}
+            onRefresh={() => loadDashboard({ notify: true })}
+            isRefreshing={isRefreshing}
+            lastRefreshedAt={lastRefreshedAt}
           />
         </div>
 
