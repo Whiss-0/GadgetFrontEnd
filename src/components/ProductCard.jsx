@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { wishlistApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../hooks/useToast";
 import ProductArt from "./ProductArt";
 
 
 export default function ProductCard({ product, onAddToCart }) {
   const { isAuthenticated } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -28,9 +30,9 @@ export default function ProductCard({ product, onAddToCart }) {
     try {
       await wishlistApi.add(id);
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch {
-      // already added or error
+      toast.show(`“${name}” saved to your wishlist.`, { tone: "success" });
+    } catch (error) {
+      toast.show(error.response?.data?.message || "Couldn’t save this item to your wishlist.", { tone: "error" });
     }
   }
 
@@ -46,10 +48,11 @@ export default function ProductCard({ product, onAddToCart }) {
     setAdding(true);
     try {
       if (onAddToCart) {
-        await onAddToCart(product);
+        const result = await onAddToCart(product);
+        if (result === false) return;
       }
       setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
+      window.setTimeout(() => setAdded(false), 1800);
     } finally {
       setAdding(false);
     }
@@ -93,11 +96,14 @@ export default function ProductCard({ product, onAddToCart }) {
           </svg>
         </button>
 
-        <ProductArt
-          product={product}
-          alt={name}
-          className="product-art-image"
-        />
+        <Link to={`/products/${id}`} className="product-art-link" aria-label={`View ${name} details`}>
+          <ProductArt
+            product={product}
+            alt={name}
+            className="product-art-image"
+          />
+          <span className="product-view-details">View details <span aria-hidden="true">↗</span></span>
+        </Link>
       </div>
 
       <div className="product-card-body">
@@ -109,7 +115,7 @@ export default function ProductCard({ product, onAddToCart }) {
         </Link>
         
         <div className="product-meta flex items-center justify-between text-xs text-[var(--color-ink-soft)]">
-          <span>{product.brand || ""}</span>
+            <span>{product.brand || "Gadget Store pick"}</span>
           {stockLabel && (
             <span className={stock === 0 ? "text-[var(--color-signal)]" : stock <= 3 ? "text-amber-600 dark:text-amber-400 font-medium" : ""}>
               {stockLabel}

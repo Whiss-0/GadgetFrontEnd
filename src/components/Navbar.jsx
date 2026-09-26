@@ -183,12 +183,12 @@ export default function Navbar() {
           {isAuthenticated ? (
             <UserMenu user={user} logout={logout} />
           ) : (
-            <Link to="/login" className="btn-primary header-login text-sm px-3 sm:px-4 py-1.5 rounded font-semibold inline-flex items-center gap-1.5">
+            <Link to="/login" aria-label="Log in" className="btn-primary header-login text-sm px-3 sm:px-4 py-1.5 rounded font-semibold inline-flex items-center gap-1.5">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              <span>Log in</span>
+              <span className="header-login-label">Log in</span>
             </Link>
           )}
 
