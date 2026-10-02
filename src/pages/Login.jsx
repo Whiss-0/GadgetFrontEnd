@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
 
 export default function Login() {
   const { login, verifyMfa } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
+  const returnTo = from ? `${from.pathname || "/"}${from.search || ""}${from.hash || ""}` : "/";
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -23,11 +26,11 @@ export default function Login() {
         if (result.requiresMfa) {
           setMfaStep(true);
         } else {
-          navigate("/");
+          navigate(returnTo, { replace: true });
         }
       } else {
         await verifyMfa(username, code);
-        navigate("/");
+        navigate(returnTo, { replace: true });
       }
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong. Try again.");
@@ -39,18 +42,9 @@ export default function Login() {
   return (
     <main className="auth-page">
       <div className="auth-frame">
-        <aside className="auth-visual" aria-label="Gadget Store benefits">
-          <div>
-            <p className="auth-visual-code">A better way to shop for tech</p>
-            <h2>Welcome back.<br /><span>Your setup is waiting.</span></h2>
-            <p className="auth-visual-copy">Pick up where you left off, keep your favorites close, and make checkout easy.</p>
-          </div>
-          <div className="auth-visual-footer">
-            <span>Your cart, wherever you left it</span>
-            <span>Easy access to your orders</span>
-            <span>Thoughtful tech, all in one place</span>
-          </div>
-        </aside>
+        <div className="auth-visual" aria-hidden="true">
+          <span className="auth-visual-code">Gadget/Store · Secure sign-in</span>
+        </div>
 
         <section className="auth-form-panel">
           <div className="auth-heading">
@@ -124,6 +118,14 @@ export default function Login() {
             </div>
           )}
         </section>
+
+        {!mfaStep && (
+          <div className="auth-visual-footer">
+            <span>Your cart, wherever you left it</span>
+            <span>Easy access to your orders</span>
+            <span>Thoughtful tech, all in one place</span>
+          </div>
+        )}
       </div>
     </main>
   );

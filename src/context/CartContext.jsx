@@ -7,47 +7,45 @@ const CartContext = createContext(null);
 export function CartProvider({ children }) {
   const { isAuthenticated } = useAuth();
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(isAuthenticated);
+  const [loadError, setLoadError] = useState("");
 
   const refresh = useCallback(async () => {
     if (!isAuthenticated) {
       setItems([]);
-      return;
+      setLoadError("");
+      setLoading(false);
+      return true;
     }
+
     setLoading(true);
+    setLoadError("");
     try {
       // Fetch raw cart rows and all products, then join so cart items have
-      // name + price (the Cart DB model only stores product_id, not the product details).
+      // name + price (the Cart DB model only stores product_id, not product details).
       const [cartRes, productsRes] = await Promise.all([
         cartApi.list(),
         productsApi.list(),
       ]);
-
-      const rawCart = cartRes.data || [];
-      const products = productsRes.data || [];
-
-      // Build a map keyed by product_id for O(1) lookup
-      const productMap = {};
-      for (const p of products) {
-        productMap[p.product_id] = p;
-      }
-
-      // Enrich each cart row with product details
+      const rawCart = Array.isArray(cartRes.data) ? cartRes.data : [];
+      const products = Array.isArray(productsRes.data) ? productsRes.data : [];
+      const productMap = Object.fromEntries(products.map((product) => [product.product_id, product]));
       const enriched = rawCart.map((item) => {
-        const prod = productMap[item.product_id] ?? {};
+        const product = productMap[item.product_id] ?? {};
         return {
           ...item,
-          // normalised accessors used by the UI
-          name: prod.product_name ?? `Product #${item.product_id}`,
-          price: prod.price ?? 0,
-          image: prod.image ?? null,
-          brand: prod.brand ?? null,
+          name: product.product_name ?? `Product #${item.product_id}`,
+          price: product.price ?? 0,
+          image: product.image ?? null,
+          brand: product.brand ?? null,
         };
       });
-
       setItems(enriched);
+      return true;
     } catch {
-      setItems([]);
+      // Keep the last known cart instead of making a network failure look empty.
+      setLoadError("We couldn’t load your cart. Check your connection and try again.");
+      return false;
     } finally {
       setLoading(false);
     }
@@ -73,7 +71,7 @@ export function CartProvider({ children }) {
   }, [refresh]);
 
   return (
-    <CartContext.Provider value={{ items, loading, addItem, updateQuantity, removeItem, refresh }}>
+    <CartContext.Provider value={{ items, loading, loadError, addItem, updateQuantity, removeItem, refresh }}>
       {children}
     </CartContext.Provider>
   );

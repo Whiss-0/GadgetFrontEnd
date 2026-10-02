@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { authApi } from "../api/client";
 
@@ -59,9 +59,19 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem("gs_token");
+    localStorage.removeItem("gs_user");
     setToken(null);
     setUser(null);
   }, []);
+
+  const updateUser = useCallback((updates) => {
+    setUser((current) => current ? { ...current, ...updates } : current);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("gadgetstore:unauthorized", logout);
+    return () => window.removeEventListener("gadgetstore:unauthorized", logout);
+  }, [logout]);
 
   // role_id "1" = Admin, "2" = Moderator, "3" = User
   const isAdmin = user?.roleId === "1" || user?.roleId === 1;
@@ -69,7 +79,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ token, user, isAuthenticated: !!token, isAdmin, isMod, login, logout, verifyMfa }}
+      value={{ token, user, isAuthenticated: !!token, isAdmin, isMod, login, logout, updateUser, verifyMfa }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { reviewsApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
@@ -9,15 +9,21 @@ export default function ProductReviews({ productId }) {
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
 
-  function load() {
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(false);
     reviewsApi
       .listForProduct(productId)
       .then((res) => setReviews(res.data || []))
-      .catch(() => setReviews([]));
-  }
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
+  }, [productId]);
 
-  useEffect(load, [productId]);
+  useEffect(() => { load(); }, [load, retryNonce]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -78,7 +84,14 @@ export default function ProductReviews({ productId }) {
         </form>
       )}
 
-      {reviews.length === 0 ? (
+      {loading ? (
+        <p className="text-sm text-[var(--color-ink-soft)]" role="status" aria-live="polite">Loading reviews…</p>
+      ) : loadError ? (
+        <div className="text-sm" role="alert">
+          <p className="text-[var(--color-ink-soft)]">Reviews couldn’t be loaded.</p>
+          <button type="button" onClick={() => setRetryNonce((value) => value + 1)} className="mt-2 text-[var(--color-circuit)] font-medium hover:underline">Try again</button>
+        </div>
+      ) : reviews.length === 0 ? (
         <p className="text-sm text-[var(--color-ink-soft)]">No reviews yet — be the first.</p>
       ) : (
         <div className="space-y-4">

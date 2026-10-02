@@ -29,74 +29,91 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-16 px-5">
-      <div className="spec-ticket rounded-md p-6 pt-8">
-        <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mb-1">ACCOUNT HELP</p>
-        <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6">Enter your code</h1>
+    <main className="auth-page">
+      <div className="auth-frame">
+        <div className="auth-visual" aria-hidden="true">
+          <span className="auth-visual-code">Gadget/Store · Account help</span>
+        </div>
 
-        {success ? (
-          <p className="mt-10 text-sm text-[var(--color-circuit)] font-medium">
-            Password updated. Taking you to log in…
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 mt-10">
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="username">Username</label>
-              <input
-                id="username"
-                type="text"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="code">6-digit code</label>
-              <input
-                id="code"
-                required
-                inputMode="numeric"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder="000000"
-                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none font-[var(--font-mono)] text-lg tracking-[0.4em] text-center"
-              />
-              <p className="text-xs text-[var(--color-ink-soft)] mt-1">Check your email — the code expires in 10 minutes.</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="password">New password</label>
-              <PasswordInput
-                id="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+        <section className="auth-form-panel">
+          <div className="auth-heading">
+            <p className="eyebrow">Almost there</p>
+            <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight">
+              Enter your code
+            </h1>
+            <p className="auth-lede">Check your email for the 6-digit code and choose a new password.</p>
+          </div>
 
-            {error && <p className="text-sm text-[var(--color-signal)]">{error}</p>}
+          {success ? (
+            <p className="mt-8 text-sm text-[var(--color-circuit)] font-medium">
+              Password updated. Taking you to log in…
+            </p>
+          ) : (
+            <form onSubmit={handleSubmit} className="auth-form">
+              <div className="auth-field">
+                <label htmlFor="username">Username</label>
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                  className="auth-input input-premium"
+                />
+              </div>
+              <div className="auth-field">
+                <label htmlFor="code">6-digit code</label>
+                <input
+                  id="code"
+                  required
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="000000"
+                  aria-describedby="code-help"
+                  className="auth-input input-premium auth-code-input"
+                />
+                <span id="code-help" className="auth-field-help">Check your email · code expires in 10 minutes</span>
+              </div>
+              <div className="auth-field">
+                <label htmlFor="password">New password</label>
+                <PasswordInput
+                  id="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn-primary font-semibold py-2 rounded disabled:opacity-50"
-            >
-              {loading ? "Updating…" : "Update password"}
-            </button>
-          </form>
-        )}
+              {error && <p className="auth-error" role="alert">{error}</p>}
 
-        <div className="mt-5 flex justify-between text-sm">
-          <Link to="/login" className="text-[var(--color-ink-soft)] hover:text-[var(--color-circuit)]">
-            Back to log in
-          </Link>
-          <Link to="/forgot-password" className="text-[var(--color-ink-soft)] hover:text-[var(--color-circuit)]">
-            Resend code
-          </Link>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn-primary auth-submit"
+              >
+                {loading ? "Updating…" : "Update password"}
+              </button>
+            </form>
+          )}
+
+          <div className="auth-links">
+            <Link to="/login">Back to log in</Link>
+            <Link to="/forgot-password" className="auth-create-link">
+              Resend code <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+        </section>
+
+        <div className="auth-visual-footer">
+          <span>Check your spam folder too</span>
+          <span>Code expires in 10 minutes</span>
+          <span>Still stuck? Contact support</span>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -11,6 +11,7 @@ export default function ProductCard({ product, onAddToCart }) {
   const toast = useToast();
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -24,15 +25,32 @@ export default function ProductCard({ product, onAddToCart }) {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/login", { state: { from: { pathname: `/products/${id}` } } });
       return;
     }
+    if (wishlistBusy) return;
+    setWishlistBusy(true);
     try {
-      await wishlistApi.add(id);
-      setSaved(true);
-      toast.show(`“${name}” saved to your wishlist.`, { tone: "success" });
+      const response = await wishlistApi.list();
+      const existing = (Array.isArray(response.data) ? response.data : []).find((item) => item.product_id === id);
+      if (existing) {
+        if (!saved) {
+          setSaved(true);
+          toast.show(`“${name}” is already in your wishlist.`, { tone: "success" });
+          return;
+        }
+        await wishlistApi.remove(existing.wishlist_id);
+        setSaved(false);
+        toast.show(`“${name}” removed from your wishlist.`, { tone: "success" });
+      } else {
+        await wishlistApi.add(id);
+        setSaved(true);
+        toast.show(`“${name}” saved to your wishlist.`, { tone: "success" });
+      }
     } catch (error) {
       toast.show(error.response?.data?.message || "Couldn’t save this item to your wishlist.", { tone: "error" });
+    } finally {
+      setWishlistBusy(false);
     }
   }
 
@@ -86,8 +104,9 @@ export default function ProductCard({ product, onAddToCart }) {
         <button
           type="button"
           onClick={handleWishlist}
-          title={saved ? "Saved to wishlist!" : "Save to wishlist"}
+          title={saved ? "Remove from wishlist" : "Save to wishlist"}
           aria-label={saved ? `Remove ${name} from wishlist` : `Save ${name} to wishlist`}
+          disabled={wishlistBusy}
           aria-pressed={saved}
           className={`product-wishlist ${saved ? "saved" : ""}`}
         >
@@ -117,7 +136,7 @@ export default function ProductCard({ product, onAddToCart }) {
         <div className="product-meta flex items-center justify-between text-xs text-[var(--color-ink-soft)]">
             <span>{product.brand || "Gadget Store pick"}</span>
           {stockLabel && (
-            <span className={stock === 0 ? "text-[var(--color-signal)]" : stock <= 3 ? "text-amber-600 dark:text-amber-400 font-medium" : ""}>
+            <span className={stock === 0 ? "text-[var(--color-signal)]" : stock <= 3 ? "text-amber-800 dark:text-amber-400 font-medium" : ""}>
               {stockLabel}
             </span>
           )}

@@ -18,10 +18,15 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const requestUrl = err.config?.url || "";
+    const isCredentialRequest = /\/api\/auth\/(login|register|forgot-password|reset-password)/.test(requestUrl);
+    const requestHadToken = Boolean(err.config?.headers?.Authorization);
+    if (err.response?.status === 401 && requestHadToken && !isCredentialRequest) {
       // Token missing/expired — clear it so the UI reflects logged-out state.
+      const hadToken = Boolean(localStorage.getItem("gs_token"));
       localStorage.removeItem("gs_token");
       localStorage.removeItem("gs_user");
+      if (hadToken) window.dispatchEvent(new Event("gadgetstore:unauthorized"));
     }
     return Promise.reject(err);
   }

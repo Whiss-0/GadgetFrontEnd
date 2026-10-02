@@ -30,69 +30,86 @@ export default function Register() {
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-16 px-5">
-      <div className="spec-ticket rounded-md p-6 pt-8">
-        <p className="text-sm text-[var(--color-ink-soft)] mb-1">Start with Gadget Store</p>
-        <h1 className="font-[var(--font-display)] text-2xl font-semibold mb-6">Create an account</h1>
+    <main className="auth-page">
+      <div className="auth-frame">
+        <div className="auth-visual" aria-hidden="true">
+          <span className="auth-visual-code">Gadget/Store · Create account</span>
+        </div>
 
-        {success ? (
-          <p className="mt-10 text-sm text-[var(--color-circuit)] font-medium">
-            Account created. Taking you to log in…
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 mt-10">
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="username">Username</label>
-              <input
-                id="username"
-                type="text"
-                required
-                value={form.username}
-                onChange={(e) => update("username", e.target.value)}
-                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                className="w-full input-premium border rounded px-3 py-2 bg-white outline-none"
-              />
-              <p className="text-xs text-[var(--color-ink-soft)] mt-1">Used only for password resets.</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="password">Password</label>
-              <PasswordInput
-                id="password"
-                value={form.password}
-                onChange={(e) => update("password", e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
+        <section className="auth-form-panel">
+          <div className="auth-heading">
+            <p className="eyebrow">Start with Gadget Store</p>
+            <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight">
+              Create an account
+            </h1>
+            <p className="auth-lede">Join to track orders, save favourites, and check out faster.</p>
+          </div>
 
-            {error && <p className="text-sm text-[var(--color-signal)]">{error}</p>}
+          {success ? (
+            <p className="mt-10 text-sm text-[var(--color-circuit)] font-medium">
+              Account created. Taking you to log in…
+            </p>
+          ) : (
+            <form onSubmit={handleSubmit} className="auth-form">
+              <div className="auth-field">
+                <label htmlFor="username">Username</label>
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  value={form.username}
+                  onChange={(e) => update("username", e.target.value)}
+                  autoComplete="username"
+                  className="auth-input input-premium"
+                />
+              </div>
+              <div className="auth-field">
+                <label htmlFor="email">Email</label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => update("email", e.target.value)}
+                  autoComplete="email"
+                  className="auth-input input-premium"
+                />
+                <span className="auth-field-help">Used only for password resets.</span>
+              </div>
+              <div className="auth-field">
+                <label htmlFor="password">Password</label>
+                <PasswordInput
+                  id="password"
+                  value={form.password}
+                  onChange={(e) => update("password", e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn-primary font-semibold py-2 rounded disabled:opacity-50"
-            >
-              {loading ? "Creating…" : "Create an account"}
-            </button>
-          </form>
-        )}
+              {error && <p className="auth-error" role="alert">{error}</p>}
 
-        <div className="mt-5 text-sm">
-          <Link to="/login" className="text-[var(--color-ink-soft)] hover:text-[var(--color-circuit)]">
-            Already have an account? Log in
-          </Link>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn-primary auth-submit"
+              >
+                {loading ? "Creating…" : "Create an account"}
+              </button>
+            </form>
+          )}
+
+          <div className="auth-links">
+            <Link to="/login">Already have an account? Log in</Link>
+          </div>
+        </section>
+
+        <div className="auth-visual-footer">
+          <span>Your cart, wherever you left it</span>
+          <span>Easy access to your orders</span>
+          <span>Thoughtful tech, all in one place</span>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

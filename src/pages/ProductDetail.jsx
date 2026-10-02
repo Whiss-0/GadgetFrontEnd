@@ -30,9 +30,12 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [categories, setCategories] = useState([]);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [savedWishlist, setSavedWishlist] = useState(false);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
 
   // Description edit state (staff/admin only)
   const [editingDesc, setEditingDesc] = useState(false);
@@ -41,16 +44,29 @@ export default function ProductDetail() {
   const [descMsg, setDescMsg] = useState("");
 
   useEffect(() => {
+    let active = true;
+    setProduct(null);
+    setNotFound(false);
+    setLoadError(false);
     // Fetch the product — this is the only call that can trigger "not found".
     productsApi.get(id)
-      .then((res) => setProduct(res.data))
-      .catch(() => setNotFound(true));
+      .then((res) => {
+        if (!active) return;
+        if (res.data) setProduct(res.data);
+        else setNotFound(true);
+      })
+      .catch((error) => {
+        if (!active) return;
+        if (error.response?.status === 404) setNotFound(true);
+        else setLoadError(true);
+      });
 
     // Fetch categories separately so a failure here never hides the product.
     categoriesApi.list()
-      .then((res) => setCategories(res.data || []))
-      .catch(() => setCategories([])); // graceful degradation — category name just won't show
-  }, [id]);
+      .then((res) => { if (active) setCategories(res.data || []); })
+      .catch(() => { if (active) setCategories([]); }); // category name is optional
+    return () => { active = false; };
+  }, [id, retryNonce]);
 
   if (notFound)
     return (
@@ -60,9 +76,21 @@ export default function ProductDetail() {
       </div>
     );
 
+  if (loadError)
+    return (
+      <div className="max-w-4xl mx-auto px-5 py-16" role="alert">
+        <p className="text-[var(--color-ink)] text-lg font-semibold mb-2">We couldn’t load this product.</p>
+        <p className="text-[var(--color-ink-soft)] mb-4">Check your connection and try again.</p>
+        <div className="flex items-center gap-4">
+          <button type="button" onClick={() => setRetryNonce((value) => value + 1)} className="btn-primary px-4 py-2 rounded">Try again</button>
+          <Link to="/" className="text-sm text-[var(--color-circuit)] hover:underline">Back to shop</Link>
+        </div>
+      </div>
+    );
+
   if (!product)
     return (
-      <div className="max-w-4xl mx-auto px-5 py-16 text-[var(--color-ink-soft)]">
+      <div className="max-w-4xl mx-auto px-5 py-16 text-[var(--color-ink-soft)]" role="status" aria-live="polite">
         Loading product…
       </div>
     );
@@ -93,7 +121,7 @@ export default function ProductDetail() {
 
   async function handleAdd() {
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/login", { state: { from: { pathname: `/products/${id}` } } });
       return;
     }
     setAdding(true);
@@ -109,7 +137,7 @@ export default function ProductDetail() {
 
   function handleBuyNow() {
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/login", { state: { from: { pathname: `/products/${id}` } } });
       return;
     }
     // Skip the cart entirely — go straight to checkout with just this item.
@@ -123,16 +151,32 @@ export default function ProductDetail() {
 
   async function handleWishlist() {
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/login", { state: { from: { pathname: `/products/${id}` } } });
       return;
     }
+    if (wishlistBusy) return;
+    setWishlistBusy(true);
     try {
-      await wishlistApi.add(Number(id));
-      setSavedWishlist(true);
-      toast.show(`Added "${name}" to your wishlist.`, { tone: "success" });
-      setTimeout(() => setSavedWishlist(false), 2500);
+      const response = await wishlistApi.list();
+      const existing = (Array.isArray(response.data) ? response.data : []).find((item) => item.product_id === Number(id));
+      if (existing) {
+        if (!savedWishlist) {
+          setSavedWishlist(true);
+          toast.show(`"${name}" is already in your wishlist.`, { tone: "success" });
+          return;
+        }
+        await wishlistApi.remove(existing.wishlist_id);
+        setSavedWishlist(false);
+        toast.show(`Removed "${name}" from your wishlist.`, { tone: "success" });
+      } else {
+        await wishlistApi.add(Number(id));
+        setSavedWishlist(true);
+        toast.show(`Added "${name}" to your wishlist.`, { tone: "success" });
+      }
     } catch (err) {
       toast.show(err.response?.data?.message || "Couldn't save to wishlist.", { tone: "error" });
+    } finally {
+      setWishlistBusy(false);
     }
   }
 
@@ -283,8 +327,10 @@ export default function ProductDetail() {
                   <button
                     type="button"
                     onClick={handleWishlist}
-                    title="Save to wishlist"
-                    aria-label={`Save ${name} to wishlist`}
+                    title={savedWishlist ? "Remove from wishlist" : "Save to wishlist"}
+                    aria-label={savedWishlist ? `Remove ${name} from wishlist` : `Save ${name} to wishlist`}
+                    aria-pressed={savedWishlist}
+                    disabled={wishlistBusy}
                     className={`border border-[var(--color-line)] p-2.5 rounded-lg transition-colors flex items-center justify-center ${
                       savedWishlist
                         ? "bg-[var(--color-signal)] text-white border-[var(--color-signal)]"

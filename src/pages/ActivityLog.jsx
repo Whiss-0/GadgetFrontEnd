@@ -243,8 +243,8 @@ export default function ActivityLog() {
         <div className="activity-state activity-state-empty">
           <span aria-hidden="true">◷</span>
           <div className="text-center">
-            <p className="font-semibold text-white mb-1">No activity to show</p>
-            <p className="text-xs text-[var(--color-dark-ink)]/60">New account and store actions will appear here.</p>
+            <p className="font-semibold text-[var(--color-ink)] mb-1">No activity to show</p>
+            <p className="text-xs text-[var(--color-ink-soft)]">New account and store actions will appear here.</p>
           </div>
         </div>
       )}

@@ -1,10 +1,39 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import ProductArt from "../components/ProductArt";
+import { useToast } from "../hooks/useToast";
 
 export default function Cart() {
-  const { items, loading, updateQuantity, removeItem } = useCart();
+  const { items, loading, loadError, updateQuantity, removeItem, refresh } = useCart();
   const navigate = useNavigate();
+  const toast = useToast();
+  const [pendingCartId, setPendingCartId] = useState(null);
+
+  async function changeQuantity(cartId, quantity) {
+    if (pendingCartId !== null) return;
+    setPendingCartId(cartId);
+    try {
+      await updateQuantity(cartId, quantity);
+    } catch (error) {
+      toast.show(error.response?.data?.message || "Couldn’t update this item. Please try again.", { tone: "error" });
+    } finally {
+      setPendingCartId(null);
+    }
+  }
+
+  async function handleRemove(cartId, name) {
+    if (pendingCartId !== null) return;
+    setPendingCartId(cartId);
+    try {
+      await removeItem(cartId);
+      toast.show(`“${name}” removed from your cart.`, { tone: "success" });
+    } catch (error) {
+      toast.show(error.response?.data?.message || "Couldn’t remove this item. Please try again.", { tone: "error" });
+    } finally {
+      setPendingCartId(null);
+    }
+  }
 
   // Cart items are enriched in CartContext with `name`, `price` joined from products table.
   // DB fields from the cart row: cart_id, user_id, product_id, quantity
@@ -15,7 +44,19 @@ export default function Cart() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-5 py-12 text-[var(--color-ink-soft)]">
-        Loading cart…
+        <span role="status" aria-live="polite">Loading cart…</span>
+      </div>
+    );
+  }
+
+  if (items.length === 0 && loadError) {
+    return (
+      <div className="max-w-3xl mx-auto px-5 py-8 sm:py-12">
+        <h1 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold mb-4">Your cart</h1>
+        <div className="rounded-lg border border-[var(--color-signal)]/40 bg-[var(--color-panel)] p-4" role="alert">
+          <p className="text-sm text-[var(--color-ink)]">{loadError}</p>
+          <button type="button" onClick={refresh} className="mt-2 text-sm font-semibold text-[var(--color-circuit)] hover:underline">Try again</button>
+        </div>
       </div>
     );
   }
@@ -27,7 +68,14 @@ export default function Cart() {
         Review your items before proceeding to checkout.
       </p>
 
-      {items.length === 0 ? (
+      {loadError && (
+        <div className="mb-6 rounded-lg border border-[var(--color-signal)]/40 bg-[var(--color-panel)] p-4" role="alert">
+          <p className="text-sm text-[var(--color-ink)]">{loadError}</p>
+          <button type="button" onClick={refresh} className="mt-2 text-sm font-semibold text-[var(--color-circuit)] hover:underline">Try again</button>
+        </div>
+      )}
+
+      {items.length === 0 && !loadError ? (
         <div className="spec-ticket rounded-xl p-8 sm:p-12 text-center border border-[var(--color-line)] bg-[var(--color-panel)] max-w-lg mx-auto">
           <p className="font-[var(--font-display)] text-xl font-semibold mb-2">Your cart is empty</p>
           <p className="text-[var(--color-ink-soft)] text-sm mb-6">
@@ -79,9 +127,9 @@ export default function Cart() {
                       {/* Quantity stepper */}
                       <div className="quantity-stepper" role="group" aria-label="Quantity">
                         <button
-                          onClick={() => updateQuantity(cartId, Math.max(1, quantity - 1))}
-                          disabled={quantity <= 1}
-                          aria-label="Decrease product quantity"
+                          onClick={() => changeQuantity(cartId, Math.max(1, quantity - 1))}
+                          disabled={quantity <= 1 || pendingCartId === cartId}
+                          aria-label={`Decrease quantity for ${name}`}
                           className="qty-btn"
                         >
                           −
@@ -94,8 +142,9 @@ export default function Cart() {
                           {quantity}
                         </span>
                         <button
-                          onClick={() => updateQuantity(cartId, quantity + 1)}
-                          aria-label="Increase product quantity"
+                          onClick={() => changeQuantity(cartId, quantity + 1)}
+                          aria-label={`Increase quantity for ${name}`}
+                          disabled={pendingCartId === cartId}
                           className="qty-btn"
                         >
                           +
@@ -108,8 +157,10 @@ export default function Cart() {
                           ${(price * quantity).toFixed(2)}
                         </span>
                         <button
-                          onClick={() => removeItem(cartId)}
-                          className="text-[var(--color-signal)] text-xs hover:opacity-75 transition-opacity"
+                          onClick={() => handleRemove(cartId, name)}
+                          disabled={pendingCartId === cartId}
+                          aria-label={`Remove ${name} from cart`}
+                          className="text-[var(--color-signal)] text-xs hover:opacity-75 transition-opacity disabled:opacity-50"
                         >
                           Remove
                         </button>

@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
 
 export default function Settings() {
-  const { user, setUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -53,12 +53,11 @@ export default function Settings() {
         updateData.CurrentPassword = formData.currentPassword;
       }
 
-      await authApi.updateMe(updateData);
+      const response = await authApi.updateMe(updateData);
       
       // Update the AuthContext user name just in case it changed
-      if (setUser && user) {
-        setUser({ ...user, username: formData.name });
-      }
+      const updatedName = response.data?.username ?? response.data?.Name ?? formData.name;
+      if (user) updateUser({ username: updatedName });
 
       setMessage({ type: "success", text: "Profile updated successfully!" });
       setFormData(prev => ({ ...prev, password: "", currentPassword: "" })); // Clear password fields
@@ -83,7 +82,7 @@ export default function Settings() {
       </div>
 
       {message.text && (
-        <div className={`mb-6 p-4 rounded text-sm font-medium ${
+        <div role={message.type === "error" ? "alert" : "status"} aria-live={message.type === "error" ? "assertive" : "polite"} className={`mb-6 p-4 rounded text-sm font-medium ${
           message.type === 'success' 
             ? 'bg-[var(--color-circuit)]/10 text-[var(--color-circuit-dark)] border border-[var(--color-circuit)]/30' 
             : 'bg-[var(--color-signal)]/10 text-[var(--color-signal)] border border-[var(--color-signal)]/30'
@@ -94,8 +93,9 @@ export default function Settings() {
 
       <form onSubmit={handleSubmit} className="spec-ticket p-6 space-y-5 rounded">
         <div>
-          <label className="block text-sm font-semibold mb-1">Name</label>
+          <label htmlFor="settings-name" className="block text-sm font-semibold mb-1">Name</label>
           <input
+            id="settings-name"
             type="text"
             name="name"
             value={formData.name}
@@ -106,8 +106,9 @@ export default function Settings() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-1">Email</label>
+          <label htmlFor="settings-email" className="block text-sm font-semibold mb-1">Email</label>
           <input
+            id="settings-email"
             type="email"
             name="email"
             value={formData.email}
@@ -118,8 +119,9 @@ export default function Settings() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-1">Address</label>
+          <label htmlFor="settings-address" className="block text-sm font-semibold mb-1">Address</label>
           <textarea
+            id="settings-address"
             name="address"
             value={formData.address}
             onChange={handleChange}
@@ -131,7 +133,7 @@ export default function Settings() {
 
         <div className="pt-4 border-t border-[var(--color-line)]">
           <div>
-            <label className="block text-sm font-semibold mb-1">Current Password</label>
+            <label htmlFor="currentPassword" className="block text-sm font-semibold mb-1">Current Password</label>
             <p className="text-xs text-[var(--color-ink-soft)] mb-2">Required only if you're setting a new password below.</p>
             <PasswordInput
               id="currentPassword"
@@ -144,7 +146,7 @@ export default function Settings() {
             />
           </div>
 
-          <label className="block text-sm font-semibold mb-1 mt-4">New Password</label>
+          <label htmlFor="password" className="block text-sm font-semibold mb-1 mt-4">New Password</label>
           <p className="text-xs text-[var(--color-ink-soft)] mb-2">Leave blank to keep your current password.</p>
           <PasswordInput
             id="password"

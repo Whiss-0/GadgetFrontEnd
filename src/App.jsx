@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SiteFooter from "./components/SiteFooter";
-import { RequireAuth, RequireAdmin } from "./components/ProtectedRoute";
+import { RequireAuth, RequireAdmin, RequireMod } from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 import ToastProvider from "./components/ToastProvider";
 
@@ -56,10 +56,10 @@ export default function App() {
           <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
           <Route path="/activity" element={<RequireAuth><ActivityLog /></RequireAuth>} />
 
-          <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+          <Route path="/admin" element={<RequireMod><AdminLayout /></RequireMod>}>
             <Route index element={<ProductsAdmin />} />
             <Route path="orders" element={<OrdersAdmin />} />
-            <Route path="users" element={<UsersAdmin />} />
+            <Route path="users" element={<RequireAdmin><UsersAdmin /></RequireAdmin>} />
           </Route>
 
           {/* Catch-all 404 — must be last */}

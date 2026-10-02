@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { ordersApi, cartApi } from "../api/client";
@@ -24,7 +24,35 @@ export default function Checkout() {
   const [method, setMethod] = useState("COD");
   const [step, setStep] = useState("form"); // form | processing | done
   const [error, setError] = useState("");
+  const [cleanupWarning, setCleanupWarning] = useState("");
   const [completedOrder, setCompletedOrder] = useState(null);
+  const submittingRef = useRef(false);
+  const dialogRef = useRef(null);
+  const dialogTitleRef = useRef(null);
+
+  useEffect(() => {
+    if (step === "done") dialogTitleRef.current?.focus();
+  }, [step]);
+
+  function containDialogFocus(event) {
+    if (event.key !== "Tab") return;
+    const focusable = dialogRef.current?.querySelectorAll("button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex='-1'])");
+    if (!focusable?.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (!Array.from(focusable).includes(document.activeElement)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+      return;
+    }
+    if (event.shiftKey && (document.activeElement === first || !Array.from(focusable).includes(document.activeElement))) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
 
   const total = items.reduce((sum, i) => {
     const price = i.price ?? i.Price ?? 0;
@@ -34,27 +62,33 @@ export default function Checkout() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (submittingRef.current) return;
+    if (!address.trim()) {
+      setError("Enter a delivery address.");
+      return;
+    }
+    submittingRef.current = true;
     setError("");
+    setCleanupWarning("");
+    setStep("processing");
 
     const orderSnapshot = {
       items: [...items],
       total: total,
     };
 
-    if (method !== "COD") {
-      // Simulated payment step — no real gateway, no real card data collected.
-      // This just mimics the UX of a processing screen for demo purposes.
-      setStep("processing");
-      await new Promise((r) => setTimeout(r, 1400));
-    }
-
     try {
+      if (method !== "COD") {
+        // Simulated payment step — no real gateway, no real card data collected.
+        await new Promise((r) => setTimeout(r, 1400));
+      }
+
       // Atomic checkout: creates the order, validates stock, and inserts all
       // line items in a single database transaction. If any item fails (e.g.
       // out of stock), the entire order is rolled back.
       await ordersApi.checkout({
         totalAmount: total,
-        shippingAddress: address,
+        shippingAddress: address.trim(),
         phoneNumber: phone,
         paymentMethod: method,
         items: items.map((item) => ({
@@ -67,16 +101,23 @@ export default function Checkout() {
       // Save order snapshot before cart items are cleared from state
       setCompletedOrder(orderSnapshot);
 
-      // Clear cart if not buy now
-      if (!buyNow) {
-        await cartApi.clear();
-        await refresh();
-      }
-
+      // The order is committed. Cleanup is best-effort and must not turn a
+      // successful purchase into a failure that encourages a duplicate retry.
       setStep("done");
+      if (!buyNow) {
+        try {
+          await cartApi.clear();
+          const refreshed = await refresh();
+          if (!refreshed) setCleanupWarning("Your order was placed, but we couldn’t refresh the cart. Please review it before your next checkout.");
+        } catch {
+          setCleanupWarning("Your order was placed, but we couldn’t clear the cart. Please review it before your next checkout.");
+        }
+      }
     } catch (err) {
       setStep("form");
       setError(err.response?.data?.message || "Couldn't place the order.");
+    } finally {
+      submittingRef.current = false;
     }
   }
 
@@ -116,12 +157,13 @@ export default function Checkout() {
               <textarea
                 id="address"
                 required
+                autoComplete="street-address"
                 rows={2}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 disabled={step === "processing"}
                 placeholder="Street address, apartment/suite, city, postal code"
-                className="w-full border border-[var(--color-line)] rounded-lg p-3 bg-white dark:bg-slate-900 focus:border-[var(--color-circuit)] outline-none text-sm disabled:opacity-50"
+                className="w-full border border-[var(--color-line)] rounded-lg p-3 bg-[var(--color-panel)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)] focus:border-[var(--color-circuit)] outline-none text-sm disabled:opacity-50"
               />
             </div>
             <div>
@@ -132,11 +174,16 @@ export default function Checkout() {
                 id="phone"
                 type="tel"
                 required
+                autoComplete="tel"
+                inputMode="tel"
+                minLength={7}
+                maxLength={24}
+                pattern="[+0-9 ()-]{7,24}"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 disabled={step === "processing"}
                 placeholder="+63 9XX XXX XXXX"
-                className="w-full border border-[var(--color-line)] rounded-lg p-3 bg-white dark:bg-slate-900 focus:border-[var(--color-circuit)] outline-none text-sm disabled:opacity-50"
+                className="w-full border border-[var(--color-line)] rounded-lg p-3 bg-[var(--color-panel)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)] focus:border-[var(--color-circuit)] outline-none text-sm disabled:opacity-50"
               />
             </div>
           </div>
@@ -224,14 +271,15 @@ export default function Checkout() {
         const displayTotal = completedOrder?.total ?? total;
         return (
           <div className="modal-backdrop">
-            <div className="purchase-modal">
+            <div ref={dialogRef} onKeyDown={containDialogFocus} className="purchase-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-success-title">
               <div className="success-icon-badge">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
               </div>
 
-              <h3 className="modal-title">Order placed</h3>
+              <h3 ref={dialogTitleRef} tabIndex={-1} className="modal-title" id="checkout-success-title">Order placed</h3>
+              {cleanupWarning && <p className="text-sm text-[var(--color-signal)]" role="status">{cleanupWarning}</p>}
               <p className="modal-description">
                 Thanks for your order.{" "}
                 {displayItems.length === 1

@@ -70,6 +70,7 @@ function getBroadLocation(address) {
 
 export default function AdminLayout() {
   const { isAdmin } = useAuth();
+  const visibleTabs = tabs.filter((tab) => isAdmin || tab.to !== "/admin/users");
   const { show } = useToast();
   const [productCount, setProductCount] = useState(0);
   const [outOfStockItems, setOutOfStockItems] = useState([]);
@@ -81,10 +82,12 @@ export default function AdminLayout() {
   const [customEnd, setCustomEnd] = useState("");
   const [showLowStock, setShowLowStock] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [dashboardError, setDashboardError] = useState("");
   const [lastRefreshedAt, setLastRefreshedAt] = useState(null);
 
   const loadDashboard = useCallback(async ({ notify = false } = {}) => {
     setIsRefreshing(true);
+    setDashboardError("");
     try {
       const [prodRes, orderRes] = await Promise.all([
         productsApi.list(),
@@ -103,12 +106,13 @@ export default function AdminLayout() {
       usersApi
         .list()
         .then((res) => setUsers(res.data || []))
-        .catch(() => {});
+        .catch(() => setDashboardError("Product and order data loaded, but customer insights couldn’t be refreshed."));
 
       if (notify) {
         show("Dashboard data is up to date.", { tone: "success" });
       }
     } catch (err) {
+      setDashboardError(err.response?.data?.message || "Couldn't load dashboard data. Use Refresh to try again.");
       if (notify) {
         show(
           err.response?.data?.message || "Couldn't refresh dashboard data.",
@@ -252,6 +256,12 @@ export default function AdminLayout() {
             </button>
           </div>
         </div>
+
+        {dashboardError && (
+          <div className="mb-6 rounded-lg border border-[var(--color-signal)]/40 bg-[var(--color-dark-panel)] px-4 py-3 text-sm text-[var(--color-dark-ink)]" role="alert">
+            {dashboardError}
+          </div>
+        )}
 
         {/* Date filter bar */}
         <div className="bg-[var(--color-dark-panel)] border border-[var(--color-dark-line)] rounded-lg p-3.5 mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -555,7 +565,7 @@ export default function AdminLayout() {
 
         {/* Navigation tabs */}
         <nav className="admin-tabs-bar" aria-label="Admin sections">
-          {tabs.map((t) => (
+            {visibleTabs.map((t) => (
             <NavLink
               key={t.to}
               to={t.to}

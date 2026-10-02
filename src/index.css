@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-display: "Space Grotesk", "IBM Plex Sans", sans-serif;
   --font-body: "IBM Plex Sans", sans-serif;
@@ -24,13 +26,13 @@
   /* secondary/muted text */
   --color-line: #D6DAE0;
   /* borders/dividers */
-  --color-circuit: #1F8A70;
-  /* primary accent — solder-mask green */
-  --color-circuit-dark: #146354;
-  --color-circuit-soft: rgba(31, 138, 112, 0.12);
+  --color-circuit: #176B58;
+  /* accessible primary accent — solder-mask green */
+  --color-circuit-dark: #115345;
+  --color-circuit-soft: rgba(23, 107, 88, 0.12);
   /* accent tint for hovers/badges */
-  --color-gold: #B8863A;
-  /* price/connector accent */
+  --color-gold: #875A1E;
+  /* accessible price/connector text accent */
   --color-signal: #C6403A;
   /* danger/alert — do not repurpose for anything else */
   --color-header-bg: #14181F;
@@ -1297,6 +1299,12 @@ select:focus {
 
 /* ============================================================
    SECOND PASS — secure access surface
+   Redesigned away from the generic "dark marketing panel beside a
+   white form" split-screen template. Instead this reuses the
+   store's own signature ideas — the mono status strip from the
+   navbar, the dashed perforation + accent dot from .spec-ticket —
+   so the login screen reads as part of Gadget/Store, not a
+   swapped-in auth-kit page.
    ============================================================ */
 .auth-page {
   min-height: calc(100vh - 4rem);
@@ -1307,72 +1315,62 @@ select:focus {
 }
 
 .auth-frame {
-  width: min(100%, 860px);
-  display: grid;
-  grid-template-columns: 0.95fr 1.05fr;
-  overflow: hidden;
+  width: min(100%, 440px);
   border: 1px solid var(--color-line);
   border-radius: 18px;
   background: var(--color-panel);
   box-shadow: 0 24px 60px rgba(20, 24, 31, 0.1);
 }
 
+/* Slim status strip — a compressed echo of the dark navbar, not a
+   full marketing panel. Signals "you're still in Gadget/Store". */
 .auth-visual {
-  min-height: 510px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(1.75rem, 4vw, 3rem);
-  color: var(--color-header-text);
-  background: linear-gradient(145deg, var(--color-header-bg), color-mix(in srgb, var(--color-header-bg) 76%, var(--color-circuit)));
-}
-
-.auth-visual-code,
-.auth-visual-footer {
-  color: color-mix(in srgb, var(--color-header-text) 64%, transparent);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-}
-
-.auth-visual h2 {
-  margin-top: 5rem;
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 600;
-  letter-spacing: -0.05em;
-  line-height: 1.05;
-}
-
-.auth-visual h2 span {
-  color: var(--color-circuit);
-}
-
-.auth-visual-copy {
-  max-width: 290px;
-  margin-top: 1.25rem;
-  color: color-mix(in srgb, var(--color-header-text) 68%, transparent);
-  font-size: 0.9rem;
-  line-height: 1.7;
-}
-
-.auth-visual-footer {
-  display: grid;
+  align-items: center;
   gap: 0.6rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: 18px 18px 0 0;
+  color: var(--color-header-text);
+  background: linear-gradient(120deg, var(--color-header-bg), color-mix(in srgb, var(--color-header-bg) 80%, var(--color-circuit)));
+}
+
+.auth-visual-code {
+  color: color-mix(in srgb, var(--color-header-text) 70%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.auth-visual::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--color-circuit);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-circuit) 30%, transparent);
+}
+
+.auth-visual-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.1rem;
+  padding: 0.9rem clamp(1.5rem, 5vw, 2.25rem);
+  border-top: 1px dashed var(--color-line);
+  background: color-mix(in srgb, var(--color-paper) 55%, transparent);
+  border-radius: 0 0 18px 18px;
   font-family: var(--font-body);
-  font-size: 0.82rem;
-  font-weight: 400;
-  letter-spacing: normal;
-  text-transform: none;
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
 }
 
 .auth-form-panel {
-  padding: clamp(1.75rem, 5vw, 3.5rem);
+  padding: clamp(1.5rem, 5vw, 2.25rem);
 }
 
 .auth-heading {
-  padding-bottom: 1.75rem;
-  border-bottom: 1px solid var(--color-line);
+  padding-bottom: 1.5rem;
 }
 
 .auth-heading .eyebrow {
@@ -1470,38 +1468,19 @@ select:focus {
   font-weight: 700;
 }
 
-@media (max-width: 680px) {
+@media (max-width: 480px) {
   .auth-page {
-    min-height: calc(100vh - 4rem);
     padding: 1.25rem;
     place-items: start center;
   }
 
   .auth-frame {
-    grid-template-columns: 1fr;
     margin-top: 1rem;
   }
 
-  .auth-visual {
-    min-height: 0;
-    padding: 1.5rem;
-  }
-
-  .auth-visual h2 {
-    margin-top: 2.5rem;
-    font-size: 2rem;
-  }
-
-  .auth-visual-copy {
-    margin-top: 0.9rem;
-  }
-
   .auth-visual-footer {
-    display: none;
-  }
-
-  .auth-form-panel {
-    padding: 1.5rem;
+    gap: 0.4rem 0.85rem;
+    font-size: 0.72rem;
   }
 
   .auth-links {
@@ -2556,8 +2535,8 @@ input[type="date"] {
   border: none;
   cursor: pointer;
   transition: background 140ms ease, color 140ms ease;
-  min-width: 2rem;
-  min-height: 2rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3052,17 +3031,30 @@ input[type="date"] {
   z-index: -1;
 }
 
+/* PHOTO MAT — a fixed, uniform "light box" every product photo sits inside,
+   regardless of whether the source is a white studio cutout or a lifestyle/
+   desk photo. Source images vary wildly in background and crop; padding +
+   a consistent near-white mat behind the (opaque) photo forces every one of
+   them into the same inset and corner treatment, so the grid reads as one
+   curated shoot instead of assets pulled from ten different places. The mat
+   only shows in the letterboxed margin around the photo, since photos are
+   opaque — it costs zero markup changes anywhere ProductArt is used. */
 .product-art-image {
-  position: relative;
+  position: absolute;
+  inset: 0.85rem;
   z-index: 1;
   display: block;
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  padding: 1.35rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, white 90%, var(--color-paper) 10%);
+  border: 1px solid color-mix(in srgb, var(--color-line) 65%, transparent);
   object-fit: contain;
   object-position: center;
   transition: transform 260ms ease, filter 260ms ease;
+}
+
+html.dark .product-art-image {
+  background: color-mix(in srgb, white 95%, transparent);
 }
 
 .product-card:hover .product-art-image {
@@ -3916,8 +3908,8 @@ html.dark .product-art-image[data-art-source="fallback"] {
 
 .product-view-details {
   position: absolute;
-  right: 0.75rem;
-  bottom: 0.7rem;
+  right: 1.15rem;
+  bottom: 1.1rem;
   z-index: 2;
   padding: 0.38rem 0.58rem;
   border: 1px solid color-mix(in srgb, var(--color-line) 72%, transparent);
@@ -4316,4 +4308,21 @@ html.dark .product-art-image[data-art-source="fallback"] {
 .top-header .dropdown-menu .dropdown-item.logout-btn span,
 .top-header .dropdown-menu .dropdown-item.logout-btn svg {
   color: var(--color-signal);
+}
+
+
+/* Bright accent fills need dark foreground text in dark/staff themes.
+   White text on the turquoise/violet buttons falls below WCAG contrast. */
+html.dark .btn-primary:not(:disabled),
+[data-theme="staff"] .btn-primary:not(:disabled) {
+  color: var(--color-paper);
+}
+
+
+/* The compact menu is available through tablet widths, but must not duplicate
+   the full desktop navigation once the latter has room to render. */
+@media (min-width: 901px) {
+  .mobile-menu-button {
+    display: none;
+  }
 }
