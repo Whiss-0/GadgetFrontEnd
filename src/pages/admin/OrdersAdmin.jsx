@@ -23,7 +23,7 @@ function getStatusBadgeClass(status) {
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "No date";
   const d = new Date(dateStr);
   return d.toLocaleDateString(undefined, {
     year: "numeric",

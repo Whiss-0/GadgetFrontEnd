@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useToast } from "../hooks/useToast";
 import ProductCard from "../components/ProductCard";
+import { scrollToId } from "../utils/scroll";
 
 const PAGE_SIZE = 12;
 const CATEGORY_ART = [
@@ -141,24 +142,18 @@ export default function Home() {
     <main className="catalog-page max-w-6xl mx-auto px-5 py-6 sm:py-9">
       <section className="catalog-hero mb-7 sm:mb-9" aria-labelledby="storefront-title">
         <div className="catalog-hero-copy">
-          <p className="eyebrow"><span className="eyebrow-dot" /> Good tech, thoughtfully chosen</p>
+          <p className="eyebrow">Good tech, thoughtfully chosen</p>
           <h1 id="storefront-title" className="font-[var(--font-display)] text-4xl sm:text-5xl lg:text-[3.6rem] font-semibold tracking-tight leading-[1.04]">
             Make room for <span className="hero-accent">better tech.</span>
           </h1>
           <p className="catalog-hero-description">
-            Find the gear that earns its place in your everyday — from a cleaner desk to a better listening session.
+            Find the gear that earns its place in your everyday, from a cleaner desk to a better listening session.
           </p>
           <div className="catalog-hero-actions">
             <a href="#products" className="btn-primary px-5 py-3 rounded-lg text-sm font-semibold inline-flex items-center gap-2">
               Explore the collection
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </a>
-            <span className="catalog-hero-note">A little less scrolling. A lot more discovering.</span>
-          </div>
-          <div className="catalog-trust-row" aria-label="Shopping information">
-            <span><ProductIcon type="shield" /> Secure account checkout</span>
-            <span><ProductIcon type="box" /> Product details up front</span>
-            <span><ProductIcon type="support" /> Here when you need us</span>
           </div>
         </div>
 
@@ -168,7 +163,6 @@ export default function Home() {
           <img className="hero-product hero-product-back" src="/product-art-audio.webp" alt="" />
           <img className="hero-product hero-product-side" src="/product-art-phone.webp" alt="" />
           <img className="hero-product hero-product-front" src="/product-art-laptop.webp" alt="" />
-          <div className="hero-art-caption"><span className="hero-art-caption-dot" /> THE EVERYDAY UPGRADE</div>
         </div>
       </section>
 
@@ -176,10 +170,9 @@ export default function Home() {
         <section className="category-spotlight mb-9" aria-labelledby="category-heading">
           <div className="section-heading-row">
             <div>
-              <p className="eyebrow mb-1">Find your next favorite</p>
               <h2 id="category-heading" className="font-[var(--font-display)] text-xl sm:text-2xl font-semibold">Shop by category</h2>
             </div>
-            <button type="button" onClick={() => { resetFilters(); document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }); }} className="text-sm font-semibold text-[var(--color-circuit)] hover:underline">Shop everything <span aria-hidden="true">→</span></button>
+            <button type="button" onClick={() => { resetFilters(); scrollToId("products"); }} className="text-sm font-semibold text-[var(--color-circuit)] hover:underline">Shop everything <span aria-hidden="true">→</span></button>
           </div>
           <div className="category-tile-grid">
             {categories.slice(0, 5).map((category, index) => (
@@ -187,7 +180,7 @@ export default function Home() {
                 type="button"
                 key={category.category_id}
                 className={`category-tile ${selectedCategory === category.category_id ? "selected" : ""}`}
-                onClick={() => { selectCategory(category.category_id); document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }); }}
+                onClick={() => { selectCategory(category.category_id); scrollToId("products"); }}
                 aria-pressed={selectedCategory === category.category_id}
               >
                 <img src={categoryImage(category.category_name, index)} alt="" loading="lazy" />
@@ -202,7 +195,6 @@ export default function Home() {
       <section id="products" className="catalog-section scroll-mt-24" aria-labelledby="products-heading">
         <div className="catalog-section-heading">
           <div>
-            <p className="eyebrow mb-1">A good place to start</p>
             <h2 id="products-heading" className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold tracking-tight">
               {activeCategory?.category_name || (searchTerm.trim() ? "Search results" : "The collection")}
             </h2>
@@ -238,7 +230,7 @@ export default function Home() {
               </select>
             </label>
             <span className="catalog-toolbar-meta" aria-live="polite">
-              {loading ? "Finding your next favorite…" : totalCount === 0 ? "No products" : `${firstProduct}–${lastProduct} of ${totalCount}`}
+              {loading ? "Finding your next favorite…" : totalCount === 0 ? "No products" : `${firstProduct}-${lastProduct} of ${totalCount}`}
             </span>
           </div>
         </div>
@@ -270,20 +262,20 @@ export default function Home() {
           <div className="catalog-state">
             <span className="catalog-state-kicker">No matches yet</span>
             <h2>Nothing matched your search.</h2>
-            <p>Try another phrase or browse the full collection — your next favorite might be one filter away.</p>
+            <p>Try another phrase or browse the full collection. Your next favorite might be one filter away.</p>
             {(selectedCategory || searchTerm) && <button type="button" className="btn-secondary px-4 py-2 rounded" onClick={resetFilters}>Show all products</button>}
           </div>
         ) : (
-          <div className="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="product-grid product-grid-enter grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {visibleProducts.map((product) => <ProductCard key={product.product_id} product={product} onAddToCart={handleAdd} />)}
           </div>
         )}
 
         {!loading && !error && pageCount > 1 && (
           <nav className="catalog-pagination" aria-label="Product pages">
-            <button type="button" onClick={() => { setPage((current) => Math.max(1, current - 1)); document.getElementById("products-heading")?.scrollIntoView({ behavior: "smooth" }); }} disabled={page === 1} className="pagination-button">← <span>Previous</span></button>
+            <button type="button" onClick={() => { setPage((current) => Math.max(1, current - 1)); scrollToId("products-heading"); }} disabled={page === 1} className="pagination-button">← <span>Previous</span></button>
             <span className="pagination-count">Page <strong>{page}</strong> of <strong>{pageCount}</strong></span>
-            <button type="button" onClick={() => { setPage((current) => Math.min(pageCount, current + 1)); document.getElementById("products-heading")?.scrollIntoView({ behavior: "smooth" }); }} disabled={page >= pageCount} className="pagination-button"><span>Next</span> →</button>
+            <button type="button" onClick={() => { setPage((current) => Math.min(pageCount, current + 1)); scrollToId("products-heading"); }} disabled={page >= pageCount} className="pagination-button"><span>Next</span> →</button>
           </nav>
         )}
       </section>

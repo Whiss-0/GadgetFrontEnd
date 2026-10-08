@@ -318,7 +318,7 @@ export default function ProductDetail() {
                   <button
                     onClick={handleAdd}
                     disabled={adding}
-                    className="flex-1 btn-primary font-semibold py-2.5 px-4 rounded-lg disabled:opacity-50 transition-all"
+                    className="flex-1 btn-primary font-semibold py-2.5 px-4 rounded-lg disabled:opacity-50"
                   >
                     {adding ? "Adding…" : "Add to cart"}
                   </button>
@@ -485,7 +485,7 @@ export default function ProductDetail() {
             <div>
               <p className="font-semibold text-[var(--color-ink)] mb-1">Shipping</p>
               <p className="leading-relaxed text-xs">
-                Orders are packed carefully and dispatched promptly. Standard delivery takes 2–4 business days within metropolitan areas.
+                Orders are packed carefully and dispatched promptly. Standard delivery takes 2-4 business days within metropolitan areas.
               </p>
             </div>
             <div>

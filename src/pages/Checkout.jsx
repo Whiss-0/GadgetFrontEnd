@@ -166,7 +166,7 @@ export default function Checkout() {
               {showPhSelector && (
                 <div className="ph-selector-panel">
                   <p className="text-xs text-[var(--color-ink-soft)] mb-3">
-                    Pick your location — it will be applied to the address field below.
+                    Pick your location. It will be applied to the address field below.
                   </p>
                   <PhilippineAddressSelector
                     street=""

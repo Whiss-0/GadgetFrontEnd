@@ -150,7 +150,7 @@ export default function ProductCard({ product, onAddToCart }) {
             onClick={handleAddClick}
             disabled={stock === 0 || adding}
             aria-label={`Add ${name} to cart`}
-            className={`btn-primary btn-add text-sm font-semibold px-4 py-2 rounded transition-all duration-200 ${
+            className={`btn-primary btn-add text-sm font-semibold px-4 py-2 rounded ${
               added ? "is-added" : ""
             }`}
           >

@@ -92,7 +92,7 @@ export default function ProductReviews({ productId }) {
           <button type="button" onClick={() => setRetryNonce((value) => value + 1)} className="mt-2 text-[var(--color-circuit)] font-medium hover:underline">Try again</button>
         </div>
       ) : reviews.length === 0 ? (
-        <p className="text-sm text-[var(--color-ink-soft)]">No reviews yet — be the first.</p>
+        <p className="text-sm text-[var(--color-ink-soft)]">No reviews yet. Be the first.</p>
       ) : (
         <div className="space-y-4">
           {reviews.map((r) => {

@@ -37,7 +37,7 @@ export default function ImageDropzone({ value, onChange }) {
         onClick={() => inputRef.current?.click()}
         role="button"
         tabIndex={0}
-        aria-label="Upload product image — click or drag a file here"
+        aria-label="Upload product image: click or drag a file here"
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") inputRef.current?.click(); }}
         className={`dropzone ${isDragging ? "dropzone-active" : ""}`}
       >

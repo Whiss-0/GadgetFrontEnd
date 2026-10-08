@@ -4,6 +4,7 @@ import ImageDropzone from "../../components/ImageDropzone";
 import ProductArt from "../../components/ProductArt";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useToast } from "../../hooks/useToast";
+import { scrollToElement } from "../../utils/scroll";
 
 const empty = {
   ProductName: "",
@@ -87,7 +88,7 @@ export default function ProductsAdmin() {
     });
     // Scroll form into view if on mobile
     if (window.innerWidth < 768 && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth" });
+      scrollToElement(formRef.current);
     }
   }
 
@@ -100,7 +101,7 @@ export default function ProductsAdmin() {
   function handleStartAdd() {
     cancelEdit();
     if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth" });
+      scrollToElement(formRef.current);
       const firstInput = formRef.current.querySelector("#prod-name");
       if (firstInput) firstInput.focus();
     }

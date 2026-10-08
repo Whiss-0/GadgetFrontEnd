@@ -48,7 +48,7 @@ function countsAsRevenue(order) {
 
 function formatRangeLabel(start, end) {
   const opts = { month: "short", day: "numeric", year: "numeric" };
-  return `${start.toLocaleDateString(undefined, opts)} – ${end.toLocaleDateString(undefined, opts)}`;
+  return `${start.toLocaleDateString(undefined, opts)} to ${end.toLocaleDateString(undefined, opts)}`;
 }
 
 // Reduces an address to a broad locality (city/province) only.
@@ -392,7 +392,7 @@ export default function AdminLayout() {
             </p>
             <p className="text-xs text-[var(--color-dark-ink)]/50">
               {(lowStockItems.length > 0 || outOfStockItems.length > 0)
-                ? (showLowStock ? "Click to hide list" : "Needs attention — click to view")
+                ? (showLowStock ? "Click to hide list" : "Needs attention. Click to view")
                 : "Healthy stock levels"}
             </p>
           </button>
@@ -435,7 +435,7 @@ export default function AdminLayout() {
 
         {/* Low Stock Drawer if expanded */}
         {showLowStock && (lowStockItems.length > 0 || outOfStockItems.length > 0) && (
-          <div className="bg-[var(--color-dark-panel)] border border-[var(--color-signal)]/40 rounded-lg p-5 mb-8 -mt-4 shadow-lg animate-in fade-in duration-200">
+          <div className="bg-[var(--color-dark-panel)] border border-[var(--color-signal)]/40 rounded-lg p-5 mb-8 -mt-4 shadow-lg motion-enter">
             <div className="flex items-center justify-between mb-3">
               <p className="font-[var(--font-mono)] text-xs text-[var(--color-signal)] uppercase tracking-wider font-semibold">
                 Stock alerts ({outOfStockItems.length + lowStockItems.length} items)

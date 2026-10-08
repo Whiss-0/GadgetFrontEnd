@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SiteFooter from "./components/SiteFooter";
@@ -12,18 +12,30 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import Orders from "./pages/Orders";
-import Settings from "./pages/Settings";
-import Wishlist from "./pages/Wishlist";
+
 import NotFound from "./pages/NotFound";
 
-import AdminLayout from "./pages/admin/AdminLayout";
-import ProductsAdmin from "./pages/admin/ProductsAdmin";
-import OrdersAdmin from "./pages/admin/OrdersAdmin";
-import UsersAdmin from "./pages/admin/UsersAdmin";
-import ActivityLog from "./pages/ActivityLog";
+// Everything past the storefront and auth screens loads on demand. Leaflet
+// (the customer map) is imported only by the admin dashboard, so shoppers
+// never download it.
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Orders = lazy(() => import("./pages/Orders"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const ActivityLog = lazy(() => import("./pages/ActivityLog"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const ProductsAdmin = lazy(() => import("./pages/admin/ProductsAdmin"));
+const OrdersAdmin = lazy(() => import("./pages/admin/OrdersAdmin"));
+const UsersAdmin = lazy(() => import("./pages/admin/UsersAdmin"));
+
+function RouteFallback() {
+  return (
+    <div className="max-w-6xl mx-auto px-5 py-9" aria-busy="true" aria-label="Loading page">
+      <div className="skeleton" style={{ height: "14rem", borderRadius: "var(--radius-card, 12px)" }} />
+    </div>
+  );
+}
 
 export default function App() {
   const { isMod } = useAuth();
@@ -41,6 +53,7 @@ export default function App() {
         className="theme-body min-h-screen"
       >
         <Navbar />
+        <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products/:id" element={<ProductDetail />} />
@@ -65,6 +78,7 @@ export default function App() {
           {/* Catch-all 404 — must be last */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         <SiteFooter />
       </div>
     </ToastProvider>

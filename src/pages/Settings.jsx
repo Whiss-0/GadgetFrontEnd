@@ -174,7 +174,7 @@ export default function Settings() {
           {showPhSelector && (
             <div className="ph-selector-panel mb-3">
               <p className="text-xs text-[var(--color-ink-soft)] mb-3">
-                Pick your location — it will be applied to the address field below.
+                Pick your location. It will be applied to the address field below.
                 Add your street / house number in the field after selecting.
               </p>
               <PhilippineAddressSelector

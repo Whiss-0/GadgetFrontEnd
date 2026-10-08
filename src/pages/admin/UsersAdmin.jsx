@@ -241,7 +241,7 @@ export default function UsersAdmin() {
                         {fullAddress ? (
                           <span className="block truncate" title={fullAddress}>{fullAddress}</span>
                         ) : (
-                          <span className="text-[var(--color-dark-ink)]/30 italic">—</span>
+                          <span className="text-[var(--color-dark-ink)]/30 italic">No address</span>
                         )}
                       </td>
                       <td>
