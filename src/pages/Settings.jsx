@@ -2,6 +2,32 @@ import { useState, useEffect } from "react";
 import { authApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
+import PhilippineAddressSelector from "../components/PhilippineAddressSelector";
+
+function parseAddressParts(addr) {
+  if (!addr) return null;
+  const parts = addr.split(",").map((s) => s.trim()).filter(Boolean);
+  if (parts.length >= 4) {
+    if (parts[parts.length - 1].toLowerCase() === "philippines") {
+      if (parts.length >= 5) {
+        return {
+          region: parts[parts.length - 2],
+          province: parts[parts.length - 3],
+          city: parts[parts.length - 4],
+          barangay: parts[parts.length - 5],
+        };
+      }
+    } else {
+      return {
+        region: parts[parts.length - 1],
+        province: parts[parts.length - 2],
+        city: parts[parts.length - 3],
+        barangay: parts.length >= 4 ? parts[parts.length - 4] : "",
+      };
+    }
+  }
+  return null;
+}
 
 export default function Settings() {
   const { user, updateUser } = useAuth();
@@ -9,12 +35,17 @@ export default function Settings() {
     name: "",
     email: "",
     address: "",
+    region: "",
+    province: "",
+    city_Municipality: "",
+    barangay: "",
     password: "",
     currentPassword: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [showPhSelector, setShowPhSelector] = useState(false);
 
   useEffect(() => {
     // Fetch fresh profile data to pre-fill the form
@@ -24,6 +55,10 @@ export default function Settings() {
           name: res.data.username || "",
           email: res.data.email || "",
           address: res.data.address || "",
+          region: res.data.region || "",
+          province: res.data.province || "",
+          city_Municipality: res.data.city_Municipality || res.data.cityMunicipality || "",
+          barangay: res.data.barangay || "",
           password: "",
           currentPassword: "",
         });
@@ -43,10 +78,15 @@ export default function Settings() {
     setMessage({ type: "", text: "" });
 
     try {
+      const parsed = parseAddressParts(formData.address);
       const updateData = {
         Name: formData.name,
         Email: formData.email,
         Address: formData.address,
+        Region: formData.region || parsed?.region || undefined,
+        Province: formData.province || parsed?.province || undefined,
+        City_Municipality: formData.city_Municipality || parsed?.city || undefined,
+        Barangay: formData.barangay || parsed?.barangay || undefined,
       };
       if (formData.password) {
         updateData.Password = formData.password;
@@ -120,6 +160,40 @@ export default function Settings() {
 
         <div>
           <label htmlFor="settings-address" className="block text-sm font-semibold mb-1">Address</label>
+
+          {/* Philippine address selector helper */}
+          <button
+            type="button"
+            className="ph-selector-toggle mb-2"
+            onClick={() => setShowPhSelector((v) => !v)}
+            disabled={saving}
+          >
+            {showPhSelector ? "▲ Hide" : "▼ Use"} Philippine address selector
+          </button>
+
+          {showPhSelector && (
+            <div className="ph-selector-panel mb-3">
+              <p className="text-xs text-[var(--color-ink-soft)] mb-3">
+                Pick your location — it will be applied to the address field below.
+                Add your street / house number in the field after selecting.
+              </p>
+              <PhilippineAddressSelector
+                street=""
+                onAddressChange={(formatted, details) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    address: formatted,
+                    region: details?.region ?? prev.region,
+                    province: details?.province ?? prev.province,
+                    city_Municipality: details?.city ?? prev.city_Municipality,
+                    barangay: details?.barangay ?? prev.barangay,
+                  }))
+                }
+                disabled={saving}
+              />
+            </div>
+          )}
+
           <textarea
             id="settings-address"
             name="address"
@@ -127,8 +201,17 @@ export default function Settings() {
             onChange={handleChange}
             rows="3"
             className="input-premium w-full bg-[var(--color-paper)] border border-[var(--color-line)] rounded px-3 py-2 text-sm focus:outline-none"
-            placeholder="Shipping address..."
+            placeholder="Street / house number, barangay, city, province, region, Philippines"
           />
+
+          {(formData.region || formData.city_Municipality) && (
+            <div className="mt-2 text-xs text-[var(--color-ink-soft)] bg-[var(--color-panel)] border border-[var(--color-line)] rounded p-2.5 flex flex-wrap gap-x-3 gap-y-1">
+              {formData.region && <span><span className="font-semibold text-[var(--color-ink)]">Region:</span> {formData.region}</span>}
+              {formData.province && <span><span className="font-semibold text-[var(--color-ink)]">Province:</span> {formData.province}</span>}
+              {formData.city_Municipality && <span><span className="font-semibold text-[var(--color-ink)]">City:</span> {formData.city_Municipality}</span>}
+              {formData.barangay && <span><span className="font-semibold text-[var(--color-ink)]">Barangay:</span> {formData.barangay}</span>}
+            </div>
+          )}
         </div>
 
         <div className="pt-4 border-t border-[var(--color-line)]">

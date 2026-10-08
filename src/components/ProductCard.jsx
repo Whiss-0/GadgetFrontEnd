@@ -136,7 +136,7 @@ export default function ProductCard({ product, onAddToCart }) {
         <div className="product-meta flex items-center justify-between text-xs text-[var(--color-ink-soft)]">
             <span>{product.brand || "Gadget Store pick"}</span>
           {stockLabel && (
-            <span className={stock === 0 ? "text-[var(--color-signal)]" : stock <= 3 ? "text-amber-800 dark:text-amber-400 font-medium" : ""}>
+            <span className={stock === 0 ? "text-[var(--color-signal)]" : stock <= 3 ? "text-[var(--color-warning)] font-medium" : ""}>
               {stockLabel}
             </span>
           )}
@@ -151,7 +151,7 @@ export default function ProductCard({ product, onAddToCart }) {
             disabled={stock === 0 || adding}
             aria-label={`Add ${name} to cart`}
             className={`btn-primary btn-add text-sm font-semibold px-4 py-2 rounded transition-all duration-200 ${
-              added ? "!bg-emerald-600 dark:!bg-cyan-600 text-white" : ""
+              added ? "is-added" : ""
             }`}
           >
             {stock === 0 ? "Out of stock" : adding ? "Adding…" : added ? "Added" : "Add to cart"}

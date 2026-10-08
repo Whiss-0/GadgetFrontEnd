@@ -59,13 +59,17 @@ function getBroadLocation(address) {
     .split(",")
     .map((part) => part.trim())
     .filter(Boolean)
-    .filter((part) => !/^\d+[\w\s-]*$/.test(part));
+    .filter((part) => !/^\d+[\w\s-]*$/.test(part))
+    .filter((part) => !/^philippines$/i.test(part));
 
   if (parts.length === 0) return "";
 
-  return parts.length > 1
-    ? parts[parts.length - 1]
-    : parts[0].replace(/^\d+\s+/, "");
+  // New selector values end in city, province/district, region, Philippines.
+  // Pick only the city and province so exact street and barangay details are
+  // never passed to the geocoder or plotted on the customer map.
+  if (parts.length >= 5) return `${parts.at(-3)}, ${parts.at(-2)}`;
+  if (parts.length >= 3) return `${parts.at(-2)}, ${parts.at(-1)}`;
+  return parts.at(-1).replace(/^\d+\s+/, "");
 }
 
 export default function AdminLayout() {

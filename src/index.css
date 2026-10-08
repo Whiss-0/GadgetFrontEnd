@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -35,6 +36,12 @@
   /* accessible price/connector text accent */
   --color-signal: #C6403A;
   /* danger/alert — do not repurpose for anything else */
+  --color-success: #15803D;
+  /* success/in-stock/confirmed state — independent of --color-circuit so it
+     stays correct even in themes (e.g. staff) where the brand accent isn't green */
+  --color-success-soft: rgba(21, 128, 61, 0.1);
+  --color-warning: #92400E;
+  /* low-stock/urgency text — do not repurpose for anything else */
   --color-header-bg: #14181F;
   /* top navbar background */
   --color-header-text: #FFFFFF;
@@ -56,6 +63,9 @@ html.dark {
   --color-circuit-soft: rgba(45, 212, 191, 0.15);
   --color-gold: #D4A054;
   --color-signal: #EF4444;
+  --color-success: #4ADE80;
+  --color-success-soft: rgba(74, 222, 128, 0.14);
+  --color-warning: #FBBF24;
   --color-header-bg: #070B14;
   --color-header-text: #E2E8F0;
 }
@@ -75,6 +85,11 @@ html.dark {
   --color-circuit-soft: rgba(167, 139, 250, 0.15);
   --color-gold: #F59E0B;
   --color-signal: #EF4444;
+  /* Success stays a dedicated green here (not the violet brand accent) so a
+     confirmation state still reads as "success" rather than "themed button". */
+  --color-success: #34D399;
+  --color-success-soft: rgba(52, 211, 153, 0.14);
+  --color-warning: #FBBF24;
   --color-header-bg: #050810;
   --color-header-text: #E2E8F0;
 
@@ -1000,6 +1015,19 @@ select:focus {
   letter-spacing: 0;
 }
 
+/* "Added" confirmation state — uses the theme's own --color-success token
+   instead of a hardcoded Tailwind color, so it reads correctly in every
+   theme (including staff's violet accent) instead of flashing an unrelated
+   emerald/cyan that clashes with the active palette. --color-paper is dark
+   in dark/staff mode and light in light mode, which is also why it's the
+   right foreground here: success is a dark fill in light mode (needs light
+   text) and a bright fill in dark/staff mode (needs dark text) — same logic
+   already used for .btn-primary's dark/staff contrast fix below. */
+.btn-add.is-added {
+  background: var(--color-success) !important;
+  color: var(--color-paper) !important;
+}
+
 .btn-primary,
 .btn-secondary {
   min-height: 2.5rem;
@@ -1674,107 +1702,107 @@ input[type="date"] {
   }
 }
 
-/* ---- Abstract Map ---- */
+/* ---- OpenStreetMap map surface and safe city-level order markers ---- */
+.location-map-frame {
+  position: relative;
+  min-width: 0;
+}
+
 .location-map {
   position: relative;
-  height: 220px;
+  height: 320px;
   border-radius: 10px;
   overflow: hidden;
-  background: color-mix(in srgb, var(--color-dark-bg) 80%, var(--color-circuit) 20%);
+  background: #e8edf1;
   border: 1px solid var(--color-dark-line);
+  isolation: isolate;
+  z-index: 0;
 }
 
-.location-map-grid {
+.location-map .leaflet-control-attribution {
+  font-size: 10px;
+}
+
+.location-map .leaflet-control-zoom a {
+  color: #17212b;
+}
+
+.location-map-status {
   position: absolute;
-  inset: 0;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 500;
+  max-width: min(28rem, calc(100% - 1.5rem));
+  padding: 0.45rem 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0.5rem;
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+  font-size: 0.7rem;
+  line-height: 1.4;
   pointer-events: none;
 }
 
-.location-map-gridline {
-  position: absolute;
-  background: var(--color-circuit);
-  opacity: 0.07;
+.customer-map-marker-wrap {
+  border: 0;
+  background: transparent;
 }
 
-.location-map-gridline--h {
-  left: 0;
-  right: 0;
-  height: 1px;
-}
-
-.location-map-gridline--v {
-  top: 0;
-  bottom: 0;
-  width: 1px;
-}
-
-/* Decorative land blob */
-.location-map-shape {
-  position: absolute;
-  top: 22%;
-  left: 8%;
-  width: 76%;
-  height: 58%;
-  border-radius: 42% 58% 55% 45% / 48% 40% 60% 52%;
-  background: color-mix(in srgb, var(--color-circuit) 10%, var(--color-dark-panel) 90%);
-  border: 1px solid var(--color-circuit);
-  opacity: 0.25;
-  pointer-events: none;
-}
-
-/* Map pins */
-.location-map-pin {
-  position: absolute;
+.customer-map-marker {
+  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  transform: translate(-50%, -100%);
-  cursor: default;
-  z-index: 2;
-  transition: transform 150ms ease;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  color: #fff;
+  background: #7c3aed;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.4);
 }
 
-.location-map-pin:hover {
-  transform: translate(-50%, -100%) scale(1.15);
-  z-index: 10;
+.customer-map-marker > span {
+  transform: rotate(45deg);
+  font: 700 0.68rem var(--font-mono);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-.location-map-pin-dot {
+.customer-map-marker > i {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
   width: 10px;
   height: 10px;
+  border: 2px solid #fff;
   border-radius: 50%;
-  background: var(--color-circuit);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-circuit) 25%, transparent),
-              0 0 12px 2px color-mix(in srgb, var(--color-circuit) 40%, transparent);
-  flex-shrink: 0;
+  background: #f59e0b;
 }
 
-.location-map-pin--top .location-map-pin-dot {
-  width: 13px;
-  height: 13px;
-  background: var(--color-gold, #f4c76a);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-gold, #f4c76a) 25%, transparent),
-              0 0 16px 3px color-mix(in srgb, var(--color-gold, #f4c76a) 40%, transparent);
+.customer-map-marker--top {
+  background: #d97706;
 }
 
-.location-map-pin-count {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--color-dark-ink);
-  background: var(--color-dark-panel);
-  border: 1px solid var(--color-circuit);
-  border-radius: 4px;
-  padding: 0 4px;
-  margin-top: 3px;
-  line-height: 1.4;
-  white-space: nowrap;
-  opacity: 0.9;
+.customer-map-popup {
+  display: grid;
+  gap: 0.25rem;
+  color: #17212b;
+  font-family: var(--font-body);
 }
 
-.location-map-pin--top .location-map-pin-count {
-  border-color: var(--color-gold, #f4c76a);
-  color: var(--color-gold, #f4c76a);
+.customer-map-popup strong {
+  font-size: 0.8rem;
+}
+
+.customer-map-popup span,
+.customer-map-popup small {
+  font-size: 0.7rem;
+}
+
+.customer-map-popup small {
+  color: #64748b;
 }
 
 /* ---- Ranked list ---- */
@@ -1974,6 +2002,281 @@ input[type="date"] {
     justify-content: flex-start;
     width: 100%;
   }
+}
+
+/* ============================================================
+   OSM / LEAFLET MAP — replaces abstract placeholder graphic
+   ============================================================ */
+
+/* Import Leaflet CSS is at the top of this file (required by CSS spec). */
+
+/* Override .location-map height when the real OSM canvas is mounted */
+.location-map--osm {
+  height: 320px;
+  background: var(--color-dark-bg);
+}
+
+/* The div that Leaflet mounts into must fill its container */
+.osm-map-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Overlay for loading / error states — sits on top of the map */
+.osm-map-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 500; /* above Leaflet tiles (z-index 200-400), below controls */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--color-dark-ink);
+  background: color-mix(in srgb, var(--color-dark-bg) 80%, transparent);
+  pointer-events: none;
+}
+
+.osm-map-overlay--warn {
+  color: var(--color-warning);
+}
+
+/* Leaflet attribution — keep visible per OSM tile usage policy */
+.leaflet-control-attribution {
+  font-size: 0.6rem !important;
+  background: color-mix(in srgb, var(--color-dark-panel) 85%, transparent) !important;
+  color: var(--color-dark-ink) !important;
+  padding: 1px 5px !important;
+  border-radius: 4px 0 0 0 !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--color-circuit) !important;
+}
+
+/* Custom div-icon pins */
+.osm-pin {
+  width: 34px;
+  height: 34px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--color-circuit);
+  border: 2px solid color-mix(in srgb, var(--color-circuit) 60%, #fff);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-circuit) 50%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.osm-pin--top {
+  background: var(--color-gold, #f4c76a);
+  border-color: color-mix(in srgb, var(--color-gold, #f4c76a) 60%, #fff);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--color-gold, #f4c76a) 55%, transparent);
+}
+
+.osm-pin-count {
+  transform: rotate(45deg); /* counter-rotate text upright */
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.osm-pin--top .osm-pin-count {
+  color: var(--color-dark-bg);
+}
+
+/* Leaflet popup overrides */
+.osm-popup {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--color-ink);
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--color-panel) !important;
+  border: 1px solid var(--color-line) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
+  color: var(--color-ink) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--color-panel) !important;
+}
+
+/* Leaflet zoom controls */
+.leaflet-control-zoom a {
+  background: var(--color-dark-panel) !important;
+  color: var(--color-dark-ink) !important;
+  border-color: var(--color-dark-line) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: var(--color-circuit) !important;
+  color: #fff !important;
+}
+
+/* Cascading Philippine address selector */
+.address-selector {
+  min-width: 0;
+  margin-top: 0.85rem;
+  padding: 0.9rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--color-paper) 48%, var(--color-panel));
+}
+
+.address-selector-title {
+  padding: 0 0.3rem;
+  color: var(--color-ink);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.address-selector-help {
+  margin-bottom: 0.7rem;
+  color: var(--color-ink-soft);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.address-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.address-selector-field {
+  display: grid;
+  min-width: 0;
+  gap: 0.3rem;
+}
+
+.address-selector-field--wide {
+  grid-column: 1 / -1;
+}
+
+.address-selector-field label {
+  color: var(--color-ink-soft);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.address-selector-field select,
+.address-selector-field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.55rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.5rem;
+  color: var(--color-ink);
+  background: var(--color-panel);
+  font-size: 0.75rem;
+}
+
+.address-selector-field select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.address-selector-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.address-selector-credit {
+  color: var(--color-ink-soft);
+  font-size: 0.64rem;
+  line-height: 1.4;
+}
+
+.address-selector-credit a {
+  color: var(--color-circuit);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.address-selector-apply {
+  flex-shrink: 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--color-circuit);
+  border-radius: 0.5rem;
+  color: var(--color-circuit);
+  background: transparent;
+  font-size: 0.7rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.address-selector-apply:hover:not(:disabled) {
+  color: #fff;
+  background: var(--color-circuit);
+}
+
+.address-selector-apply:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.address-selector-error {
+  margin-top: 0.5rem;
+  color: var(--color-signal);
+  font-size: 0.7rem;
+}
+
+@media (max-width: 640px) {
+  .location-map {
+    height: 260px;
+  }
+}
+
+@media (max-width: 420px) {
+  .address-selector-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .address-selector-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* ============================================================
+   PHILIPPINE ADDRESS SELECTOR
+   ============================================================ */
+
+.ph-selector-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-circuit);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ph-selector-toggle:hover {
+  color: var(--color-circuit-dark);
+}
+
+.ph-selector-panel {
+  border: 1px solid var(--color-circuit)/30;
+  border-radius: 10px;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--color-circuit-soft) 40%, transparent);
+  margin-bottom: 0.75rem;
 }
 
 /* ============================================================

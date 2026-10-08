@@ -1,26 +1,30 @@
-// CustomerLocationMap.jsx
-// Admin-only component. Shows a privacy-safe aggregate view of the broad areas
-// that generate the most orders. Exact street addresses are NEVER rendered here.
+import { useEffect, useState } from "react";
+import { mapsApi } from "../api/client";
+import OpenStreetMapView from "./OpenStreetMapView";
 
-// Deterministic pseudo-random positions for map pins based on label text,
-// so pins don't jump around on re-render.
-function stablePosition(label, index, total) {
-  let hash = 0;
-  for (let i = 0; i < label.length; i++) {
-    hash = (hash * 31 + label.charCodeAt(i)) >>> 0;
+const LOCAL_CACHE_KEY = "gadgetstore:osm-area-geocodes:v1";
+const POSITIVE_CACHE_MS = 180 * 24 * 60 * 60 * 1000;
+const NEGATIVE_CACHE_MS = 30 * 24 * 60 * 60 * 1000;
+
+function readLocationCache() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(LOCAL_CACHE_KEY) || "{}");
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
   }
-  // Spread pins across the map canvas avoiding the very edges
-  const cols = Math.min(total, 3);
-  const col = index % cols;
-  const row = Math.floor(index / cols);
-  const baseX = 12 + col * (76 / Math.max(cols - 1, 1));
-  const baseY = 18 + row * 30;
-  const jitterX = ((hash & 0xff) / 255) * 12 - 6;
-  const jitterY = (((hash >> 8) & 0xff) / 255) * 8 - 4;
-  return {
-    left: `${Math.max(8, Math.min(88, baseX + jitterX)).toFixed(1)}%`,
-    top: `${Math.max(12, Math.min(80, baseY + jitterY)).toFixed(1)}%`,
-  };
+}
+
+function writeLocationCache(cache) {
+  try {
+    localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    // The API also keeps a shared server-side cache; a blocked browser cache is okay.
+  }
+}
+
+function validCoordinateEntry(entry) {
+  return entry && Number.isFinite(entry.latitude) && Number.isFinite(entry.longitude);
 }
 
 export default function CustomerLocationMap({
@@ -30,20 +34,79 @@ export default function CustomerLocationMap({
   isRefreshing = false,
   lastRefreshedAt = null,
 }) {
-  const hasData = locations.length > 0;
-  const topPins = locations.slice(0, 5);
-  const topList = locations.slice(0, 6);
+  const hasData   = locations.length > 0;
+  const topPins   = locations.slice(0, 5);
+  const topList   = locations.slice(0, 6);
   const maxOrders = topList[0]?.orders ?? 1;
+  const placeKey = topPins.map((location) => location.label).join("\u001f");
+  const [coordinatesByLabel, setCoordinatesByLabel] = useState({});
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const labels = placeKey ? placeKey.split("\u001f").filter(Boolean) : [];
+    const cache = readLocationCache();
+    const now = Date.now();
+    const initial = {};
+
+    labels.forEach((label) => {
+      const entry = cache[label];
+      if (entry && entry.expiresAt > now && validCoordinateEntry(entry)) {
+        initial[label] = { latitude: entry.latitude, longitude: entry.longitude };
+      }
+    });
+    setCoordinatesByLabel(initial);
+
+    const uncachedLabels = labels.filter((label) => {
+      const entry = cache[label];
+      return !entry || !Number.isFinite(entry.expiresAt) || entry.expiresAt <= now;
+    });
+    setIsGeocoding(uncachedLabels.length > 0);
+
+    async function geocodeAreas() {
+      for (const label of uncachedLabels) {
+        if (!active) break;
+        // Never send exact street addresses to a geocoder; `label` is reduced to city/province.
+        if (label.length < 2 || label.length > 120) continue;
+        try {
+          const response = await mapsApi.geocode(label);
+          const latitude = Number(response.data?.latitude);
+          const longitude = Number(response.data?.longitude);
+          if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
+
+          const entry = { latitude, longitude, expiresAt: Date.now() + POSITIVE_CACHE_MS };
+          cache[label] = entry;
+          writeLocationCache(cache);
+          if (active) {
+            setCoordinatesByLabel((current) => ({ ...current, [label]: { latitude, longitude } }));
+          }
+        } catch (error) {
+          if (error.response?.status === 404) {
+            cache[label] = { missing: true, expiresAt: Date.now() + NEGATIVE_CACHE_MS };
+            writeLocationCache(cache);
+          }
+          // Transient API/network failures are not cached, so Refresh can retry them.
+        }
+      }
+      if (active) setIsGeocoding(false);
+    }
+
+    geocodeAreas();
+    return () => { active = false; };
+  }, [placeKey]);
+
+  const mappedLocations = topPins
+    .filter((location) => coordinatesByLabel[location.label])
+    .map((location) => ({ ...location, ...coordinatesByLabel[location.label] }));
 
   return (
     <section className="admin-location-panel" aria-labelledby="location-heading">
-      {/* Header */}
       <div className="admin-location-header">
         <div>
           <p className="admin-section-kicker">Delivery insights</p>
           <h2 id="location-heading" className="admin-location-title">Customer locations</h2>
           <p className="admin-location-subtitle">
-            Where orders are coming from during this period.
+            Orders by broad delivery area. Map pins show approximate city or province locations, never street addresses.
           </p>
         </div>
 
@@ -54,16 +117,11 @@ export default function CustomerLocationMap({
               <span className="admin-location-total-label">orders in this period</span>
             </div>
           )}
-
-          {/* Refresh controls */}
           <div className="admin-location-actions">
             {lastRefreshedAt && (
               <span className="admin-location-refreshed">
                 Updated{" "}
-                {lastRefreshedAt.toLocaleTimeString([], {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
+                {lastRefreshedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
               </span>
             )}
             <button
@@ -75,14 +133,9 @@ export default function CustomerLocationMap({
             >
               <svg
                 className={isRefreshing ? "is-spinning" : ""}
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round"
                 aria-hidden="true"
               >
                 <path d="M20 11a8.1 8.1 0 0 0-14.7-3L3 11" />
@@ -98,68 +151,31 @@ export default function CustomerLocationMap({
 
       {hasData ? (
         <div className="admin-location-body">
-          {/* Abstract map visual */}
-          <div
-            className="location-map"
-            role="img"
-            aria-label="Approximate area visualization of customer delivery regions"
-          >
-            {/* Grid lines */}
-            <div className="location-map-grid" aria-hidden="true">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={`h-${i}`} className="location-map-gridline location-map-gridline--h" style={{ top: `${20 + i * 15}%` }} />
-              ))}
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={`v-${i}`} className="location-map-gridline location-map-gridline--v" style={{ left: `${10 + i * 15}%` }} />
-              ))}
-            </div>
-
-            {/* Abstract land shape */}
-            <div className="location-map-shape" aria-hidden="true" />
-
-            {/* Pins for top locations */}
-            {topPins.map((loc, i) => {
-              const pos = stablePosition(loc.label, i, topPins.length);
-              return (
-                <div
-                  key={loc.label}
-                  className={`location-map-pin ${i === 0 ? "location-map-pin--top" : ""}`}
-                  style={{ left: pos.left, top: pos.top }}
-                  title={`${loc.label}: ${loc.orders} order${loc.orders !== 1 ? "s" : ""}`}
-                  aria-label={`${loc.label}: ${loc.orders} orders`}
-                >
-                  <div className="location-map-pin-dot" />
-                  <span className="location-map-pin-count">{loc.orders}</span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Ranked list */}
+          <OpenStreetMapView locations={mappedLocations} isLoading={isGeocoding} />
           <div className="location-list" aria-label="Popular delivery areas">
             <p className="admin-section-kicker" style={{ marginBottom: "0.75rem" }}>Popular delivery areas</p>
             <ol className="location-list-ol">
-              {topList.map((loc, i) => {
-                const pct = Math.round((loc.orders / maxOrders) * 100);
+              {topList.map((location, index) => {
+                const pct = Math.round((location.orders / maxOrders) * 100);
                 return (
-                  <li key={loc.label} className="location-list-row">
-                    <span className="location-list-rank">{String(i + 1).padStart(2, "0")}</span>
+                  <li key={location.label} className="location-list-row">
+                    <span className="location-list-rank">{String(index + 1).padStart(2, "0")}</span>
                     <div className="location-list-info">
                       <div className="location-list-top">
-                        <span className="location-list-label">{loc.label}</span>
-                        <span className="location-list-orders">{loc.orders}</span>
+                        <span className="location-list-label" title={location.label}>{location.label}</span>
+                        <span className="location-list-orders">{location.orders}</span>
                       </div>
                       <span className="location-list-customers">
-                        {loc.customers} customer{loc.customers !== 1 ? "s" : ""}
+                        {location.customers} customer{location.customers !== 1 ? "s" : ""}
                       </span>
                       <div className="location-list-bar-track">
                         <div
                           className="location-list-bar"
                           style={{ width: `${pct}%` }}
                           role="meter"
-                          aria-valuenow={loc.orders}
+                          aria-valuenow={location.orders}
                           aria-valuemax={maxOrders}
-                          aria-label={`${loc.orders} of ${maxOrders} orders`}
+                          aria-label={`${location.orders} of ${maxOrders} orders`}
                         />
                       </div>
                     </div>

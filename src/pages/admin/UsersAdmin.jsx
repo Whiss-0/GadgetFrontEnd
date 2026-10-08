@@ -194,18 +194,30 @@ export default function UsersAdmin() {
                 <tr>
                   <th>User</th>
                   <th>Email</th>
+                  <th>Address</th>
                   <th>Current Role</th>
                   <th className="text-right">Change Role</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => {
-                  const id = u.User_ID || u.user_ID;
-                  const roleId = u.Role_ID || u.role_ID || 3;
-                  const name = u.Name || u.name || "Unnamed user";
-                  const email = u.Email || u.email;
+                  const id       = u.User_ID || u.user_ID;
+                  const roleId   = u.Role_ID || u.role_ID || 3;
+                  const name     = u.Name  || u.name  || "Unnamed user";
+                  const email    = u.Email || u.email;
                   const initials = name.substring(0, 2).toUpperCase();
                   const roleName = roleDisplayLabel(roleId);
+
+                  // Build a structured address string from the breakdown columns
+                  const addressParts = [
+                    u.Barangay          || u.barangay,
+                    u.City_Municipality || u.city_municipality,
+                    u.Province          || u.province,
+                    u.Region            || u.region,
+                  ].filter(Boolean);
+                  const fullAddress = addressParts.length > 0
+                    ? addressParts.join(", ")
+                    : (u.Address || u.address || null);
 
                   return (
                     <tr key={id}>
@@ -224,6 +236,13 @@ export default function UsersAdmin() {
                       </td>
                       <td className="font-[var(--font-mono)] text-xs text-[var(--color-dark-ink)]/70">
                         {email}
+                      </td>
+                      <td className="text-xs text-[var(--color-dark-ink)]/70 max-w-[200px]">
+                        {fullAddress ? (
+                          <span className="block truncate" title={fullAddress}>{fullAddress}</span>
+                        ) : (
+                          <span className="text-[var(--color-dark-ink)]/30 italic">—</span>
+                        )}
                       </td>
                       <td>
                         <span className={`admin-status-badge ${roleBadgeClass(roleId)}`}>
@@ -255,12 +274,22 @@ export default function UsersAdmin() {
           {/* Mobile Stacked Cards */}
           <div className="md:hidden space-y-3">
             {users.map((u) => {
-              const id = u.User_ID || u.user_ID;
-              const roleId = u.Role_ID || u.role_ID || 3;
-              const name = u.Name || u.name || "Unnamed user";
-              const email = u.Email || u.email;
+              const id       = u.User_ID || u.user_ID;
+              const roleId   = u.Role_ID || u.role_ID || 3;
+              const name     = u.Name  || u.name  || "Unnamed user";
+              const email    = u.Email || u.email;
               const initials = name.substring(0, 2).toUpperCase();
               const roleName = roleDisplayLabel(roleId);
+
+              const addressParts = [
+                u.Barangay          || u.barangay,
+                u.City_Municipality || u.city_municipality,
+                u.Province          || u.province,
+                u.Region            || u.region,
+              ].filter(Boolean);
+              const fullAddress = addressParts.length > 0
+                ? addressParts.join(", ")
+                : (u.Address || u.address || null);
 
               return (
                 <div key={id} className="admin-item-card rounded-lg p-4 space-y-3">
@@ -279,6 +308,17 @@ export default function UsersAdmin() {
                         {email}
                       </p>
                     </div>
+                  </div>
+
+                  {/* Address row */}
+                  <div className="flex items-start gap-2 text-xs text-[var(--color-dark-ink)]/60">
+                    <svg className="w-3 h-3 mt-0.5 shrink-0 text-[var(--color-circuit)]/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                      <circle cx="12" cy="9" r="2.5"/>
+                    </svg>
+                    <span className="truncate">
+                      {fullAddress ?? <span className="italic text-[var(--color-dark-ink)]/30">No address on record</span>}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-[var(--color-dark-line)]">

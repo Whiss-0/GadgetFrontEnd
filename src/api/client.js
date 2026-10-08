@@ -131,3 +131,14 @@ export const activityApi = {
   all: (params = {}) => client.get("/api/activity", { params }),
   forUser: (userId, params = {}) => client.get(`/api/activity/user/${userId}`, { params }),
 };
+
+// ---- Geocoding (admin-only, server-side rate-limited + cached) ----
+export const geocodeApi = {
+  lookup: (area) => client.get("/api/geocode", { params: { area } }),
+};
+
+// ---- Admin: approximate OpenStreetMap location lookup ----
+export const mapsApi = {
+  geocode: (area) => client.get("/api/map/geocode", { params: { area } }),
+};
+

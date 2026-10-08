@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { ordersApi, cartApi } from "../api/client";
+import PhilippineAddressSelector from "../components/PhilippineAddressSelector";
 
 const PAYMENT_METHODS = [
   { id: "COD", label: "Cash on delivery" },
@@ -25,6 +26,7 @@ export default function Checkout() {
   const [step, setStep] = useState("form"); // form | processing | done
   const [error, setError] = useState("");
   const [cleanupWarning, setCleanupWarning] = useState("");
+  const [showPhSelector, setShowPhSelector] = useState(false);
   const [completedOrder, setCompletedOrder] = useState(null);
   const submittingRef = useRef(false);
   const dialogRef = useRef(null);
@@ -150,6 +152,31 @@ export default function Checkout() {
             Shipping details
           </h2>
           <div className="space-y-4">
+            {/* Philippine address selector helper */}
+            <div>
+              <button
+                type="button"
+                className="ph-selector-toggle"
+                onClick={() => setShowPhSelector((v) => !v)}
+                disabled={step === "processing"}
+              >
+                {showPhSelector ? "▲ Hide" : "▼ Use"} Philippine address selector
+              </button>
+
+              {showPhSelector && (
+                <div className="ph-selector-panel">
+                  <p className="text-xs text-[var(--color-ink-soft)] mb-3">
+                    Pick your location — it will be applied to the address field below.
+                  </p>
+                  <PhilippineAddressSelector
+                    street=""
+                    onAddressChange={(formatted) => setAddress(formatted)}
+                    disabled={step === "processing"}
+                  />
+                </div>
+              )}
+            </div>
+
             <div>
               <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1" htmlFor="address">
                 Full delivery address
@@ -158,11 +185,11 @@ export default function Checkout() {
                 id="address"
                 required
                 autoComplete="street-address"
-                rows={2}
+                rows={3}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 disabled={step === "processing"}
-                placeholder="Street address, apartment/suite, city, postal code"
+                placeholder="Street / house number, barangay, city, province (or use selector above)"
                 className="w-full border border-[var(--color-line)] rounded-lg p-3 bg-[var(--color-panel)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)] focus:border-[var(--color-circuit)] outline-none text-sm disabled:opacity-50"
               />
             </div>

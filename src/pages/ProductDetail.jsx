@@ -230,8 +230,8 @@ export default function ProductDetail() {
             <span
               className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
                 inStock
-                  ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                  : "bg-red-500/10 text-red-700 dark:text-red-400"
+                  ? "bg-[var(--color-success-soft)] text-[var(--color-success)]"
+                  : "bg-[var(--color-signal)]/10 text-[var(--color-signal)]"
               }`}
             >
               {inStock ? "In stock" : "Out of stock"}
@@ -271,8 +271,8 @@ export default function ProductDetail() {
               className={`text-sm font-medium ${
                 inStock
                   ? stock <= 3
-                    ? "text-amber-600 dark:text-amber-400"
-                    : "text-emerald-700 dark:text-emerald-400"
+                    ? "text-[var(--color-warning)]"
+                    : "text-[var(--color-success)]"
                   : "text-[var(--color-signal)]"
               }`}
             >
