@@ -136,7 +136,7 @@ export default function Orders() {
         <div className="empty-state-card text-center p-8 sm:p-12 border border-[var(--color-line)] rounded-xl bg-[var(--color-panel)]">
           <p className="font-[var(--font-display)] font-semibold text-lg mb-2">No orders yet</p>
           <p className="text-[var(--color-ink-soft)] text-sm mb-6 max-w-md mx-auto">
-            When you find something you like, your order details will appear here.
+            Your Techstead orders will appear here after checkout.
           </p>
           <Link to="/" className="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold inline-block">
             Browse the catalog

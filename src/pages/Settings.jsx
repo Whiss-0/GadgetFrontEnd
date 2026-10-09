@@ -3,6 +3,7 @@ import { authApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
 import PhilippineAddressSelector from "../components/PhilippineAddressSelector";
+import { useToast } from "../hooks/useToast";
 
 function parseAddressParts(addr) {
   if (!addr) return null;
@@ -46,6 +47,17 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [showPhSelector, setShowPhSelector] = useState(false);
+  // Save feedback lives next to the Save button and in a toast, not at the top
+  // of the page: the form is long, and the user is at the bottom when they save.
+  const toast = useToast();
+  const [saveError, setSaveError] = useState("");
+  const [justSaved, setJustSaved] = useState(false);
+
+  useEffect(() => {
+    if (!justSaved) return undefined;
+    const timer = setTimeout(() => setJustSaved(false), 2500);
+    return () => clearTimeout(timer);
+  }, [justSaved]);
 
   useEffect(() => {
     // Fetch fresh profile data to pre-fill the form
@@ -76,6 +88,8 @@ export default function Settings() {
     e.preventDefault();
     setSaving(true);
     setMessage({ type: "", text: "" });
+    setSaveError("");
+    setJustSaved(false);
 
     try {
       const parsed = parseAddressParts(formData.address);
@@ -99,10 +113,13 @@ export default function Settings() {
       const updatedName = response.data?.username ?? response.data?.Name ?? formData.name;
       if (user) updateUser({ username: updatedName });
 
-      setMessage({ type: "success", text: "Profile updated successfully!" });
+      toast.show("Profile updated.", { tone: "success" });
+      setJustSaved(true);
       setFormData(prev => ({ ...prev, password: "", currentPassword: "" })); // Clear password fields
     } catch (err) {
-      setMessage({ type: "error", text: err.response?.data?.message || "Failed to update profile." });
+      const text = err.response?.data?.message || "Failed to update profile.";
+      setSaveError(text);
+      toast.show(text, { tone: "error", duration: 6000 });
     } finally {
       setSaving(false);
     }
@@ -242,13 +259,19 @@ export default function Settings() {
           />
         </div>
 
+        {saveError && (
+          <p role="alert" className="p-3 rounded text-sm font-medium bg-[var(--color-signal)]/10 text-[var(--color-signal)] border border-[var(--color-signal)]/30">
+            {saveError}
+          </p>
+        )}
+
         <div className="pt-2 flex justify-end">
           <button
             type="submit"
             disabled={saving}
-            className="btn-primary px-6 py-2 rounded font-semibold disabled:opacity-50"
+            className={`btn-primary px-6 py-2 rounded font-semibold disabled:opacity-50 ${justSaved ? "is-saved" : ""}`}
           >
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? "Saving..." : justSaved ? "Saved" : "Save Changes"}
           </button>
         </div>
       </form>

@@ -14,7 +14,7 @@ export default function NotFound() {
           Page not found
         </h1>
         <p className="text-[var(--color-ink-soft)] mb-1">
-          That page has moved on.
+          We couldn’t find the page you were looking for.
         </p>
         <p className="text-[var(--color-ink-soft)] text-sm mb-8">
           We couldn't find{" "}
@@ -28,7 +28,7 @@ export default function NotFound() {
             to="/"
             className="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold"
           >
-            Back to shop
+            Back to Techstead
           </Link>
           <button
             onClick={() => navigate(-1)}

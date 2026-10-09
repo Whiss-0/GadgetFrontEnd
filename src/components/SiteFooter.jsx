@@ -8,10 +8,10 @@ export default function SiteFooter() {
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div className="site-footer-brand">
-          <Link to="/" className="site-footer-logo">
-            Gadget<span>/</span>Store
+          <Link to="/" className="site-footer-logo brand-wordmark">
+            Techstead
           </Link>
-          <p>Thoughtful tech for the way you work, play, and live.</p>
+          <p>Technology for everyday life.</p>
         </div>
 
         <nav className="site-footer-links" aria-label="Footer navigation">
@@ -21,7 +21,7 @@ export default function SiteFooter() {
           <Link to={isAuthenticated ? "/settings" : "/login"}>Account</Link>
         </nav>
 
-        <p className="site-footer-note">Reliable gear. Clear choices.</p>
+        <p className="site-footer-note">Everyday gadgets, chosen with care.</p>
       </div>
     </footer>
   );

@@ -90,13 +90,13 @@ export const wishlistApi = {
 };
 
 // ---- Orders ----
-// /api/order (bare GET) requires AdminAccess. Users must use /api/order/my.
+// /api/order (bare GET) requires staff or admin (ModAccess). Customers use /api/order/my.
 export const ordersApi = {
   myOrders: () => client.get("/api/order/my"),         // GET /api/order/my  (user's own orders)
   get: (id) => client.get(`/api/order/${id}`),
   create: (data) => client.post("/api/order", data),   // POST /api/order  { TotalAmount }
   cancel: (id) => client.put(`/api/order/${id}/cancel`),
-  listAllAdmin: () => client.get("/api/order"),         // GET /api/order   (admin only)
+  listAllAdmin: () => client.get("/api/order"),         // GET /api/order   (staff + admin)
   updateStatus: (id, status) =>
     client.put(`/api/order/${id}`, { Status: status }), // PUT /api/order/{id}  (mod+)
   // Atomic checkout: creates order + validates stock + inserts all line items in a single transaction
@@ -132,12 +132,12 @@ export const activityApi = {
   forUser: (userId, params = {}) => client.get(`/api/activity/user/${userId}`, { params }),
 };
 
-// ---- Geocoding (admin-only, server-side rate-limited + cached) ----
+// ---- Geocoding (staff + admin, server-side rate-limited + cached) ----
 export const geocodeApi = {
   lookup: (area) => client.get("/api/geocode", { params: { area } }),
 };
 
-// ---- Admin: approximate OpenStreetMap location lookup ----
+// ---- Staff + admin: approximate OpenStreetMap location lookup ----
 export const mapsApi = {
   geocode: (area) => client.get("/api/map/geocode", { params: { area } }),
 };

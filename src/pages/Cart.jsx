@@ -77,7 +77,7 @@ export default function Cart() {
 
       {items.length === 0 && !loadError ? (
         <div className="spec-ticket rounded-xl p-8 sm:p-12 text-center border border-[var(--color-line)] bg-[var(--color-panel)] max-w-lg mx-auto">
-          <p className="font-[var(--font-display)] text-xl font-semibold mb-2">Your cart is empty</p>
+          <p className="font-[var(--font-display)] text-xl font-semibold mb-2">Your Techstead cart is empty</p>
           <p className="text-[var(--color-ink-soft)] text-sm mb-6">
             Have a look around and find something you'll enjoy using.
           </p>

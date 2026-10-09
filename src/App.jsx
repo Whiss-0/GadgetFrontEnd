@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SiteFooter from "./components/SiteFooter";
 import { RequireAuth, RequireAdmin, RequireMod } from "./components/ProtectedRoute";
@@ -39,6 +39,28 @@ function RouteFallback() {
 
 export default function App() {
   const { isMod } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    const titles = {
+      "/": "Techstead — Shop gadgets",
+      "/cart": "Techstead — Your cart",
+      "/orders": "Techstead — Your orders",
+      "/checkout": "Techstead — Checkout",
+      "/wishlist": "Techstead — Wishlist",
+      "/login": "Techstead — Sign in",
+      "/register": "Techstead — Create account",
+      "/forgot-password": "Techstead — Reset password",
+      "/reset-password": "Techstead — Reset password",
+      "/settings": "Techstead — Account Settings",
+      "/activity": "Techstead — Activity Log",
+    };
+    if (location.pathname.startsWith("/admin")) {
+      document.title = "Techstead Admin — Store overview";
+    } else {
+      document.title = titles[location.pathname] || "Techstead — Technology for everyday life.";
+    }
+  }, [location.pathname]);
 
   // Sync the body background with the active theme so there's no
   // colour mismatch between the <body> and the themed wrapper div.

@@ -1,9 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { productsApi, categoriesApi } from "../../api/client";
 import ImageDropzone from "../../components/ImageDropzone";
 import ProductArt from "../../components/ProductArt";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useToast } from "../../hooks/useToast";
+import { useAuth } from "../../context/AuthContext";
 import { scrollToElement } from "../../utils/scroll";
 
 const empty = {
@@ -32,6 +34,9 @@ function getStockBadge(stock) {
 
 export default function ProductsAdmin() {
   const toast = useToast();
+  // Admins manage the whole catalog. Staff may only edit descriptions: the
+  // API rejects create, update, delete and image upload for them (403).
+  const { isAdmin } = useAuth();
   const formRef = useRef(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -43,6 +48,8 @@ export default function ProductsAdmin() {
   const [searchTerm, setSearchTerm] = useState("");
   const [productToDelete, setProductToDelete] = useState(null); // { id, name }
   const [deleting, setDeleting] = useState(false);
+  const [searchParams] = useSearchParams();
+  const stockFilter = searchParams.get("stock");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -112,6 +119,22 @@ export default function ProductsAdmin() {
     setError("");
     setSaving(true);
 
+    if (!isAdmin) {
+      try {
+        await productsApi.updateDescription(editingId, form.Description.trim());
+        toast.show(`Description for "${form.ProductName}" updated.`, { tone: "success" });
+        cancelEdit();
+        await load();
+      } catch (err) {
+        const msg = err.response?.data?.message || "Couldn't save the description.";
+        setError(msg);
+        toast.show(msg, { tone: "error" });
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     const payload = {
       ProductName:  form.ProductName.trim(),
       Brand:        form.Brand ? form.Brand.trim() : null,
@@ -168,6 +191,10 @@ export default function ProductsAdmin() {
   }
 
   const filteredProducts = products.filter((p) => {
+    const stock = Number(p.stock ?? 0);
+    if (stockFilter === "out" && stock > 0) return false;
+    if (stockFilter === "low" && (stock <= 0 || stock > 5)) return false;
+
     const term = searchTerm.trim().toLowerCase();
     if (!term) return true;
     return (
@@ -179,27 +206,33 @@ export default function ProductsAdmin() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
       {/* Products list panel */}
-      <div className="admin-glass-panel rounded-xl p-6 space-y-4">
+      <div id="admin-products" className="admin-glass-panel rounded-xl p-6 space-y-4 scroll-mt-24">
         {/* Search & Actions Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--color-dark-line)]">
           <div>
             <h2 className="text-lg font-bold text-white tracking-tight">Products</h2>
             <p className="text-xs text-[var(--color-dark-ink)]/60">
-              Search by name or brand
+              {stockFilter === "out"
+                ? "Showing out-of-stock products"
+                : stockFilter === "low"
+                  ? "Showing products with 1–5 units left"
+                  : "Search by name or brand"}
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleStartAdd}
-            className="admin-btn-primary text-xs py-1.5 px-3 self-start sm:self-auto"
-          >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            <span>Add product</span>
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={handleStartAdd}
+              className="admin-btn-primary text-xs py-1.5 px-3 self-start sm:self-auto"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              <span>Add product</span>
+            </button>
+          )}
         </div>
 
         {/* Search input */}
@@ -289,18 +322,20 @@ export default function ProductsAdmin() {
                     type="button"
                     onClick={() => startEdit(p)}
                     className="admin-btn-secondary text-xs py-1 px-2.5"
-                    aria-label={`Edit ${p.product_name}`}
+                    aria-label={isAdmin ? `Edit ${p.product_name}` : `Edit description of ${p.product_name}`}
                   >
-                    Edit
+                    {isAdmin ? "Edit" : "Edit description"}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => promptDelete(p)}
-                    className="text-xs text-[var(--color-signal)] hover:underline px-2 py-1"
-                    aria-label={`Delete ${p.product_name}`}
-                  >
-                    Delete
-                  </button>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => promptDelete(p)}
+                      className="text-xs text-[var(--color-signal)] hover:underline px-2 py-1"
+                      aria-label={`Delete ${p.product_name}`}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -308,13 +343,20 @@ export default function ProductsAdmin() {
 
           {!loading && filteredProducts.length === 0 && (
             <div className="py-12 text-center text-xs text-[var(--color-dark-ink)]/50">
-              {searchTerm ? "No products match your search query." : "No products in the catalog yet."}
+              {stockFilter === "out"
+                ? "No out-of-stock products found."
+                : stockFilter === "low"
+                  ? "No low-stock products found."
+                  : searchTerm
+                    ? "No products match your search query."
+                    : "No products in the catalog yet."}
             </div>
           )}
         </div>
       </div>
 
-      {/* Product form panel */}
+      {/* Product form panel (admin: full catalog form) */}
+      {isAdmin && (
       <form
         ref={formRef}
         onSubmit={handleSubmit}
@@ -537,6 +579,56 @@ export default function ProductsAdmin() {
           )}
         </div>
       </form>
+      )}
+
+      {/* Staff panel: description only */}
+      {!isAdmin && (
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className="admin-glass-panel rounded-xl p-6 lg:sticky lg:top-24 space-y-4"
+          aria-labelledby="product-form-title"
+        >
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--color-dark-line)]">
+            <div>
+              <h3 id="product-form-title" className="text-base font-bold text-white">
+                {editingId ? "Edit description" : "Product descriptions"}
+              </h3>
+              <p className="text-xs text-[var(--color-dark-ink)]/50">
+                {editingId
+                  ? `${form.ProductName} (#${editingId})`
+                  : "Pick a product to update its description. Price, stock and images are managed by admins."}
+              </p>
+            </div>
+            {editingId && (
+              <button type="button" onClick={cancelEdit} className="text-xs text-[var(--color-dark-ink)]/60 hover:text-white">
+                Cancel
+              </button>
+            )}
+          </div>
+
+          {editingId && (
+            <>
+              <div>
+                <label htmlFor="prod-desc-staff" className="block text-xs font-medium text-[var(--color-dark-ink)]/70 mb-1">
+                  Description
+                </label>
+                <textarea
+                  id="prod-desc-staff"
+                  rows={6}
+                  value={form.Description}
+                  onChange={(e) => update("Description", e.target.value)}
+                  className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-1.5 text-sm text-white outline-none focus:border-[var(--color-circuit)]"
+                />
+              </div>
+              {error && <p role="alert" className="text-xs text-[var(--color-signal)]">{error}</p>}
+              <button type="submit" disabled={saving} className="admin-btn-primary text-xs py-1.5 px-3">
+                {saving ? "Saving…" : "Save description"}
+              </button>
+            </>
+          )}
+        </form>
+      )}
 
       {/* Confirmation Dialog for Product Deletion */}
       <ConfirmDialog

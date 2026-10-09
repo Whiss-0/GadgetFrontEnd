@@ -144,10 +144,10 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 top-header border-b relative">
       <div className="header-inner max-w-6xl mx-auto px-5">
-        <Link to="/" className="font-[var(--font-display)] font-semibold text-lg tracking-tight flex items-center gap-2 z-10 logo-text" aria-label="Gadget Store home">
-          <span className="flex items-center whitespace-nowrap">
+        <Link to="/" className="font-[var(--font-display)] font-semibold text-lg tracking-tight flex items-center gap-2 z-10 logo-text" aria-label="Techstead home">
+          <span className="brand-wordmark flex items-center whitespace-nowrap">
             <Pin />
-            Gadget<span className="text-[var(--color-circuit)]">/</span>Store
+            Techstead
           </span>
           <RoleBadge isAdmin={isAdmin} isMod={isMod} />
         </Link>

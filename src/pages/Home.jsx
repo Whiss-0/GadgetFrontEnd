@@ -142,12 +142,12 @@ export default function Home() {
     <main className="catalog-page max-w-6xl mx-auto px-5 py-6 sm:py-9">
       <section className="catalog-hero mb-7 sm:mb-9" aria-labelledby="storefront-title">
         <div className="catalog-hero-copy">
-          <p className="eyebrow">Good tech, thoughtfully chosen</p>
+          <p className="eyebrow">Techstead</p>
           <h1 id="storefront-title" className="font-[var(--font-display)] text-4xl sm:text-5xl lg:text-[3.6rem] font-semibold tracking-tight leading-[1.04]">
-            Make room for <span className="hero-accent">better tech.</span>
+            Technology for <span className="hero-accent">everyday life.</span>
           </h1>
           <p className="catalog-hero-description">
-            Find the gear that earns its place in your everyday, from a cleaner desk to a better listening session.
+            Find dependable gadgets and useful accessories for work, home, and everything in between.
           </p>
           <div className="catalog-hero-actions">
             <a href="#products" className="btn-primary px-5 py-3 rounded-lg text-sm font-semibold inline-flex items-center gap-2">
@@ -280,7 +280,7 @@ export default function Home() {
         )}
       </section>
 
-      <section className="store-assurance" aria-label="Why shop Gadget Store">
+      <section className="store-assurance" aria-label="Why shop Techstead">
         <div><span className="store-assurance-icon"><ProductIcon type="shield" /></span><div><strong>Shop with confidence</strong><span>Your account and checkout stay protected.</span></div></div>
         <div><span className="store-assurance-icon"><ProductIcon type="box" /></span><div><strong>Know before you choose</strong><span>Clear pricing, product details, and stock status.</span></div></div>
         <div><span className="store-assurance-icon"><ProductIcon type="support" /></span><div><strong>A real store experience</strong><span>Order history and account tools, all in one place.</span></div></div>

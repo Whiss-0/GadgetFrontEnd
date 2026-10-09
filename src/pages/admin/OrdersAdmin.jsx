@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ordersApi } from "../../api/client";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useToast } from "../../hooks/useToast";
@@ -39,6 +40,11 @@ export default function OrdersAdmin() {
   const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
   const [orderToCancel, setOrderToCancel] = useState(null); // { id, displayId }
+  const [searchParams] = useSearchParams();
+  const statusFilter = searchParams.get("status");
+  const visibleOrders = statusFilter
+    ? orders.filter((order) => (order.status ?? order.Status ?? "Pending") === statusFilter)
+    : orders;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -100,7 +106,7 @@ export default function OrdersAdmin() {
         <div>
           <h2 className="text-lg font-bold text-white tracking-tight">Customer orders</h2>
           <p className="text-xs text-[var(--color-dark-ink)]/60">
-            Manage order fulfilment, status progression, and cancellation.
+            {statusFilter ? `Showing ${statusFilter.toLowerCase()} orders.` : "Manage order fulfilment, status progression, and cancellation."}
           </p>
         </div>
 
@@ -171,8 +177,14 @@ export default function OrdersAdmin() {
         </div>
       )}
 
+      {!loading && !error && orders.length > 0 && visibleOrders.length === 0 && (
+        <div className="py-16 text-center text-sm text-[var(--color-dark-ink)]/60">
+          No {statusFilter?.toLowerCase() || "matching"} orders found.
+        </div>
+      )}
+
       {/* Orders content: Desktop Table + Mobile Cards */}
-      {orders.length > 0 && (
+      {visibleOrders.length > 0 && (
         <>
           {/* Desktop Table (hidden on small screens) */}
           <div className="hidden md:block admin-table-wrap">
@@ -188,7 +200,7 @@ export default function OrdersAdmin() {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((o) => {
+                {visibleOrders.map((o) => {
                   const id = o.order_id ?? o.orderId ?? o.OrderId;
                   const userId = o.user_id ?? o.userId ?? o.User_ID;
                   const currentStatus = o.status ?? o.Status ?? "Pending";
@@ -239,7 +251,7 @@ export default function OrdersAdmin() {
 
           {/* Mobile Stacked Cards (visible only on small screens) */}
           <div className="md:hidden space-y-3">
-            {orders.map((o) => {
+            {visibleOrders.map((o) => {
               const id = o.order_id ?? o.orderId ?? o.OrderId;
               const userId = o.user_id ?? o.userId ?? o.User_ID;
               const currentStatus = o.status ?? o.Status ?? "Pending";

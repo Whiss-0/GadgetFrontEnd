@@ -301,6 +301,12 @@ body {
   color: var(--color-header-text);
 }
 
+.brand-wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
 .top-header a:hover {
   color: var(--color-circuit);
   opacity: 0.9;
@@ -1015,7 +1021,8 @@ select:focus {
    right foreground here: success is a dark fill in light mode (needs light
    text) and a bright fill in dark/staff mode (needs dark text) — same logic
    already used for .btn-primary's dark/staff contrast fix below. */
-.btn-add.is-added {
+.btn-add.is-added,
+.btn-primary.is-saved {
   background: var(--color-success) !important;
   color: var(--color-paper) !important;
 }
@@ -1322,7 +1329,7 @@ select:focus {
    white form" split-screen template. Instead this reuses the
    store's own signature ideas — the mono status strip from the
    navbar, the dashed perforation + accent dot from .spec-ticket —
-   so the login screen reads as part of Gadget/Store, not a
+   so the login screen reads as part of Techstead, not a
    swapped-in auth-kit page.
    ============================================================ */
 .auth-page {
@@ -1343,7 +1350,7 @@ select:focus {
 }
 
 /* Slim status strip — a compressed echo of the dark navbar, not a
-   full marketing panel. Signals "you're still in Gadget/Store". */
+   full marketing panel. Signals "you're still in Techstead". */
 .auth-visual {
   display: flex;
   align-items: center;
@@ -1706,7 +1713,7 @@ input[type="date"] {
 }
 
 .location-map .leaflet-control-zoom a {
-  color: #17212b;
+  color: var(--color-dark-ink) !important;
 }
 
 .location-map-status {
@@ -1752,26 +1759,35 @@ input[type="date"] {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-.customer-map-marker > i {
-  position: absolute;
-  right: -3px;
-  bottom: -3px;
-  width: 10px;
-  height: 10px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background: #f59e0b;
-}
-
 .customer-map-marker--top {
   background: #d97706;
 }
 
+.customer-map-marker--selected {
+  outline: 3px solid color-mix(in srgb, var(--color-circuit) 70%, transparent);
+  outline-offset: 2px;
+  z-index: 1000;
+}
+
 .customer-map-popup {
   display: grid;
-  gap: 0.25rem;
-  color: #17212b;
+  gap: 0.3rem;
+  color: var(--color-ink) !important;
   font-family: var(--font-body);
+  line-height: 1.4;
+}
+
+.leaflet-popup-content {
+  color: var(--color-ink) !important;
+}
+
+.leaflet-popup-close-button {
+  color: var(--color-ink-soft) !important;
+}
+
+.leaflet-popup-close-button:hover,
+.leaflet-popup-close-button:focus-visible {
+  color: var(--color-ink) !important;
 }
 
 .customer-map-popup strong {
@@ -1784,7 +1800,18 @@ input[type="date"] {
 }
 
 .customer-map-popup small {
-  color: #64748b;
+  color: var(--color-ink-soft) !important;
+}
+
+
+.location-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+  margin-top: 0.65rem;
+  color: var(--color-dark-ink);
+  opacity: 0.65;
+  font-size: 0.68rem;
 }
 
 /* ---- Ranked list ---- */
@@ -1803,9 +1830,30 @@ input[type="date"] {
 }
 
 .location-list-row {
+  width: 100%;
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
+  padding: 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.location-list-row:hover,
+.location-list-row:focus-visible {
+  border-color: var(--color-dark-line);
+  background: color-mix(in srgb, var(--color-circuit) 8%, transparent);
+  outline: none;
+}
+
+.location-list-row.is-selected {
+  border-color: color-mix(in srgb, var(--color-circuit) 60%, transparent);
+  background: color-mix(in srgb, var(--color-circuit) 12%, transparent);
 }
 
 .location-list-rank {
@@ -2034,46 +2082,6 @@ input[type="date"] {
 
 .leaflet-control-attribution a {
   color: var(--color-circuit) !important;
-}
-
-/* Custom div-icon pins */
-.osm-pin {
-  width: 34px;
-  height: 34px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  background: var(--color-circuit);
-  border: 2px solid color-mix(in srgb, var(--color-circuit) 60%, #fff);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-circuit) 50%, transparent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.osm-pin--top {
-  background: var(--color-gold, #f4c76a);
-  border-color: color-mix(in srgb, var(--color-gold, #f4c76a) 60%, #fff);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--color-gold, #f4c76a) 55%, transparent);
-}
-
-.osm-pin-count {
-  transform: rotate(45deg); /* counter-rotate text upright */
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  font-weight: 800;
-  color: #fff;
-  line-height: 1;
-}
-
-.osm-pin--top .osm-pin-count {
-  color: var(--color-dark-bg);
-}
-
-/* Leaflet popup overrides */
-.osm-popup {
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: var(--color-ink);
 }
 
 .leaflet-popup-content-wrapper {
@@ -4561,5 +4569,193 @@ html.dark .btn-primary:not(:disabled),
   /* Inline panels that appear on demand (admin alerts, expanded lists). */
   .motion-enter {
     animation: rise-in 180ms var(--ease-out) backwards;
+  }
+}
+
+/* ============================================================
+   ADMIN SALES / REVENUE TREND
+   ============================================================ */
+.admin-trend-panel {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-dark-line);
+  border-radius: 0.75rem;
+  background: var(--color-dark-panel);
+}
+
+.admin-trend-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-trend-title {
+  margin: 0.2rem 0 0.3rem;
+  color: var(--color-dark-ink);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.admin-trend-subtitle {
+  color: var(--color-dark-ink);
+  opacity: 0.55;
+  font-size: 0.75rem;
+}
+
+.admin-trend-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  color: var(--color-dark-ink);
+  opacity: 0.7;
+  font-size: 0.68rem;
+}
+
+.admin-trend-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-trend-legend-line {
+  width: 1.1rem;
+  height: 2px;
+  background: var(--color-gold);
+}
+
+.admin-trend-legend-bar {
+  width: 0.55rem;
+  height: 0.7rem;
+  border-radius: 2px;
+  background: var(--color-circuit);
+}
+
+.admin-trend-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.admin-trend-summary div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.admin-trend-summary strong {
+  color: var(--color-dark-ink);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.admin-trend-summary span {
+  color: var(--color-dark-ink);
+  opacity: 0.45;
+  font-size: 0.62rem;
+}
+
+.admin-trend-chart-wrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.admin-trend-chart {
+  display: block;
+  width: 100%;
+  min-width: 560px;
+  height: auto;
+  overflow: visible;
+}
+
+.admin-trend-gridline {
+  stroke: var(--color-dark-line);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+
+
+.admin-trend-area {
+  fill: url(#admin-revenue-fill);
+}
+
+.admin-trend-axis-label {
+  fill: var(--color-dark-ink);
+  opacity: 0.48;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.admin-trend-period {
+  cursor: default;
+}
+
+.admin-trend-bar {
+  fill: color-mix(in srgb, var(--color-circuit) 38%, transparent);
+  transition: fill 160ms ease;
+}
+
+.admin-trend-period:hover .admin-trend-bar {
+  fill: var(--color-circuit);
+}
+
+.admin-trend-period:hover .admin-trend-label {
+  opacity: 1;
+}
+
+.admin-trend-line {
+  fill: none;
+  stroke: var(--color-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.admin-trend-point {
+  fill: var(--color-gold);
+  stroke: var(--color-dark-panel);
+  stroke-width: 2;
+}
+
+.admin-trend-point:focus-visible {
+  outline: 2px solid var(--color-circuit);
+  outline-offset: 3px;
+}
+
+.admin-trend-label {
+  fill: var(--color-dark-ink);
+  opacity: 0.55;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.admin-trend-empty {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 10rem;
+  place-content: center;
+  color: var(--color-dark-ink);
+  text-align: center;
+}
+
+.admin-trend-empty strong {
+  font-size: 0.85rem;
+}
+
+.admin-trend-empty span {
+  color: var(--color-dark-ink);
+  opacity: 0.5;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 640px) {
+  .admin-trend-header {
+    flex-direction: column;
+  }
+
+  .admin-trend-legend {
+    justify-content: flex-start;
   }
 }

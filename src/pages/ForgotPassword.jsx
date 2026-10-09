@@ -28,7 +28,7 @@ export default function ForgotPassword() {
     <main className="auth-page">
       <div className="auth-frame">
         <div className="auth-visual" aria-hidden="true">
-          <span className="auth-visual-code">Gadget/Store · Account help</span>
+          <span className="auth-visual-code">Techstead · Account help</span>
         </div>
 
         <section className="auth-form-panel">

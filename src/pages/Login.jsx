@@ -43,17 +43,17 @@ export default function Login() {
     <main className="auth-page">
       <div className="auth-frame">
         <div className="auth-visual" aria-hidden="true">
-          <span className="auth-visual-code">Gadget/Store · Secure sign-in</span>
+          <span className="auth-visual-code">Techstead · Secure sign-in</span>
         </div>
 
         <section className="auth-form-panel">
           <div className="auth-heading">
             <p className="eyebrow">{mfaStep ? "One more quick step" : "Good to see you"}</p>
             <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight">
-              {mfaStep ? "Verify your sign-in" : "Welcome back"}
+              {mfaStep ? "Verify your sign-in" : "Welcome back to Techstead"}
             </h1>
             <p className="auth-lede">
-              {mfaStep ? "Enter the six-digit code sent to your email to finish logging in." : "Sign in to manage your orders and saved items."}
+              {mfaStep ? "Enter the six-digit code sent to your email to finish logging in." : "Sign in to continue shopping."}
             </p>
           </div>
 

@@ -33,14 +33,17 @@ export default function CustomerLocationMap({
   onRefresh,
   isRefreshing = false,
   lastRefreshedAt = null,
+  periodLabel = "Selected period",
 }) {
-  const hasData   = locations.length > 0;
-  const topPins   = locations.slice(0, 5);
-  const topList   = locations.slice(0, 6);
+  const hasData = locations.length > 0;
+  const topPins = locations.slice(0, 6);
+  const topList = locations.slice(0, 6);
   const maxOrders = topList[0]?.orders ?? 1;
   const placeKey = topPins.map((location) => location.label).join("\u001f");
   const [coordinatesByLabel, setCoordinatesByLabel] = useState({});
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState(null);
+  const [geocodeProgress, setGeocodeProgress] = useState({ done: 0, total: 0 });
 
   useEffect(() => {
     let active = true;
@@ -62,6 +65,7 @@ export default function CustomerLocationMap({
       return !entry || !Number.isFinite(entry.expiresAt) || entry.expiresAt <= now;
     });
     setIsGeocoding(uncachedLabels.length > 0);
+    setGeocodeProgress({ done: 0, total: uncachedLabels.length });
 
     async function geocodeAreas() {
       for (const label of uncachedLabels) {
@@ -86,6 +90,8 @@ export default function CustomerLocationMap({
             writeLocationCache(cache);
           }
           // Transient API/network failures are not cached, so Refresh can retry them.
+        } finally {
+          if (active) setGeocodeProgress((current) => ({ ...current, done: current.done + 1 }));
         }
       }
       if (active) setIsGeocoding(false);
@@ -103,10 +109,10 @@ export default function CustomerLocationMap({
     <section className="admin-location-panel" aria-labelledby="location-heading">
       <div className="admin-location-header">
         <div>
-          <p className="admin-section-kicker">Delivery insights</p>
-          <h2 id="location-heading" className="admin-location-title">Customer locations</h2>
+          <p className="admin-section-kicker">Delivery intelligence</p>
+          <h2 id="location-heading" className="admin-location-title">Where orders come from</h2>
           <p className="admin-location-subtitle">
-            Orders by broad delivery area. Map pins show approximate city or province locations, never street addresses.
+            Approximate city and province locations based on orders in {periodLabel.toLowerCase()}.
           </p>
         </div>
 
@@ -151,34 +157,54 @@ export default function CustomerLocationMap({
 
       {hasData ? (
         <div className="admin-location-body">
-          <OpenStreetMapView locations={mappedLocations} isLoading={isGeocoding} />
+          <div>
+            <OpenStreetMapView
+              locations={mappedLocations}
+              isLoading={isGeocoding}
+              loadingLabel={isGeocoding ? `Locating delivery areas (${geocodeProgress.done} of ${geocodeProgress.total})…` : undefined}
+              selectedLabel={selectedLabel}
+              onMarkerSelect={setSelectedLabel}
+            />
+            <div className="location-map-legend" aria-label="Map legend">
+              <span>Marker number = orders</span>
+              <span>Highlighted marker = busiest area</span>
+              <span>Approximate area only</span>
+            </div>
+          </div>
           <div className="location-list" aria-label="Popular delivery areas">
             <p className="admin-section-kicker" style={{ marginBottom: "0.75rem" }}>Popular delivery areas</p>
             <ol className="location-list-ol">
               {topList.map((location, index) => {
                 const pct = Math.round((location.orders / maxOrders) * 100);
                 return (
-                  <li key={location.label} className="location-list-row">
-                    <span className="location-list-rank">{String(index + 1).padStart(2, "0")}</span>
-                    <div className="location-list-info">
-                      <div className="location-list-top">
-                        <span className="location-list-label" title={location.label}>{location.label}</span>
-                        <span className="location-list-orders">{location.orders}</span>
+                  <li key={location.label}>
+                    <button
+                      type="button"
+                      className={`location-list-row ${selectedLabel === location.label ? "is-selected" : ""}`}
+                      onClick={() => setSelectedLabel(location.label)}
+                      aria-pressed={selectedLabel === location.label}
+                    >
+                      <span className="location-list-rank">{String(index + 1).padStart(2, "0")}</span>
+                      <div className="location-list-info">
+                        <div className="location-list-top">
+                          <span className="location-list-label" title={location.label}>{location.label}</span>
+                          <span className="location-list-orders">{location.orders}</span>
+                        </div>
+                        <span className="location-list-customers">
+                          {location.customers} customer{location.customers !== 1 ? "s" : ""}
+                        </span>
+                        <div className="location-list-bar-track">
+                          <span
+                            className="location-list-bar"
+                            style={{ width: `${pct}%` }}
+                            role="meter"
+                            aria-valuenow={location.orders}
+                            aria-valuemax={maxOrders}
+                            aria-label={`${location.orders} of ${maxOrders} orders`}
+                          />
+                        </div>
                       </div>
-                      <span className="location-list-customers">
-                        {location.customers} customer{location.customers !== 1 ? "s" : ""}
-                      </span>
-                      <div className="location-list-bar-track">
-                        <div
-                          className="location-list-bar"
-                          style={{ width: `${pct}%` }}
-                          role="meter"
-                          aria-valuenow={location.orders}
-                          aria-valuemax={maxOrders}
-                          aria-label={`${location.orders} of ${maxOrders} orders`}
-                        />
-                      </div>
-                    </div>
+                    </button>
                   </li>
                 );
               })}

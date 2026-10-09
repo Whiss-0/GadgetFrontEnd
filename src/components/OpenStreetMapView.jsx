@@ -22,28 +22,29 @@ function createPopupContent(location) {
   return wrapper;
 }
 
-function createCountIcon(location, isTopLocation) {
+function createCountIcon(location, isTopLocation, isSelected) {
   const orderCount = Math.max(0, Math.trunc(Number(location.orders) || 0));
   return L.divIcon({
     className: "customer-map-marker-wrap",
-    html: `<span class="customer-map-marker${isTopLocation ? " customer-map-marker--top" : ""}"><span>${orderCount}</span><i aria-hidden="true"></i></span>`,
+    html: `<span class="customer-map-marker${isTopLocation ? " customer-map-marker--top" : ""}${isSelected ? " customer-map-marker--selected" : ""}"><span>${orderCount}</span></span>`,
     iconSize: [42, 48],
     iconAnchor: [21, 46],
     popupAnchor: [0, -42],
   });
 }
 
-export default function OpenStreetMapView({ locations = [], isLoading = false }) {
+export default function OpenStreetMapView({ locations = [], isLoading = false, loadingLabel, selectedLabel = null, onMarkerSelect }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markerLayerRef = useRef(null);
   const [tileError, setTileError] = useState(false);
+  const markerRefs = useRef(new Map());
 
   useEffect(() => {
     if (!containerRef.current) return undefined;
 
     const map = L.map(containerRef.current, {
-      scrollWheelZoom: false,
+      scrollWheelZoom: true,
       zoomControl: true,
       attributionControl: true,
     }).setView(PHILIPPINES_CENTER, 5);
@@ -81,17 +82,20 @@ export default function OpenStreetMapView({ locations = [], isLoading = false })
     if (!map || !markerLayer) return;
 
     markerLayer.clearLayers();
+    markerRefs.current.clear();
     const located = locations.filter((item) =>
       Number.isFinite(item.latitude) && Number.isFinite(item.longitude)
     );
 
     located.forEach((location, index) => {
       const marker = L.marker([location.latitude, location.longitude], {
-        icon: createCountIcon(location, index === 0),
+        icon: createCountIcon(location, index === 0, location.label === selectedLabel),
         keyboard: true,
         title: `${location.label}: ${location.orders} orders`,
       });
       marker.bindPopup(createPopupContent(location), { maxWidth: 240 });
+      marker.on("click", () => onMarkerSelect?.(location.label));
+      markerRefs.current.set(location.label, marker);
       marker.addTo(markerLayer);
     });
 
@@ -103,7 +107,15 @@ export default function OpenStreetMapView({ locations = [], isLoading = false })
     } else {
       map.setView(PHILIPPINES_CENTER, 5);
     }
-  }, [locations]);
+  }, [locations, selectedLabel, onMarkerSelect]);
+
+  useEffect(() => {
+    if (!selectedLabel) return;
+    const marker = markerRefs.current.get(selectedLabel);
+    if (!marker || !mapRef.current) return;
+    mapRef.current.panTo(marker.getLatLng(), { animate: true, duration: 0.35 });
+    marker.openPopup();
+  }, [selectedLabel]);
 
   const hasLocatedAreas = locations.some((item) =>
     Number.isFinite(item.latitude) && Number.isFinite(item.longitude)
@@ -123,7 +135,7 @@ export default function OpenStreetMapView({ locations = [], isLoading = false })
         </div>
       ) : !hasLocatedAreas && (
         <div className="location-map-status" role="status">
-          {isLoading ? "Locating delivery areas…" : "No matching map locations found. The area list is still available."}
+          {isLoading ? (loadingLabel || "Locating delivery areas…") : "No matching map locations found. The area list is still available."}
         </div>
       )}
     </div>

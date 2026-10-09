@@ -33,12 +33,12 @@ export default function Register() {
     <main className="auth-page">
       <div className="auth-frame">
         <div className="auth-visual" aria-hidden="true">
-          <span className="auth-visual-code">Gadget/Store · Create account</span>
+          <span className="auth-visual-code">Techstead · Create account</span>
         </div>
 
         <section className="auth-form-panel">
           <div className="auth-heading">
-            <p className="eyebrow">Start with Gadget Store</p>
+            <p className="eyebrow">Start with Techstead</p>
             <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-tight">
               Create an account
             </h1>
