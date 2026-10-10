@@ -68,6 +68,18 @@ export default function ProductsAdmin() {
   }, [load]);
 
   useEffect(() => {
+    if (stockFilter !== "out" && stockFilter !== "low") return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      const panel = document.getElementById("admin-products");
+      const heading = document.getElementById("admin-products-heading");
+      if (!panel || !heading) return;
+      scrollToElement(panel);
+      heading.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [stockFilter]);
+
+  useEffect(() => {
     categoriesApi
       .list()
       .then((res) => setCategories(res.data || []))
@@ -210,7 +222,7 @@ export default function ProductsAdmin() {
         {/* Search & Actions Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--color-dark-line)]">
           <div>
-            <h2 className="text-lg font-bold text-white tracking-tight">Products</h2>
+            <h2 id="admin-products-heading" tabIndex={-1} className="text-lg font-bold text-white tracking-tight">Products</h2>
             <p className="text-xs text-[var(--color-dark-ink)]/60">
               {stockFilter === "out"
                 ? "Showing out-of-stock products"

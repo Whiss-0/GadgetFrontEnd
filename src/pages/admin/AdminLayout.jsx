@@ -128,6 +128,7 @@ function SalesTrendGraph({ orders, periodLabel }) {
   const formatMoney = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const formatShortMoney = (value) => value >= 1000 ? `$${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k` : `$${Math.round(value)}`;
   const groupingLabel = granularity === "day" ? "Daily" : granularity === "week" ? "Weekly" : "Monthly";
+  const chartKey = buckets.map(({ key, orders, revenue }) => `${key}:${orders}:${revenue}`).join("|");
 
   return (
     <section className="admin-trend-panel" aria-labelledby="sales-trend-heading">
@@ -151,7 +152,7 @@ function SalesTrendGraph({ orders, periodLabel }) {
             <div><strong>{peakBucket ? peakBucket.label : "—"}</strong><span>peak revenue period</span></div>
             <div><strong>{groupingLabel}</strong><span>graph view</span></div>
           </div>
-          <svg className="admin-trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={`Sales and revenue trend for ${periodLabel}`}>
+          <svg key={chartKey} className="admin-trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={`Sales and revenue trend for ${periodLabel}`}>
             <defs>
               <linearGradient id="admin-revenue-fill" x1="0" x2="0" y1="0" y2="1">
                 <stop offset="0%" stopColor="var(--color-gold)" stopOpacity="0.22" />
@@ -175,14 +176,14 @@ function SalesTrendGraph({ orders, periodLabel }) {
               return (
                 <g key={bucket.key} className="admin-trend-period">
                   <title>{`${bucket.label}: ${bucket.orders} orders, ${formatMoney(bucket.revenue)} revenue`}</title>
-                  <rect className="admin-trend-bar" x={getX(index) - barWidth / 2} y={padding.top + innerHeight - barHeight} width={barWidth} height={barHeight} rx="5" />
+                  <rect className="admin-trend-bar" style={{ "--trend-delay": `${Math.min(index, 11) * 55}ms` }} x={getX(index) - barWidth / 2} y={padding.top + innerHeight - barHeight} width={barWidth} height={barHeight} rx="5" />
                   <text className="admin-trend-label" x={getX(index)} y={chartHeight - 14} textAnchor="middle">{bucket.label}</text>
                 </g>
               );
             })}
-            <polyline className="admin-trend-line" points={revenuePoints} />
+            <polyline className="admin-trend-line" pathLength="1" points={revenuePoints} />
             {buckets.map((bucket, index) => (
-              <circle key={`${bucket.key}-point`} className="admin-trend-point" cx={getX(index)} cy={getY(bucket.revenue, maxRevenue)} r="4" tabIndex="0">
+              <circle key={`${bucket.key}-point`} className="admin-trend-point" style={{ "--trend-delay": `${Math.min(index, 11) * 55}ms` }} cx={getX(index)} cy={getY(bucket.revenue, maxRevenue)} r="4" tabIndex="0">
                 <title>{`${bucket.label}: ${formatMoney(bucket.revenue)} revenue`}</title>
               </circle>
             ))}
@@ -669,7 +670,7 @@ export default function AdminLayout() {
 
               {pendingOrders.length > 0 && (
                 <Link
-                  to="/admin/orders?status=Pending"
+                  to="/admin/orders?status=Pending#admin-orders"
                   className="admin-attention-card"
                   aria-label={`${pendingOrders.length} pending orders waiting`}
                 >
@@ -685,7 +686,7 @@ export default function AdminLayout() {
 
               {processingOrders.length > 0 && (
                 <Link
-                  to="/admin/orders?status=Processing"
+                  to="/admin/orders?status=Processing#admin-orders"
                   className="admin-attention-card"
                   aria-label={`${processingOrders.length} orders in processing`}
                 >

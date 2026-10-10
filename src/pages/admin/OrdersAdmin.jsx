@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { ordersApi } from "../../api/client";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useToast } from "../../hooks/useToast";
+import { scrollToElement } from "../../utils/scroll";
 
 const STATUS_OPTIONS = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
 
@@ -66,6 +67,18 @@ export default function OrdersAdmin() {
     load();
   }, [load]);
 
+  useEffect(() => {
+    if (statusFilter !== "Pending" && statusFilter !== "Processing") return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      const panel = document.getElementById("admin-orders");
+      const heading = document.getElementById("admin-orders-heading");
+      if (!panel || !heading) return;
+      scrollToElement(panel);
+      heading.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [statusFilter]);
+
   async function handleStatusChange(id, status) {
     if (status === "Cancelled") {
       setOrderToCancel({ id, displayId: id });
@@ -100,11 +113,11 @@ export default function OrdersAdmin() {
   }
 
   return (
-    <div className="admin-glass-panel rounded-xl p-6">
+    <div id="admin-orders" className="admin-glass-panel rounded-xl p-6 scroll-mt-24">
       {/* Table header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h2 className="text-lg font-bold text-white tracking-tight">Customer orders</h2>
+          <h2 id="admin-orders-heading" tabIndex={-1} className="text-lg font-bold text-white tracking-tight">Customer orders</h2>
           <p className="text-xs text-[var(--color-dark-ink)]/60">
             {statusFilter ? `Showing ${statusFilter.toLowerCase()} orders.` : "Manage order fulfilment, status progression, and cancellation."}
           </p>
