@@ -124,6 +124,15 @@ export const usersApi = {
   updateRole: (id, roleId) => client.put(`/api/user/${id}`, { Role_ID: roleId }),
 };
 
+// ---- Notifications ----
+export const notificationsApi = {
+  list: (params = {}) => client.get("/api/notification", { params }),
+  unreadCount: () => client.get("/api/notification/unread-count"),
+  markRead: (id) => client.put(`/api/notification/${id}/read`),
+  markAllRead: () => client.put("/api/notification/read-all"),
+  sendAdmin: (data) => client.post("/api/notification/admin/send", data),
+};
+
 // ---- Activity Log ----
 export const activityApi = {
   my: (params = {}) => client.get("/api/activity/my", { params }),

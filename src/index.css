@@ -103,11 +103,15 @@ body {
   color: var(--color-ink);
   font-family: var(--font-body);
   transition: background-color 0.3s ease, color 0.3s ease;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :focus-visible {
   outline: 2px solid var(--color-circuit);
-  outline-offset: 2px;
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -769,15 +773,14 @@ select:focus {
   grid-template-columns: minmax(0, 1fr) 260px;
   align-items: center;
   gap: 2rem;
-  padding: clamp(1.5rem, 4vw, 3.25rem);
+  padding: clamp(1.5rem, 4vw, 3rem);
   border: 1px solid var(--color-line);
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
   background:
-    linear-gradient(135deg, rgba(31, 138, 112, 0.1), transparent 42%),
-    radial-gradient(circle at 82% 30%, rgba(184, 134, 58, 0.12), transparent 28%),
+    linear-gradient(135deg, rgba(31, 138, 112, 0.07), transparent 40%),
     var(--color-panel);
-  box-shadow: 0 18px 50px rgba(20, 24, 31, 0.08);
+  box-shadow: 0 2px 12px rgba(20, 24, 31, 0.06), 0 1px 0 var(--color-line);
 }
 
 .catalog-hero-copy {
@@ -812,11 +815,11 @@ select:focus {
 }
 
 .catalog-hero-description {
-  max-width: 540px;
-  margin-top: 1.25rem;
+  max-width: 480px;
+  margin-top: 1rem;
   color: var(--color-ink-soft);
-  font-size: 1rem;
-  line-height: 1.7;
+  font-size: 0.9375rem;
+  line-height: 1.65;
 }
 
 .catalog-hero-stats {
@@ -948,15 +951,15 @@ select:focus {
 }
 
 .product-card {
-  border-radius: 18px;
+  border-radius: 12px;
   border-color: var(--color-line);
   background: var(--color-panel);
-  box-shadow: 0 7px 20px rgba(20, 24, 31, 0.045);
+  box-shadow: 0 1px 4px rgba(20, 24, 31, 0.06);
 }
 
 .product-card:hover {
-  border-color: var(--color-circuit);
-  box-shadow: 0 15px 30px rgba(20, 24, 31, 0.09);
+  border-color: color-mix(in srgb, var(--color-circuit) 60%, var(--color-line));
+  box-shadow: 0 4px 16px rgba(20, 24, 31, 0.08);
 }
 
 .product-image-wrap,
@@ -3574,6 +3577,7 @@ html.dark .product-art-image[data-art-source="fallback"] {
 .admin-metric-card {
   background: var(--color-dark-panel);
   border: 1px solid var(--color-dark-line);
+  border-top: 2px solid color-mix(in srgb, var(--color-circuit) 45%, var(--color-dark-line));
   border-radius: 0.625rem;
   padding: 1.125rem 1.25rem;
   display: flex;
@@ -3585,6 +3589,7 @@ html.dark .product-art-image[data-art-source="fallback"] {
 
 .admin-metric-card:hover {
   border-color: color-mix(in srgb, var(--color-circuit) 40%, var(--color-dark-line));
+  border-top-color: var(--color-circuit);
 }
 
 .admin-metric-interactive {
@@ -3593,7 +3598,8 @@ html.dark .product-art-image[data-art-source="fallback"] {
 }
 
 .admin-metric-interactive:hover {
-  border-color: var(--color-circuit);
+  border-color: color-mix(in srgb, var(--color-circuit) 40%, var(--color-dark-line));
+  border-top-color: var(--color-circuit);
 }
 
 /* Operational attention items */
@@ -3605,13 +3611,27 @@ html.dark .product-art-image[data-art-source="fallback"] {
   border-radius: 0.5rem;
   background: color-mix(in srgb, var(--color-dark-panel) 85%, transparent);
   border: 1px solid var(--color-dark-line);
-  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  transition: background-color 160ms ease, border-color 160ms ease;
   text-decoration: none;
+}
+
+.admin-attention-card::after {
+  content: "→";
+  font-size: 0.75rem;
+  color: var(--color-dark-ink);
+  opacity: 0.35;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  transition: opacity 160ms ease;
 }
 
 .admin-attention-card:hover {
   background: var(--color-dark-panel);
   border-color: color-mix(in srgb, var(--color-circuit) 50%, var(--color-dark-line));
+}
+
+.admin-attention-card:hover::after {
+  opacity: 0.7;
 }
 
 .admin-attention-card.is-urgent {
@@ -3885,20 +3905,23 @@ html.dark .product-art-image[data-art-source="fallback"] {
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--color-line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--color-panel);
   color: #fff;
   cursor: pointer;
   text-align: left;
   isolation: isolate;
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
-.category-tile:hover,
+.category-tile:hover {
+  border-color: color-mix(in srgb, var(--color-circuit) 50%, var(--color-line));
+  box-shadow: 0 4px 16px rgba(20, 24, 31, 0.08);
+}
+
 .category-tile.selected {
-  transform: translateY(-2px);
   border-color: var(--color-circuit);
-  box-shadow: 0 12px 24px rgba(20, 24, 31, 0.13);
+  box-shadow: inset 0 0 0 2px var(--color-circuit), 0 4px 16px rgba(20, 24, 31, 0.08);
 }
 
 .category-tile img {
@@ -3972,8 +3995,8 @@ html.dark .product-art-image[data-art-source="fallback"] {
 
 .catalog-toolbar {
   align-items: center;
-  min-height: 4.1rem;
-  padding: 0.75rem 0;
+  min-height: 3.75rem;
+  padding: 0.625rem 0;
   border-top: 1px solid var(--color-line);
   border-bottom: 1px solid var(--color-line);
 }
@@ -3996,7 +4019,8 @@ html.dark .product-art-image[data-art-source="fallback"] {
 
 .sort-control select {
   min-width: 10.5rem;
-  padding: 0.55rem 2rem 0.55rem 0.7rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 2rem 0.5rem 0.7rem;
   border-radius: 8px;
   color: var(--color-ink);
   font-size: 0.8rem;
@@ -4831,3 +4855,437 @@ html.dark .btn-primary:not(:disabled),
 #main-content:focus {
   outline: none;
 }
+
+/* ============================================================
+   PRODUCT REVIEWS — trustworthy rating summary and readable feedback
+   ============================================================ */
+.product-reviews {
+  max-width: 48rem;
+  margin-top: 3.5rem;
+}
+
+.product-reviews-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.review-eyebrow,
+.review-composer-kicker {
+  margin-bottom: 0.35rem;
+  color: var(--color-circuit);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.review-title {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.review-count {
+  display: inline-grid;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  margin-left: 0.45rem;
+  padding: 0 0.35rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-circuit-soft);
+  color: var(--color-circuit);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  vertical-align: middle;
+}
+
+.review-heading-score {
+  display: grid;
+  justify-items: end;
+  gap: 0.2rem;
+}
+
+.review-heading-score strong {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.review-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.12rem;
+  color: var(--color-line);
+  line-height: 1;
+}
+
+.review-star,
+.review-star-button {
+  color: var(--color-line);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.review-star.is-filled,
+.review-star-button.is-filled {
+  color: var(--color-gold);
+}
+
+.review-stars.is-interactive {
+  gap: 0.25rem;
+}
+
+.review-star-button {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.review-star-button:hover,
+.review-star-button[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--color-gold) 35%, transparent);
+  background: color-mix(in srgb, var(--color-gold) 10%, transparent);
+  transform: translateY(-1px);
+}
+
+.review-summary {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.75fr) minmax(220px, 1.25fr);
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-panel);
+}
+
+.review-summary-score {
+  display: grid;
+  justify-items: start;
+  gap: 0.35rem;
+}
+
+.review-summary-score strong {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.review-summary-score span {
+  color: var(--color-ink-soft);
+  font-size: 0.72rem;
+}
+
+.review-distribution {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.review-distribution-row {
+  display: grid;
+  grid-template-columns: 0.8rem 0.8rem minmax(70px, 1fr) 1.2rem;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+}
+
+.review-distribution-row > span:nth-child(2) {
+  color: var(--color-gold);
+}
+
+.review-distribution-track {
+  height: 0.35rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+
+.review-distribution-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-gold);
+}
+
+.review-composer {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--color-circuit) 32%, var(--color-line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-circuit) 4%, var(--color-panel));
+}
+
+.review-composer-header,
+.review-composer-footer,
+.review-card-topline,
+.review-card-author {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.review-composer-label {
+  display: block;
+  color: var(--color-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.review-rating-text,
+.review-character-count {
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.review-composer > .review-stars {
+  margin: 0.65rem 0 0.8rem;
+}
+
+.review-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 6.5rem;
+  padding: 0.8rem;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-panel);
+  color: var(--color-ink);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.review-textarea::placeholder {
+  color: var(--color-ink-soft);
+  opacity: 0.7;
+}
+
+.review-textarea:focus {
+  border-color: var(--color-circuit);
+  box-shadow: 0 0 0 3px var(--color-circuit-soft);
+}
+
+.review-composer-footer {
+  margin-top: 0.7rem;
+}
+
+.review-submit {
+  min-height: 2.45rem;
+  padding: 0.55rem 1rem;
+  box-shadow: none;
+}
+
+.review-form-error {
+  margin-top: 0.65rem;
+  color: var(--color-signal);
+  font-size: 0.75rem;
+}
+
+.review-sign-in-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  margin-bottom: 1.5rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-panel);
+  color: var(--color-ink-soft);
+  font-size: 0.78rem;
+}
+
+.review-sign-in-note a,
+.review-state-action {
+  color: var(--color-circuit);
+  font-weight: 600;
+}
+
+.review-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.review-card {
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.review-card-author {
+  justify-content: flex-start;
+}
+
+.review-avatar {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-circuit-soft);
+  color: var(--color-circuit);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.review-card-author div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.review-card-author strong {
+  color: var(--color-ink);
+  font-size: 0.8rem;
+}
+
+.review-card-author time {
+  color: var(--color-ink-soft);
+  font-size: 0.68rem;
+}
+
+.review-card-topline > .review-stars {
+  flex: none;
+}
+
+.review-comment {
+  margin: 0.75rem 0 0 2.75rem;
+  color: var(--color-ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.review-comment.is-muted {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.review-state,
+.review-loading {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.25rem 0;
+  color: var(--color-ink-soft);
+  font-size: 0.78rem;
+}
+
+.review-state strong {
+  color: var(--color-ink);
+}
+
+.review-state-action {
+  justify-self: start;
+  margin-top: 0.2rem;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.review-empty {
+  justify-items: start;
+  padding: 1.25rem;
+  border: 1px dashed var(--color-line);
+  border-radius: 10px;
+}
+
+.review-empty-mark {
+  color: var(--color-gold);
+  font-size: 1.2rem;
+}
+
+.review-loading-line {
+  display: block;
+  width: 45%;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-line) 70%, transparent);
+}
+
+.review-loading-line.short {
+  width: 28%;
+}
+
+@media (max-width: 640px) {
+  .product-reviews-heading {
+    align-items: flex-start;
+  }
+
+  .review-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .review-card-topline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .review-card-topline > .review-stars {
+    margin-left: 2.75rem;
+  }
+}
+
+/* Notifications */
+.notification-bell-wrap { position: relative; }
+.notification-bell { position: relative; display: grid; width: 2.25rem; height: 2.25rem; place-items: center; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--color-header-text); cursor: pointer; }
+.notification-bell:hover, .notification-bell[aria-expanded="true"] { background: color-mix(in srgb, var(--color-header-text) 10%, transparent); }
+.notification-badge { position: absolute; top: -0.15rem; right: -0.15rem; min-width: 1rem; height: 1rem; padding: 0 0.2rem; display: grid; place-items: center; border-radius: 999px; background: var(--color-signal); color: #fff; font: 700 0.58rem var(--font-mono); }
+.notification-popover { position: absolute; top: calc(100% + 0.6rem); right: 0; width: min(23rem, calc(100vw - 2rem)); overflow: hidden; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-panel); color: var(--color-ink); box-shadow: 0 18px 42px color-mix(in srgb, var(--color-ink) 16%, transparent); z-index: 60; }
+.notification-popover-head, .notification-view-all { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.85rem 1rem; }
+.notification-popover-head { border-bottom: 1px solid var(--color-line); }
+.notification-popover-head div { display: grid; gap: 0.18rem; }
+.notification-popover-head span, .notification-popover-item small { color: var(--color-ink-soft); font-size: 0.68rem; }
+.notification-mark-all, .notification-view-all { color: var(--color-circuit); font-size: 0.7rem; font-weight: 600; }
+.notification-popover-list { max-height: 25rem; overflow-y: auto; }
+.notification-popover-item { width: 100%; display: grid; grid-template-columns: 0.5rem 1fr; gap: 0.65rem; padding: 0.8rem 1rem; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--color-line) 65%, transparent); background: transparent; color: var(--color-ink); text-align: left; cursor: pointer; }
+.notification-popover-item:hover, .notification-popover-item.is-unread { background: var(--color-circuit-soft); }
+.notification-popover-item > span:last-child { display: grid; gap: 0.2rem; }
+.notification-popover-item strong { font-size: 0.76rem; }
+.notification-popover-item span span { color: var(--color-ink-soft); font-size: 0.72rem; line-height: 1.35; }
+.notification-dot { width: 0.42rem; height: 0.42rem; margin-top: 0.3rem; border-radius: 50%; background: transparent; }
+.is-unread .notification-dot { background: var(--color-circuit); }
+.notification-popover-state, .notification-page-state { padding: 1.5rem; color: var(--color-ink-soft); font-size: 0.8rem; }
+.notification-view-all { justify-content: center; border-top: 1px solid var(--color-line); text-decoration: none; }
+.notifications-page-head, .admin-page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+.notification-page-list { display: grid; border-top: 1px solid var(--color-line); }
+.notification-page-item { display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.8rem; padding: 1rem 0; border-bottom: 1px solid var(--color-line); }
+.notification-page-item.is-unread { background: color-mix(in srgb, var(--color-circuit) 4%, transparent); }
+.notification-page-icon { display: grid; width: 2.2rem; height: 2.2rem; place-items: center; border-radius: 50%; background: var(--color-circuit-soft); color: var(--color-circuit); font-weight: 700; }
+.notification-page-copy { display: grid; gap: 0.4rem; }
+.notification-page-meta { display: flex; justify-content: space-between; gap: 1rem; }
+.notification-page-meta strong { font-size: 0.86rem; }
+.notification-page-meta time { color: var(--color-ink-soft); font-size: 0.68rem; }
+.notification-page-copy p { color: var(--color-ink-soft); font-size: 0.82rem; line-height: 1.5; }
+.notification-page-actions { display: flex; gap: 0.8rem; font-size: 0.72rem; font-weight: 600; }
+.notification-page-actions a, .notification-page-actions button, .notification-state-action { color: var(--color-circuit); }
+.notification-page-actions button, .notification-state-action { border: 0; background: none; cursor: pointer; }
+.admin-notifications-page { max-width: 42rem; margin: 0 auto; padding: 2rem 0 4rem; }
+.admin-notification-composer { display: grid; gap: 1rem; padding: 1.25rem; border: 1px solid var(--color-dark-line); border-radius: 12px; background: var(--color-dark-panel); }
+.admin-notification-composer label { display: grid; gap: 0.4rem; color: var(--color-dark-ink); font-size: 0.78rem; font-weight: 600; }
+.admin-notification-composer input, .admin-notification-composer select, .admin-notification-composer textarea { width: 100%; border: 1px solid var(--color-dark-line); border-radius: 7px; padding: 0.7rem 0.8rem; background: var(--color-dark-bg); color: var(--color-dark-ink); font: inherit; outline: none; }
+.admin-notification-composer textarea { resize: vertical; }
+.admin-notification-composer input:focus, .admin-notification-composer select:focus, .admin-notification-composer textarea:focus { border-color: var(--color-circuit); box-shadow: 0 0 0 3px var(--color-circuit-soft); }
+.admin-notification-composer small { justify-self: end; color: var(--color-dark-ink); opacity: 0.55; font: 0.65rem var(--font-mono); }
+.admin-notification-preview { display: grid; gap: 0.3rem; padding: 0.8rem; border: 1px solid var(--color-dark-line); border-radius: 8px; color: var(--color-dark-ink); font-size: 0.76rem; }
+.admin-notification-preview span { opacity: 0.7; }
+@media (max-width: 640px) { .notification-popover { position: fixed; top: 4.2rem; right: 1rem; } .notifications-page-head, .admin-page-heading { align-items: flex-start; flex-direction: column; } .notification-page-meta { align-items: flex-start; flex-direction: column; gap: 0.2rem; } .admin-notifications-page { padding-right: 1rem; padding-left: 1rem; } }

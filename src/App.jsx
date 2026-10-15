@@ -28,6 +28,8 @@ const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const ProductsAdmin = lazy(() => import("./pages/admin/ProductsAdmin"));
 const OrdersAdmin = lazy(() => import("./pages/admin/OrdersAdmin"));
 const UsersAdmin = lazy(() => import("./pages/admin/UsersAdmin"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const NotificationsAdmin = lazy(() => import("./pages/admin/NotificationsAdmin"));
 
 function RouteFallback() {
   return (
@@ -92,11 +94,13 @@ export default function App() {
           <Route path="/wishlist" element={<RequireAuth><Wishlist /></RequireAuth>} />
           <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
           <Route path="/activity" element={<RequireAuth><ActivityLog /></RequireAuth>} />
+          <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
 
           <Route path="/admin" element={<RequireMod><AdminLayout /></RequireMod>}>
             <Route index element={<ProductsAdmin />} />
             <Route path="orders" element={<OrdersAdmin />} />
             <Route path="users" element={<RequireAdmin><UsersAdmin /></RequireAdmin>} />
+            <Route path="notifications" element={<RequireAdmin><NotificationsAdmin /></RequireAdmin>} />
           </Route>
 
           {/* Catch-all 404 — must be last */}

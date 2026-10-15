@@ -11,6 +11,7 @@ const tabs = [
   { to: "/admin/orders", label: "Orders" },
   { to: "/admin/users", label: "Users" },
   { to: "/activity", label: "Activity" },
+  { to: "/admin/notifications", label: "Notifications" },
 ];
 
 const PERIODS = [
