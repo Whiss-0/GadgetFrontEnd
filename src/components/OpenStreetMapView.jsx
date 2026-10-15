@@ -7,6 +7,11 @@ const TILE_URL = import.meta.env.VITE_OSM_TILE_URL || "https://tile.openstreetma
 const TILE_ATTRIBUTION = import.meta.env.VITE_OSM_TILE_ATTRIBUTION
   || '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>';
 
+function prefersReducedMotion() {
+  return typeof window !== "undefined"
+    && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+}
+
 function createPopupContent(location) {
   const wrapper = document.createElement("div");
   wrapper.className = "customer-map-popup";
@@ -22,11 +27,11 @@ function createPopupContent(location) {
   return wrapper;
 }
 
-function createCountIcon(location, isTopLocation, isSelected) {
+function createCountIcon(location, isTopLocation) {
   const orderCount = Math.max(0, Math.trunc(Number(location.orders) || 0));
   return L.divIcon({
     className: "customer-map-marker-wrap",
-    html: `<span class="customer-map-marker${isTopLocation ? " customer-map-marker--top" : ""}${isSelected ? " customer-map-marker--selected" : ""}"><span>${orderCount}</span></span>`,
+    html: `<span class="customer-map-marker${isTopLocation ? " customer-map-marker--top" : ""}"><span>${orderCount}</span></span>`,
     iconSize: [42, 48],
     iconAnchor: [21, 46],
     popupAnchor: [0, -42],
@@ -39,12 +44,13 @@ export default function OpenStreetMapView({ locations = [], isLoading = false, l
   const markerLayerRef = useRef(null);
   const [tileError, setTileError] = useState(false);
   const markerRefs = useRef(new Map());
+  const selectedRef = useRef(selectedLabel);
 
   useEffect(() => {
     if (!containerRef.current) return undefined;
 
     const map = L.map(containerRef.current, {
-      scrollWheelZoom: true,
+      scrollWheelZoom: false,
       zoomControl: true,
       attributionControl: true,
     }).setView(PHILIPPINES_CENTER, 5);
@@ -56,6 +62,11 @@ export default function OpenStreetMapView({ locations = [], isLoading = false, l
     tileLayer.on("tileerror", () => setTileError(true));
     tileLayer.on("load", () => setTileError(false));
     tileLayer.addTo(map);
+
+    // Wheel zoom would hijack page scrolling while the pointer passes over the
+    // map. It switches on after a click and off again when the pointer leaves.
+    map.on("click", () => map.scrollWheelZoom.enable());
+    map.on("mouseout", () => map.scrollWheelZoom.disable());
 
     markerLayerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
@@ -89,12 +100,17 @@ export default function OpenStreetMapView({ locations = [], isLoading = false, l
 
     located.forEach((location, index) => {
       const marker = L.marker([location.latitude, location.longitude], {
-        icon: createCountIcon(location, index === 0, location.label === selectedLabel),
+        icon: createCountIcon(location, index === 0),
         keyboard: true,
         title: `${location.label}: ${location.orders} orders`,
       });
       marker.bindPopup(createPopupContent(location), { maxWidth: 240 });
       marker.on("click", () => onMarkerSelect?.(location.label));
+      // Closing the popup clears the selection, so clicking the same list row
+      // again reopens it. Ignore closes caused by switching to another area.
+      marker.on("popupclose", () => {
+        if (selectedRef.current === location.label) onMarkerSelect?.(null);
+      });
       markerRefs.current.set(location.label, marker);
       marker.addTo(markerLayer);
     });
@@ -107,13 +123,24 @@ export default function OpenStreetMapView({ locations = [], isLoading = false, l
     } else {
       map.setView(PHILIPPINES_CENTER, 5);
     }
-  }, [locations, selectedLabel, onMarkerSelect]);
+  }, [locations, onMarkerSelect]);
+
+  // Selection only restyles markers; it must not rebuild them or refit the view.
+  useEffect(() => {
+    selectedRef.current = selectedLabel;
+    markerRefs.current.forEach((marker, label) => {
+      const selected = label === selectedLabel;
+      marker.getElement()?.querySelector(".customer-map-marker")
+        ?.classList.toggle("customer-map-marker--selected", selected);
+      marker.setZIndexOffset(selected ? 1000 : 0);
+    });
+  }, [selectedLabel, locations]);
 
   useEffect(() => {
     if (!selectedLabel) return;
     const marker = markerRefs.current.get(selectedLabel);
     if (!marker || !mapRef.current) return;
-    mapRef.current.panTo(marker.getLatLng(), { animate: true, duration: 0.35 });
+    mapRef.current.panTo(marker.getLatLng(), { animate: !prefersReducedMotion(), duration: 0.35 });
     marker.openPopup();
   }, [selectedLabel]);
 

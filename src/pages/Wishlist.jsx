@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { wishlistApi, productsApi, cartApi } from "../api/client";
 import { useToast } from "../hooks/useToast";
 import ProductArt from "../components/ProductArt";
+import { formatPrice } from "../utils/format";
 
 export default function Wishlist() {
   const toast = useToast();
@@ -96,7 +97,7 @@ export default function Wishlist() {
               {p.brand && <p className="text-xs text-[var(--color-ink-soft)] mb-2">{p.brand}</p>}
               <div className="mt-auto pt-3 flex items-center justify-between border-t border-[var(--color-line)]">
                 <span className="font-[var(--font-mono)] font-semibold text-base text-[var(--color-gold)]">
-                  ${Number(p.price).toFixed(2)}
+                  {formatPrice(p.price)}
                 </span>
                 <div className="flex items-center gap-2">
                   <button

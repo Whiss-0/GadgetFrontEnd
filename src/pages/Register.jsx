@@ -30,7 +30,7 @@ export default function Register() {
   }
 
   return (
-    <main className="auth-page">
+    <div className="auth-page">
       <div className="auth-frame">
         <div className="auth-visual" aria-hidden="true">
           <span className="auth-visual-code">Techstead · Create account</span>
@@ -110,6 +110,6 @@ export default function Register() {
           <span>Thoughtful tech, all in one place</span>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

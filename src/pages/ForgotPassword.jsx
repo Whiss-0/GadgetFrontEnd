@@ -25,7 +25,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <main className="auth-page">
+    <div className="auth-page">
       <div className="auth-frame">
         <div className="auth-visual" aria-hidden="true">
           <span className="auth-visual-code">Techstead · Account help</span>
@@ -79,6 +79,6 @@ export default function ForgotPassword() {
           <span>Still stuck? Contact support</span>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

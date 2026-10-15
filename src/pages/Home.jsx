@@ -139,7 +139,7 @@ export default function Home() {
   }
 
   return (
-    <main className="catalog-page max-w-6xl mx-auto px-5 py-6 sm:py-9">
+    <div className="catalog-page max-w-6xl mx-auto px-5 py-6 sm:py-9">
       <section className="catalog-hero mb-7 sm:mb-9" aria-labelledby="storefront-title">
         <div className="catalog-hero-copy">
           <p className="eyebrow">Techstead</p>
@@ -286,6 +286,6 @@ export default function Home() {
         <div><span className="store-assurance-icon"><ProductIcon type="support" /></span><div><strong>A real store experience</strong><span>Order history and account tools, all in one place.</span></div></div>
         <Link to={isAuthenticated ? "/orders" : "/register"} className="store-assurance-link">{isAuthenticated ? "View your orders" : "Create an account"}<span aria-hidden="true">→</span></Link>
       </section>
-    </main>
+    </div>
   );
 }

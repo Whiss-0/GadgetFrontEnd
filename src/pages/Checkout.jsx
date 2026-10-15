@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { ordersApi, cartApi } from "../api/client";
 import PhilippineAddressSelector from "../components/PhilippineAddressSelector";
+import { formatPrice } from "../utils/format";
 
 const PAYMENT_METHODS = [
   { id: "COD", label: "Cash on delivery" },
@@ -266,14 +267,14 @@ export default function Checkout() {
               return (
                 <div key={idx} className="flex justify-between text-sm">
                   <span className="text-[var(--color-ink)] truncate max-w-[70%]">{name} <span className="text-[var(--color-ink-soft)] text-xs">× {quantity}</span></span>
-                  <span className="font-[var(--font-mono)]">${(price * quantity).toFixed(2)}</span>
+                  <span className="font-[var(--font-mono)]">{formatPrice(price * quantity)}</span>
                 </div>
               );
             })}
           </div>
           <div className="flex justify-between font-semibold mt-4 text-base">
             <span>Total amount</span>
-            <span className="font-[var(--font-mono)] text-xl text-[var(--color-gold)]">${total.toFixed(2)}</span>
+            <span className="font-[var(--font-mono)] text-xl text-[var(--color-gold)]">{formatPrice(total)}</span>
           </div>
         </div>
 
@@ -321,7 +322,7 @@ export default function Checkout() {
                 </div>
                 <div className="summary-row">
                   <span>Order total</span>
-                  <strong className="summary-price">${displayTotal.toFixed(2)}</strong>
+                  <strong className="summary-price">{formatPrice(displayTotal)}</strong>
                 </div>
               </div>
 

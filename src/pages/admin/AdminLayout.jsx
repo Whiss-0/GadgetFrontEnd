@@ -4,6 +4,7 @@ import { productsApi, ordersApi, usersApi } from "../../api/client";
 import CustomerLocationMap from "../../components/CustomerLocationMap";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../hooks/useToast";
+import { formatPrice, formatPriceShort } from "../../utils/format";
 
 const tabs = [
   { to: "/admin", label: "Products", end: true },
@@ -125,8 +126,8 @@ function SalesTrendGraph({ orders, periodLabel }) {
   const getY = (value, max) => padding.top + innerHeight - (max > 0 ? (value / max) * innerHeight : 0);
   const revenuePoints = buckets.map((bucket, index) => `${getX(index)},${getY(bucket.revenue, maxRevenue)}`).join(" ");
   const areaPoints = `${padding.left},${padding.top + innerHeight} ${revenuePoints} ${chartWidth - padding.right},${padding.top + innerHeight}`;
-  const formatMoney = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const formatShortMoney = (value) => value >= 1000 ? `$${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k` : `$${Math.round(value)}`;
+  const formatMoney = formatPrice;
+  const formatShortMoney = formatPriceShort;
   const groupingLabel = granularity === "day" ? "Daily" : granularity === "week" ? "Weekly" : "Monthly";
   const chartKey = buckets.map(({ key, orders, revenue }) => `${key}:${orders}:${revenue}`).join("|");
 
@@ -580,7 +581,7 @@ export default function AdminLayout() {
               </svg>
             </div>
             <p className="text-3xl font-bold text-[#F59E0B] mb-1">
-              ${revenue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatPrice(revenue)}
             </p>
             <p className="text-xs text-[var(--color-dark-ink)]/50">After cancelled paid orders</p>
           </div>

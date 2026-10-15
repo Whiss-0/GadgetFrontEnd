@@ -4,6 +4,7 @@ import { wishlistApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../hooks/useToast";
 import ProductArt from "./ProductArt";
+import { formatPrice } from "../utils/format";
 
 
 export default function ProductCard({ product, onAddToCart }) {
@@ -144,7 +145,7 @@ export default function ProductCard({ product, onAddToCart }) {
 
         <div className="mt-auto pt-2 flex items-center justify-between gap-2">
           <span className="product-price">
-            ${Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatPrice(price)}
           </span>
           <button
             onClick={handleAddClick}

@@ -43,22 +43,22 @@ export default function App() {
 
   useEffect(() => {
     const titles = {
-      "/": "Techstead — Shop gadgets",
-      "/cart": "Techstead — Your cart",
-      "/orders": "Techstead — Your orders",
-      "/checkout": "Techstead — Checkout",
-      "/wishlist": "Techstead — Wishlist",
-      "/login": "Techstead — Sign in",
-      "/register": "Techstead — Create account",
-      "/forgot-password": "Techstead — Reset password",
-      "/reset-password": "Techstead — Reset password",
-      "/settings": "Techstead — Account Settings",
-      "/activity": "Techstead — Activity Log",
+      "/": "Techstead | Shop gadgets",
+      "/cart": "Techstead | Your cart",
+      "/orders": "Techstead | Your orders",
+      "/checkout": "Techstead | Checkout",
+      "/wishlist": "Techstead | Wishlist",
+      "/login": "Techstead | Sign in",
+      "/register": "Techstead | Create account",
+      "/forgot-password": "Techstead | Reset password",
+      "/reset-password": "Techstead | Reset password",
+      "/settings": "Techstead | Account Settings",
+      "/activity": "Techstead | Activity Log",
     };
     if (location.pathname.startsWith("/admin")) {
-      document.title = "Techstead Admin — Store overview";
+      document.title = "Techstead Admin | Store overview";
     } else {
-      document.title = titles[location.pathname] || "Techstead — Technology for everyday life.";
+      document.title = titles[location.pathname] || "Techstead | Technology for everyday life";
     }
   }, [location.pathname]);
 
@@ -74,7 +74,9 @@ export default function App() {
         data-theme={isMod ? "staff" : undefined}
         className="theme-body min-h-screen"
       >
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <Navbar />
+        <main id="main-content" tabIndex={-1}>
         <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -101,6 +103,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         </Suspense>
+        </main>
         <SiteFooter />
       </div>
     </ToastProvider>

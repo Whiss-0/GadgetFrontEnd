@@ -169,6 +169,7 @@ export default function CustomerLocationMap({
               <span>Marker number = orders</span>
               <span>Highlighted marker = busiest area</span>
               <span>Approximate area only</span>
+              <span>Click the map, then scroll to zoom</span>
             </div>
           </div>
           <div className="location-list" aria-label="Popular delivery areas">

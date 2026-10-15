@@ -4,6 +4,7 @@ import { ordersApi } from "../../api/client";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { useToast } from "../../hooks/useToast";
 import { scrollToElement } from "../../utils/scroll";
+import { formatPrice } from "../../utils/format";
 
 const STATUS_OPTIONS = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
 
@@ -238,7 +239,7 @@ export default function OrdersAdmin() {
                         </span>
                       </td>
                       <td className="font-[var(--font-mono)] font-semibold text-[#F59E0B]">
-                        ${total.toFixed(2)}
+                        {formatPrice(total)}
                       </td>
                       <td className="text-right">
                         <select
@@ -287,7 +288,7 @@ export default function OrdersAdmin() {
                       </p>
                     </div>
                     <span className="font-[var(--font-mono)] text-base font-bold text-[#F59E0B]">
-                      ${total.toFixed(2)}
+                      {formatPrice(total)}
                     </span>
                   </div>
 

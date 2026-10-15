@@ -8,6 +8,7 @@ import {
 import ConfirmDialog from "../components/ConfirmDialog";
 import ProductArt from "../components/ProductArt";
 import { useToast } from "../hooks/useToast";
+import { formatPrice } from "../utils/format";
 
 const TIMELINE_STEPS = ["Pending", "Processing", "Shipped", "Delivered"];
 
@@ -187,7 +188,7 @@ export default function Orders() {
                   )}
                 </div>
                 <span className="font-[var(--font-mono)] font-semibold text-[var(--color-gold)]">
-                  ${Number(total).toFixed(2)}
+                  {formatPrice(total)}
                 </span>
               </button>
 
@@ -231,7 +232,7 @@ export default function Orders() {
 
                             {/* Saved price */}
                             <span className="font-[var(--font-mono)] text-sm flex-shrink-0">
-                              ${Number(price).toFixed(2)}
+                              {formatPrice(price)}
                             </span>
                           </div>
                         );

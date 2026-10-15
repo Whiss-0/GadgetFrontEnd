@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import ProductArt from "../components/ProductArt";
 import { useToast } from "../hooks/useToast";
+import { formatPrice } from "../utils/format";
 
 export default function Cart() {
   const { items, loading, loadError, updateQuantity, removeItem, refresh } = useCart();
@@ -118,7 +119,7 @@ export default function Cart() {
                         <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">{item.brand}</p>
                       )}
                       <p className="font-[var(--font-mono)] text-xs text-[var(--color-ink-soft)] mt-1">
-                        ${Number(price).toFixed(2)} each
+                        {formatPrice(price)} each
                       </p>
                     </div>
 
@@ -154,7 +155,7 @@ export default function Cart() {
                       {/* Line total + remove */}
                       <div className="flex items-center gap-3 mt-2">
                         <span className="font-[var(--font-mono)] text-sm font-semibold">
-                          ${(price * quantity).toFixed(2)}
+                          {formatPrice(price * quantity)}
                         </span>
                         <button
                           onClick={() => handleRemove(cartId, name)}
@@ -181,7 +182,7 @@ export default function Cart() {
             <div className="space-y-2.5 text-sm pb-4 border-b border-[var(--color-line)]">
               <div className="flex justify-between text-[var(--color-ink-soft)]">
                 <span>Subtotal ({items.reduce((sum, i) => sum + (i.quantity || 1), 0)} items)</span>
-                <span className="font-[var(--font-mono)] text-[var(--color-ink)]">${total.toFixed(2)}</span>
+                <span className="font-[var(--font-mono)] text-[var(--color-ink)]">{formatPrice(total)}</span>
               </div>
               <div className="flex justify-between text-[var(--color-ink-soft)] text-xs">
                 <span>Shipping</span>
@@ -192,7 +193,7 @@ export default function Cart() {
             <div className="flex items-center justify-between pt-4 mb-6">
               <span className="font-[var(--font-display)] font-semibold text-base">Total</span>
               <span className="font-[var(--font-mono)] font-bold text-2xl text-[var(--color-gold)]">
-                ${total.toFixed(2)}
+                {formatPrice(total)}
               </span>
             </div>
 

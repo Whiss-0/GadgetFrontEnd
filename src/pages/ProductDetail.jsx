@@ -6,6 +6,7 @@ import { useCart } from "../context/CartContext";
 import { useToast } from "../hooks/useToast";
 import ProductReviews from "../components/ProductReviews";
 import ProductArt from "../components/ProductArt";
+import { formatPrice } from "../utils/format";
 
 // A single spec row in the specs table
 function SpecRow({ label, value }) {
@@ -260,7 +261,7 @@ export default function ProductDetail() {
             </h1>
             <div className="flex items-baseline gap-3">
               <span className="font-[var(--font-mono)] text-3xl font-bold text-[var(--color-gold)]">
-                ${Number(price).toFixed(2)}
+                {formatPrice(price)}
               </span>
               <span className="text-xs text-[var(--color-ink-soft)]">Taxes included</span>
             </div>

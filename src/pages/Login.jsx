@@ -40,7 +40,7 @@ export default function Login() {
   }
 
   return (
-    <main className="auth-page">
+    <div className="auth-page">
       <div className="auth-frame">
         <div className="auth-visual" aria-hidden="true">
           <span className="auth-visual-code">Techstead · Secure sign-in</span>
@@ -127,6 +127,6 @@ export default function Login() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

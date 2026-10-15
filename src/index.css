@@ -1745,12 +1745,13 @@ input[type="date"] {
   justify-content: center;
   width: 34px;
   height: 34px;
-  border: 2px solid #fff;
+  border: 2px solid var(--color-dark-ink);
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
-  color: #fff;
-  background: #7c3aed;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.4);
+  color: var(--color-paper);
+  background: var(--color-circuit);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .customer-map-marker > span {
@@ -1760,13 +1761,12 @@ input[type="date"] {
 }
 
 .customer-map-marker--top {
-  background: #d97706;
+  background: var(--color-gold);
 }
 
 .customer-map-marker--selected {
-  outline: 3px solid color-mix(in srgb, var(--color-circuit) 70%, transparent);
-  outline-offset: 2px;
-  z-index: 1000;
+  transform: rotate(-45deg) scale(1.18);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-circuit) 45%, transparent), 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
 .customer-map-popup {
@@ -1867,7 +1867,7 @@ input[type="date"] {
   width: 1.5rem;
 }
 
-.location-list-row:first-child .location-list-rank {
+li:first-child > .location-list-row .location-list-rank {
   color: var(--color-gold, #f4c76a);
   opacity: 1;
 }
@@ -1901,7 +1901,7 @@ input[type="date"] {
   flex-shrink: 0;
 }
 
-.location-list-row:first-child .location-list-orders {
+li:first-child > .location-list-row .location-list-orders {
   color: var(--color-gold, #f4c76a);
 }
 
@@ -1929,7 +1929,7 @@ input[type="date"] {
   min-width: 4px;
 }
 
-.location-list-row:first-child .location-list-bar {
+li:first-child > .location-list-row .location-list-bar {
   background: var(--color-gold, #f4c76a);
 }
 
@@ -4804,4 +4804,30 @@ html.dark .btn-primary:not(:disabled),
     from { opacity: 0; transform: scale(0.55); }
     to { opacity: 1; transform: scale(1); }
   }
+}
+
+/* Skip link: first tab stop, hidden until focused. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 10000;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.5rem;
+  color: var(--color-paper);
+  background: var(--color-circuit);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+#main-content:focus {
+  outline: none;
 }

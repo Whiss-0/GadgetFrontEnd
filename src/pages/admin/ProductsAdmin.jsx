@@ -7,6 +7,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import { useToast } from "../../hooks/useToast";
 import { useAuth } from "../../context/AuthContext";
 import { scrollToElement } from "../../utils/scroll";
+import { formatPrice } from "../../utils/format";
 
 const empty = {
   ProductName: "",
@@ -321,7 +322,7 @@ export default function ProductsAdmin() {
                         </span>
                       )}
                       <span className="font-[var(--font-mono)] text-xs font-semibold text-[#F59E0B]">
-                        ${price.toFixed(2)}
+                        {formatPrice(price)}
                       </span>
                       {getStockBadge(p.stock)}
                     </div>
@@ -472,7 +473,7 @@ export default function ProductsAdmin() {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label htmlFor="prod-price" className="block text-xs font-medium text-[var(--color-dark-ink)]/70 mb-1">
-                Price ($) <span className="text-[var(--color-signal)]">*</span>
+                Price (₱) <span className="text-[var(--color-signal)]">*</span>
               </label>
               <input
                 id="prod-price"
