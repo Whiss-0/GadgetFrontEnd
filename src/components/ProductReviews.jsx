@@ -182,13 +182,17 @@ export default function ProductReviews({ productId }) {
           {reviews.map((review) => {
             const id = review.review_ID ?? review.review_id ?? review.id;
             const reviewRating = Number(review.rating) || 0;
-            const userId = review.user_id ?? review.userId ?? review.User_ID;
             return (
               <article key={id} className="review-card">
                 <div className="review-card-topline">
                   <div className="review-card-author">
-                    <span className="review-avatar" aria-hidden="true">{String(userId || "C").slice(-1)}</span>
-                    <div><strong>{userId ? `Customer #${userId}` : "Customer"}</strong><time dateTime={review.review_date ?? review.reviewDate}>{formatReviewDate(review.review_date ?? review.reviewDate)}</time></div>
+                    <span className="review-avatar" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="8" r="3.5" />
+                        <path d="M5 20a7 7 0 0 1 14 0" />
+                      </svg>
+                    </span>
+                    <div><strong>Shopper</strong><time dateTime={review.review_date ?? review.reviewDate}>{formatReviewDate(review.review_date ?? review.reviewDate)}</time></div>
                   </div>
                   <Stars value={reviewRating} />
                 </div>

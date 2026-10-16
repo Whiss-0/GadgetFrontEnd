@@ -69,6 +69,25 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    authApi.me()
+      .then((response) => {
+        if (cancelled) return;
+        const profile = response.data || {};
+        setUser((current) => current ? {
+          ...current,
+          id: profile.userId ?? current.id,
+          username: profile.username ?? current.username,
+          roleId: profile.roleId ?? current.roleId,
+          profileImageUrl: profile.profileImageUrl || null,
+        } : current);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [token]);
+
+  useEffect(() => {
     window.addEventListener("gadgetstore:unauthorized", logout);
     return () => window.removeEventListener("gadgetstore:unauthorized", logout);
   }, [logout]);

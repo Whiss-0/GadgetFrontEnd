@@ -43,6 +43,14 @@ export const authApi = {
   resetPassword: (data) => client.post("/api/auth/reset-password", data),
   me: () => client.get("/api/auth/me"),
   updateMe: (data) => client.put("/api/auth/me", data),
+  uploadProfileImage: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return client.post("/api/auth/me/profile-image", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  removeProfileImage: () => client.delete("/api/auth/me/profile-image"),
 };
 
 // ---- Products / Categories ----
@@ -150,4 +158,3 @@ export const geocodeApi = {
 export const mapsApi = {
   geocode: (area) => client.get("/api/map/geocode", { params: { area } }),
 };
-

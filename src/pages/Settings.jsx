@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { authApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import PasswordInput from "../components/PasswordInput";
+import ProfileAvatar from "../components/ProfileAvatar";
 import PhilippineAddressSelector from "../components/PhilippineAddressSelector";
 import { useToast } from "../hooks/useToast";
 
@@ -32,6 +33,9 @@ function parseAddressParts(addr) {
 
 export default function Settings() {
   const { user, updateUser } = useAuth();
+  const profileImageInputRef = useRef(null);
+  const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
+  const [profileImageError, setProfileImageError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -74,10 +78,61 @@ export default function Settings() {
           password: "",
           currentPassword: "",
         });
+        updateUser({
+          username: res.data.username,
+          profileImageUrl: res.data.profileImageUrl || null,
+        });
       })
       .catch(() => setMessage({ type: "error", text: "Failed to load profile data." }))
       .finally(() => setLoading(false));
-  }, []);
+  }, [updateUser]);
+
+  const handleProfileImageSelected = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setProfileImageError("");
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setProfileImageError("Choose a JPG, PNG, or WebP image.");
+      event.target.value = "";
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setProfileImageError("Profile images must be 2 MB or smaller.");
+      event.target.value = "";
+      return;
+    }
+
+    setUploadingProfileImage(true);
+    try {
+      const response = await authApi.uploadProfileImage(file);
+      updateUser({ profileImageUrl: response.data?.profileImageUrl || null });
+      toast.show("Profile picture updated.", { tone: "success" });
+    } catch (error) {
+      const message = error.response?.data?.message || "Could not upload your profile picture. Try again.";
+      setProfileImageError(message);
+      toast.show(message, { tone: "error", duration: 6000 });
+    } finally {
+      setUploadingProfileImage(false);
+      event.target.value = "";
+    }
+  };
+
+  const handleRemoveProfileImage = async () => {
+    setUploadingProfileImage(true);
+    setProfileImageError("");
+    try {
+      await authApi.removeProfileImage();
+      updateUser({ profileImageUrl: null });
+      toast.show("Profile picture removed.", { tone: "success" });
+    } catch (error) {
+      const message = error.response?.data?.message || "Could not remove your profile picture. Try again.";
+      setProfileImageError(message);
+      toast.show(message, { tone: "error", duration: 6000 });
+    } finally {
+      setUploadingProfileImage(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -137,6 +192,48 @@ export default function Settings() {
           Update your personal information and address.
         </p>
       </div>
+
+      <section className="profile-photo-panel" aria-labelledby="profile-photo-title">
+        <ProfileAvatar
+          src={user?.profileImageUrl}
+          name={formData.name || user?.username}
+          className="profile-photo-preview"
+          accessibleLabel={`${formData.name || user?.username || "Account"} profile picture`}
+        />
+        <div className="profile-photo-copy">
+          <h2 id="profile-photo-title">Profile picture</h2>
+          <p>Use a JPG, PNG, or WebP image up to 2 MB.</p>
+          {profileImageError && <p className="profile-photo-error" role="alert">{profileImageError}</p>}
+          <div className="profile-photo-actions">
+            <input
+              ref={profileImageInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleProfileImageSelected}
+              hidden
+              aria-label="Choose a profile picture"
+            />
+            <button
+              type="button"
+              className="btn-primary profile-photo-button"
+              onClick={() => profileImageInputRef.current?.click()}
+              disabled={uploadingProfileImage}
+            >
+              {uploadingProfileImage ? "Updating…" : user?.profileImageUrl ? "Change picture" : "Upload picture"}
+            </button>
+            {user?.profileImageUrl && (
+              <button
+                type="button"
+                className="profile-photo-remove"
+                onClick={handleRemoveProfileImage}
+                disabled={uploadingProfileImage}
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
 
       {message.text && (
         <div role={message.type === "error" ? "alert" : "status"} aria-live={message.type === "error" ? "assertive" : "polite"} className={`mb-6 p-4 rounded text-sm font-medium ${

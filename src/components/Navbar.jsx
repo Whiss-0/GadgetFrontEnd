@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext";
 import { useState, useRef, useEffect } from "react";
 import ThemeToggle from "./ThemeToggle";
 import NotificationBell from "./NotificationBell";
+import ProfileAvatar from "./ProfileAvatar";
 
 function Pin() {
   return <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--color-circuit)] mr-2 align-middle" />;
@@ -43,10 +44,7 @@ function UserMenu({ user, logout }) {
         aria-haspopup="menu"
         aria-label="Account menu"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
+        <ProfileAvatar src={user?.profileImageUrl} name={user?.username} className="user-menu-avatar" />
         <span className="user-menu-name">{user?.username || "Account"}</span>
         <span className="chevron text-[10px] opacity-70" aria-hidden="true">▾</span>
       </button>
