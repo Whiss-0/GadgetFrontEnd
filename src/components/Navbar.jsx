@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useState, useRef, useEffect } from "react";
@@ -115,15 +115,15 @@ function UserMenu({ user, logout }) {
 function MenuLinks({ isAuthenticated, isMod, isAdmin, className = "", onNavigate, id, isMobile = false }) {
   return (
     <nav id={id} className={className} aria-label="Primary navigation">
-      <Link to="/" className="header-nav-link" onClick={onNavigate}>Shop</Link>
-      {isAuthenticated && <Link to="/orders" className="header-nav-link" onClick={onNavigate}>Orders</Link>}
+      <NavLink to="/" end className={({ isActive }) => `header-nav-link${isActive ? " is-active" : ""}`} onClick={onNavigate}>Shop</NavLink>
+      {isAuthenticated && <NavLink to="/orders" className={({ isActive }) => `header-nav-link${isActive ? " is-active" : ""}`} onClick={onNavigate}>Orders</NavLink>}
       {isAuthenticated && isMobile && (
-        <Link to="/wishlist" className="header-nav-link" onClick={onNavigate}>Wishlist</Link>
+        <NavLink to="/wishlist" className={({ isActive }) => `header-nav-link${isActive ? " is-active" : ""}`} onClick={onNavigate}>Wishlist</NavLink>
       )}
       {isMod && (
-        <Link to="/admin" className="header-nav-link header-nav-link-accent" onClick={onNavigate}>
+        <NavLink to="/admin" className={({ isActive }) => `header-nav-link header-nav-link-accent${isActive ? " is-active" : ""}`} onClick={onNavigate}>
           {isAdmin ? "Admin" : "Staff"}
-        </Link>
+        </NavLink>
       )}
     </nav>
   );

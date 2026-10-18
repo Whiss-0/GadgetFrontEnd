@@ -124,7 +124,7 @@ export default function Orders() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-5 py-8 sm:py-12">
+    <div className="orders-page max-w-3xl mx-auto px-5 py-8 sm:py-12">
       <h1 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold mb-2">Your orders</h1>
       <p className="text-[var(--color-ink-soft)] text-sm mb-8">
         Track previous purchases and see what is happening with each order.

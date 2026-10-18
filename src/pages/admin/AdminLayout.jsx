@@ -12,6 +12,7 @@ const tabs = [
   { to: "/admin/users", label: "Users" },
   { to: "/activity", label: "Activity" },
   { to: "/admin/notifications", label: "Notifications" },
+  { to: "/admin/contact", label: "Support Inbox", adminOnly: true },
 ];
 
 const PERIODS = [
@@ -224,7 +225,7 @@ function getBroadLocation(address) {
 
 export default function AdminLayout() {
   const { isAdmin } = useAuth();
-  const visibleTabs = tabs.filter((tab) => isAdmin || tab.to !== "/admin/users");
+  const visibleTabs = tabs.filter((tab) => (isAdmin || !tab.adminOnly) && (isAdmin || tab.to !== "/admin/users"));
   const { show } = useToast();
   const [productCount, setProductCount] = useState(0);
   const [outOfStockItems, setOutOfStockItems] = useState([]);
@@ -368,10 +369,10 @@ export default function AdminLayout() {
     .sort((a, b) => b.orders - a.orders || a.label.localeCompare(b.label));
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[var(--color-dark-bg)] text-[var(--color-dark-ink)] pb-16">
-      <div className="max-w-6xl mx-auto px-5 py-8">
+    <div className="admin-workspace min-h-[calc(100vh-64px)] bg-[var(--color-dark-bg)] text-[var(--color-dark-ink)] pb-16">
+      <div className="admin-workspace-inner max-w-6xl mx-auto px-5 py-8">
         {/* Header section with role-aware title and compact refresh */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-[var(--color-dark-line)]">
+        <div className="admin-page-heading flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-[var(--color-dark-line)]">
           <div>
             <h1 className="font-[var(--font-display)] text-2xl font-bold text-white tracking-tight mb-1">
               {isAdmin ? "Techstead Admin" : "Store operations"}

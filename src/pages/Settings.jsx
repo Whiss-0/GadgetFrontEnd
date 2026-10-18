@@ -185,7 +185,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-5 py-10">
+    <div className="account-settings-page max-w-xl mx-auto px-5 py-10">
       <div className="mb-8 border-b border-[var(--color-line)] pb-4">
         <h1 className="font-[var(--font-display)] text-3xl font-semibold">Account Settings</h1>
         <p className="text-sm text-[var(--color-ink-soft)] mt-2">

@@ -56,7 +56,7 @@ export default function Wishlist() {
     .filter(Boolean);
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-8 sm:py-12">
+    <div className="wishlist-page max-w-5xl mx-auto px-5 py-8 sm:py-12">
       <h1 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold mb-2">Saved items</h1>
       <p className="text-[var(--color-ink-soft)] text-sm mb-8">
         Keep products here while you compare your options.

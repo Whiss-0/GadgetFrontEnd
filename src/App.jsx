@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import { AboutPage, ReturnPolicyPage, TermsOfServicePage, ContactPage } from "./pages/StoreInfoPages";
 
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const OrdersAdmin = lazy(() => import("./pages/admin/OrdersAdmin"));
 const UsersAdmin = lazy(() => import("./pages/admin/UsersAdmin"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const NotificationsAdmin = lazy(() => import("./pages/admin/NotificationsAdmin"));
+const ContactInbox = lazy(() => import("./pages/admin/ContactInbox"));
 
 function RouteFallback() {
   return (
@@ -54,6 +56,10 @@ export default function App() {
       "/register": "Techstead | Create account",
       "/forgot-password": "Techstead | Reset password",
       "/reset-password": "Techstead | Reset password",
+      "/about": "Techstead | About Us",
+      "/return-policy": "Techstead | Return Policy",
+      "/terms-of-service": "Techstead | Terms of Service",
+      "/contact": "Techstead | Contact Us",
       "/settings": "Techstead | Account Settings",
       "/activity": "Techstead | Activity Log",
     };
@@ -87,6 +93,10 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/return-policy" element={<ReturnPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/contact" element={<ContactPage />} />
 
           <Route path="/cart" element={<RequireAuth><Cart /></RequireAuth>} />
           <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
@@ -101,6 +111,7 @@ export default function App() {
             <Route path="orders" element={<OrdersAdmin />} />
             <Route path="users" element={<RequireAdmin><UsersAdmin /></RequireAdmin>} />
             <Route path="notifications" element={<RequireAdmin><NotificationsAdmin /></RequireAdmin>} />
+            <Route path="contact" element={<RequireAdmin><ContactInbox /></RequireAdmin>} />
           </Route>
 
           {/* Catch-all 404 — must be last */}

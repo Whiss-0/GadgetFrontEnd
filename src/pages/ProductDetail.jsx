@@ -206,7 +206,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-8 sm:py-12">
+    <div className="product-detail-page max-w-5xl mx-auto px-5 py-8 sm:py-12">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-[var(--color-ink-soft)] mb-6" aria-label="Breadcrumb">
         <Link to="/" className="hover:text-[var(--color-circuit)] transition-colors">Shop</Link>

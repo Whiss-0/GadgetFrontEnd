@@ -139,7 +139,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-5 py-8 sm:py-12">
+    <div className="checkout-page max-w-xl mx-auto px-5 py-8 sm:py-12">
       <h1 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold mb-2">Complete your order</h1>
       <p className="text-[var(--color-ink-soft)] text-sm mb-8">
         Review your delivery details and choose your preferred payment method.

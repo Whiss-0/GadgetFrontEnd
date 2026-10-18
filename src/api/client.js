@@ -158,3 +158,10 @@ export const geocodeApi = {
 export const mapsApi = {
   geocode: (area) => client.get("/api/map/geocode", { params: { area } }),
 };
+
+// ---- Public contact form and admin-only Support Inbox ----
+export const contactApi = {
+  submit: (data) => client.post("/api/contact", data),
+  adminList: (params = {}) => client.get("/api/contact", { params }),
+  updateStatus: (id, status) => client.put(`/api/contact/${id}/status`, { Status: status }),
+};
