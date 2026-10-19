@@ -103,6 +103,10 @@ export default function ProductDetail() {
   const stock       = product.stock;
   const brand       = product.brand;
   const categoryId  = product.category_id;
+  const warrantyProvider = product.warranty_provider ?? product.warrantyProvider ?? "";
+  const warrantyMonths = product.warranty_period_months ?? product.warrantyPeriodMonths;
+  const warrantyTerms = product.warranty_terms ?? product.warrantyTerms ?? "";
+  const hasWarrantyDetails = Boolean(warrantyProvider || warrantyMonths || warrantyTerms);
 
   // Resolve category name from the categories list
   const category = categories.find((c) => c.category_id === categoryId || c.id === categoryId);
@@ -263,7 +267,7 @@ export default function ProductDetail() {
               <span className="font-[var(--font-mono)] text-3xl font-bold text-[var(--color-gold)]">
                 {formatPrice(price)}
               </span>
-              <span className="text-xs text-[var(--color-ink-soft)]">Taxes included</span>
+              <span className="text-xs text-[var(--color-ink-soft)]">Listed product price</span>
             </div>
           </div>
 
@@ -366,6 +370,19 @@ export default function ProductDetail() {
             )}
           </div>
 
+          <section className="rounded-lg border border-[var(--color-line)] bg-[var(--color-paper)] p-3" aria-labelledby="product-warranty-heading">
+            <h2 id="product-warranty-heading" className="text-sm font-semibold mb-1">Warranty information</h2>
+            {hasWarrantyDetails ? (
+              <div className="space-y-1 text-xs text-[var(--color-ink-soft)]">
+                {warrantyProvider && <p><span className="font-medium text-[var(--color-ink)]">Provider:</span> {warrantyProvider}</p>}
+                {warrantyMonths != null && warrantyMonths !== "" && <p><span className="font-medium text-[var(--color-ink)]">Period:</span> {warrantyMonths} month{Number(warrantyMonths) === 1 ? "" : "s"}</p>}
+                {warrantyTerms && <p className="whitespace-pre-line leading-relaxed">{warrantyTerms}</p>}
+              </div>
+            ) : (
+              <p className="text-xs text-[var(--color-ink-soft)] leading-relaxed">Warranty details have not been confirmed for this item. Contact us before purchase.</p>
+            )}
+          </section>
+
           {/* Trust points */}
           <div className="grid grid-cols-2 gap-2.5 pt-4 border-t border-[var(--color-line)] text-xs text-[var(--color-ink-soft)]">
             <div className="flex items-center gap-2">
@@ -375,10 +392,6 @@ export default function ProductDetail() {
             <div className="flex items-center gap-2">
               <span className="text-[var(--color-circuit)]">✓</span>
               <span>Simple 30-day returns</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[var(--color-circuit)]">✓</span>
-              <span>Standard warranty included</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[var(--color-circuit)]">✓</span>

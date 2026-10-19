@@ -132,6 +132,8 @@ export default function PhilippineAddressSelector({
   street = "",
   onAddressChange,
   disabled = false,
+  showCity = true,
+  showBarangay = true,
 }) {
   const [regions,   setRegions]   = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -163,6 +165,12 @@ export default function PhilippineAddressSelector({
       const prov = overrides.province !== undefined ? overrides.province : labelProvince;
       const cit = overrides.city !== undefined ? overrides.city : labelCity;
       const brgy = overrides.barangay !== undefined ? overrides.barangay : labelBarangay;
+      const codes = {
+        regionCode: overrides.regionCode !== undefined ? overrides.regionCode : selRegion,
+        provinceCode: overrides.provinceCode !== undefined ? overrides.provinceCode : selProvince,
+        cityCode: overrides.cityCode !== undefined ? overrides.cityCode : selCity,
+        barangayCode: overrides.barangayCode !== undefined ? overrides.barangayCode : selBarangay,
+      };
 
       // Only notify parent when at least one location level or street has been specified
       if (!reg && !prov && !cit && !brgy && !street) {
@@ -177,9 +185,9 @@ export default function PhilippineAddressSelector({
         region:   reg,
       };
       const addr = buildAddressString(parts);
-      onAddressChange?.(addr, parts);
+      onAddressChange?.(addr, parts, codes);
     },
-    [street, labelBarangay, labelCity, labelProvince, labelRegion, onAddressChange]
+    [street, labelBarangay, labelCity, labelProvince, labelRegion, selBarangay, selCity, selProvince, selRegion, onAddressChange]
   );
 
   // Load regions on mount
@@ -203,16 +211,25 @@ export default function PhilippineAddressSelector({
     setCities([]); setSelCity(""); setLabelCity("");
     setBarangays([]); setSelBarangay(""); setLabelBarangay("");
     loadProvinces(selRegion)
-      .then((data) =>
-        setProvinces(data.map((p) => ({ code: p.province_code, name: p.province_name })))
-      )
+      .then((data) => {
+        const optionsByCode = new Map();
+        data.forEach((province) => {
+          const option = { code: province.province_code, name: province.province_name };
+          const existing = optionsByCode.get(option.code);
+          if (!existing || option.name.length < existing.name.length ||
+              (option.name.length === existing.name.length && option.name.localeCompare(existing.name) < 0)) {
+            optionsByCode.set(option.code, option);
+          }
+        });
+        setProvinces(Array.from(optionsByCode.values()));
+      })
       .catch(() => setError("Couldn't load provinces."))
       .finally(() => setLoadingProvinces(false));
   }, [selRegion]);
 
   // Load cities when province changes
   useEffect(() => {
-    if (!selProvince) { setCities([]); return; }
+    if (!selProvince || !showCity) { setCities([]); return; }
     setLoadingCities(true);
     setCities([]);
     setSelCity(""); setLabelCity("");
@@ -223,11 +240,11 @@ export default function PhilippineAddressSelector({
       )
       .catch(() => setError("Couldn't load cities."))
       .finally(() => setLoadingCities(false));
-  }, [selProvince]);
+  }, [selProvince, showCity]);
 
   // Load barangays when city changes
   useEffect(() => {
-    if (!selCity) { setBarangays([]); return; }
+    if (!selCity || !showBarangay) { setBarangays([]); return; }
     setLoadingBarangays(true);
     setBarangays([]);
     setSelBarangay(""); setLabelBarangay("");
@@ -237,7 +254,7 @@ export default function PhilippineAddressSelector({
       )
       .catch(() => setError("Couldn't load barangays."))
       .finally(() => setLoadingBarangays(false));
-  }, [selCity]);
+  }, [selCity, showBarangay]);
 
   // Notify parent whenever the address label changes (any level)
   useEffect(() => {
@@ -249,28 +266,28 @@ export default function PhilippineAddressSelector({
     setSelRegion(code);
     const label = regions.find((r) => r.code === code)?.name ?? "";
     setLabelRegion(label);
-    notifyParent({ region: label, province: "", city: "", barangay: "" });
+    notifyParent({ region: label, regionCode: code, province: "", provinceCode: "", city: "", cityCode: "", barangay: "", barangayCode: "" });
   }
 
   function handleProvinceChange(code) {
     setSelProvince(code);
     const label = provinces.find((p) => p.code === code)?.name ?? "";
     setLabelProvince(label);
-    notifyParent({ province: label, city: "", barangay: "" });
+    notifyParent({ province: label, provinceCode: code, city: "", cityCode: "", barangay: "", barangayCode: "" });
   }
 
   function handleCityChange(code) {
     setSelCity(code);
     const label = cities.find((c) => c.code === code)?.name ?? "";
     setLabelCity(label);
-    notifyParent({ city: label, barangay: "" });
+    notifyParent({ city: label, cityCode: code, barangay: "", barangayCode: "" });
   }
 
   function handleBarangayChange(code) {
     setSelBarangay(code);
     const label = barangays.find((b) => b.code === code)?.name ?? "";
     setLabelBarangay(label);
-    notifyParent({ barangay: label });
+    notifyParent({ barangay: label, barangayCode: code });
   }
 
   return (
@@ -315,27 +332,31 @@ export default function PhilippineAddressSelector({
         placeholder={selRegion ? "Select province" : "Select a region first"}
       />
 
-      <AddressSelect
-        id="ph-city"
-        label="City / Municipality"
-        value={selCity}
-        options={cities}
-        disabled={disabled || !selProvince}
-        loading={loadingCities}
-        onChange={handleCityChange}
-        placeholder={selProvince ? "Select city/municipality" : "Select a province first"}
-      />
+      {showCity && (
+        <AddressSelect
+          id="ph-city"
+          label="City / Municipality"
+          value={selCity}
+          options={cities}
+          disabled={disabled || !selProvince}
+          loading={loadingCities}
+          onChange={handleCityChange}
+          placeholder={selProvince ? "Select city/municipality" : "Select a province first"}
+        />
+      )}
 
-      <AddressSelect
-        id="ph-barangay"
-        label="Barangay"
-        value={selBarangay}
-        options={barangays}
-        disabled={disabled || !selCity}
-        loading={loadingBarangays}
-        onChange={handleBarangayChange}
-        placeholder={selCity ? "Select barangay" : "Select a city first"}
-      />
+      {showBarangay && (
+        <AddressSelect
+          id="ph-barangay"
+          label="Barangay"
+          value={selBarangay}
+          options={barangays}
+          disabled={disabled || !selCity}
+          loading={loadingBarangays}
+          onChange={handleBarangayChange}
+          placeholder={selCity ? "Select barangay" : "Select a city first"}
+        />
+      )}
     </div>
   );
 }

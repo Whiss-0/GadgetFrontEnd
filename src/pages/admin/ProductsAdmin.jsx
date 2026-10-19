@@ -20,6 +20,9 @@ const empty = {
   RamGb: "",
   Processor: "",
   StorageGb: "",
+  WarrantyProvider: "",
+  WarrantyPeriodMonths: "",
+  WarrantyTerms: "",
 };
 
 function getStockBadge(stock) {
@@ -105,6 +108,9 @@ export default function ProductsAdmin() {
       RamGb:        p.ram_gb ?? "",
       Processor:    p.processor ?? "",
       StorageGb:    p.storage_gb ?? "",
+      WarrantyProvider: p.warranty_provider ?? "",
+      WarrantyPeriodMonths: p.warranty_period_months ?? "",
+      WarrantyTerms: p.warranty_terms ?? "",
     });
     // Scroll form into view if on mobile
     if (window.innerWidth < 768 && formRef.current) {
@@ -159,6 +165,9 @@ export default function ProductsAdmin() {
       RamGb:        form.RamGb ? Number(form.RamGb) : null,
       Processor:    form.Processor ? form.Processor.trim() : null,
       StorageGb:    form.StorageGb ? Number(form.StorageGb) : null,
+      WarrantyProvider: form.WarrantyProvider ? form.WarrantyProvider.trim() : null,
+      WarrantyPeriodMonths: form.WarrantyPeriodMonths ? Number(form.WarrantyPeriodMonths) : null,
+      WarrantyTerms: form.WarrantyTerms ? form.WarrantyTerms.trim() : null,
     };
 
     try {
@@ -556,7 +565,49 @@ export default function ProductsAdmin() {
           </div>
         </fieldset>
 
-        {/* Section 4: Product image */}
+        {/* Section 4: Verified product-specific warranty information */}
+        <fieldset className="admin-fieldset space-y-3">
+          <legend className="admin-fieldset-legend">Warranty details (optional)</legend>
+          <p className="text-xs text-[var(--color-dark-ink)]/60">
+            Enter only verified manufacturer or store coverage for this product. This is information, not an optional paid protection plan.
+          </p>
+          <div>
+            <label htmlFor="prod-warranty-provider" className="block text-xs font-medium text-[var(--color-dark-ink)]/70 mb-1">Warranty provider</label>
+            <input
+              id="prod-warranty-provider"
+              value={form.WarrantyProvider}
+              onChange={(e) => update("WarrantyProvider", e.target.value)}
+              placeholder="Manufacturer or store"
+              className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-1.5 text-sm text-white outline-none focus:border-[var(--color-circuit)]"
+            />
+          </div>
+          <div>
+            <label htmlFor="prod-warranty-months" className="block text-xs font-medium text-[var(--color-dark-ink)]/70 mb-1">Coverage period (months)</label>
+            <input
+              id="prod-warranty-months"
+              type="number"
+              min="1"
+              step="1"
+              value={form.WarrantyPeriodMonths}
+              onChange={(e) => update("WarrantyPeriodMonths", e.target.value)}
+              placeholder="e.g. 12"
+              className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-1.5 text-sm text-white outline-none focus:border-[var(--color-circuit)]"
+            />
+          </div>
+          <div>
+            <label htmlFor="prod-warranty-terms" className="block text-xs font-medium text-[var(--color-dark-ink)]/70 mb-1">Warranty terms</label>
+            <textarea
+              id="prod-warranty-terms"
+              rows={3}
+              value={form.WarrantyTerms}
+              onChange={(e) => update("WarrantyTerms", e.target.value)}
+              placeholder="Verified coverage, exclusions, or claim instructions"
+              className="w-full admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-1.5 text-sm text-white outline-none focus:border-[var(--color-circuit)]"
+            />
+          </div>
+        </fieldset>
+
+        {/* Section 5: Product image */}
         <fieldset className="admin-fieldset space-y-2">
           <legend className="admin-fieldset-legend">Product image</legend>
           <ImageDropzone

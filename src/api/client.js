@@ -79,6 +79,19 @@ export const categoriesApi = {
   list: () => client.get("/api/categories"),
 };
 
+// Public pricing settings for checkout; updates are authorized by the API for admins only.
+export const storePricingApi = {
+  get: () => client.get("/api/store-pricing"),
+  update: (data) => client.put("/api/store-pricing", data),
+  quoteDeliveryFee: (provinceCode, cityCode) => client.get("/api/store-pricing/delivery-fees/quote", {
+    params: { provinceCode, cityCode },
+  }),
+  listDeliveryFees: () => client.get("/api/store-pricing/delivery-fees"),
+  createDeliveryFee: (data) => client.post("/api/store-pricing/delivery-fees", data),
+  updateDeliveryFee: (ruleId, data) => client.put(`/api/store-pricing/delivery-fees/${ruleId}`, data),
+  deleteDeliveryFee: (ruleId) => client.delete(`/api/store-pricing/delivery-fees/${ruleId}`),
+};
+
 // ---- Cart ----
 // The cart controller exposes /api/cart/my for the current user's cart.
 export const cartApi = {

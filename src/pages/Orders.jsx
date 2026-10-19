@@ -18,6 +18,16 @@ function formatDateTime(value) {
   return Number.isNaN(date.getTime()) ? "Time unavailable" : date.toLocaleString();
 }
 
+function getPricingSnapshot(order) {
+  const subtotal = order.subtotal_amount ?? order.subtotalAmount;
+  const deliveryFee = order.delivery_fee_amount ?? order.deliveryFeeAmount;
+  const vatAmount = order.vat_amount ?? order.vatAmount;
+  const vatRate = order.vat_rate_percent ?? order.vatRatePercent;
+  const vatMode = order.vat_price_mode ?? order.vatPriceMode;
+  const hasSnapshot = [subtotal, deliveryFee, vatAmount].some((value) => value != null && Number(value) > 0);
+  return hasSnapshot ? { subtotal, deliveryFee, vatAmount, vatRate, vatMode } : null;
+}
+
 function OrderTimeline({ status }) {
   const isCancelled = status === "Cancelled";
   if (isCancelled) {
@@ -175,6 +185,7 @@ export default function Orders() {
           const courierName = o.courier_name ?? o.courierName ?? o.CourierName;
           const trackingNumber = o.tracking_number ?? o.trackingNumber ?? o.TrackingNumber;
           const estimatedDeliveryDate = o.estimated_delivery_date ?? o.estimatedDeliveryDate ?? o.EstimatedDeliveryDate;
+          const pricingSnapshot = getPricingSnapshot(o);
           const isDetailsLoading = Boolean(loadingByOrder[id]);
           const isOpen = expandedId === id;
 
@@ -230,6 +241,19 @@ export default function Orders() {
                       );
                     })}
                   </section>
+
+                  {pricingSnapshot && (
+                    <section className="mt-5 border-t border-[var(--color-line)] pt-4" aria-label="Saved order pricing">
+                      <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-ink-soft)] mb-2">Order pricing</h3>
+                      <div className="space-y-1.5 text-sm">
+                        {pricingSnapshot.subtotal != null && <div className="flex justify-between gap-3"><span className="text-[var(--color-ink-soft)]">Products subtotal</span><span className="font-[var(--font-mono)]">{formatPrice(pricingSnapshot.subtotal)}</span></div>}
+                        {pricingSnapshot.deliveryFee != null && <div className="flex justify-between gap-3"><span className="text-[var(--color-ink-soft)]">Delivery fee</span><span className="font-[var(--font-mono)]">{formatPrice(pricingSnapshot.deliveryFee)}</span></div>}
+                        {Number(pricingSnapshot.vatAmount) > 0 && <div className="flex justify-between gap-3"><span className="text-[var(--color-ink-soft)]">{pricingSnapshot.vatMode === "inclusive" ? `VAT included in listed prices${pricingSnapshot.vatRate != null ? ` (${pricingSnapshot.vatRate}%)` : ""}` : pricingSnapshot.vatMode === "exclusive" ? `VAT added to listed prices${pricingSnapshot.vatRate != null ? ` (${pricingSnapshot.vatRate}%)` : ""}` : `VAT${pricingSnapshot.vatRate != null ? ` (${pricingSnapshot.vatRate}%)` : ""}`}</span><span className="font-[var(--font-mono)]">{formatPrice(pricingSnapshot.vatAmount)}</span></div>}
+                        <div className="flex justify-between gap-3 border-t border-[var(--color-line)] pt-2 mt-2 font-semibold"><span>Saved order total</span><span className="font-[var(--font-mono)]">{formatPrice(total)}</span></div>
+                      </div>
+                      {pricingSnapshot.vatMode === "inclusive" && Number(pricingSnapshot.vatAmount) > 0 && <p className="text-[11px] text-[var(--color-ink-soft)] mt-2">The VAT amount shown is already included in the saved total.</p>}
+                    </section>
+                  )}
 
                   <div className="order-detail-meta mt-4">
                     <div className="order-detail-meta-row">

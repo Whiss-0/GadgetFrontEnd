@@ -32,6 +32,7 @@ const UsersAdmin = lazy(() => import("./pages/admin/UsersAdmin"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const NotificationsAdmin = lazy(() => import("./pages/admin/NotificationsAdmin"));
 const ContactInbox = lazy(() => import("./pages/admin/ContactInbox"));
+const StorePricingAdmin = lazy(() => import("./pages/admin/StorePricingAdmin"));
 
 function RouteFallback() {
   return (
@@ -64,7 +65,9 @@ export default function App() {
       "/activity": "Techstead | Activity Log",
     };
     if (location.pathname.startsWith("/admin")) {
-      document.title = "Techstead Admin | Store overview";
+      document.title = location.pathname === "/admin/pricing"
+        ? "Techstead Admin | Delivery and VAT pricing"
+        : "Techstead Admin | Store overview";
     } else {
       document.title = titles[location.pathname] || "Techstead | Technology for everyday life";
     }
@@ -112,6 +115,7 @@ export default function App() {
             <Route path="users" element={<RequireAdmin><UsersAdmin /></RequireAdmin>} />
             <Route path="notifications" element={<RequireAdmin><NotificationsAdmin /></RequireAdmin>} />
             <Route path="contact" element={<RequireAdmin><ContactInbox /></RequireAdmin>} />
+            <Route path="pricing" element={<RequireAdmin><StorePricingAdmin /></RequireAdmin>} />
           </Route>
 
           {/* Catch-all 404 — must be last */}
