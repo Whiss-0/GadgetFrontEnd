@@ -12,6 +12,12 @@ import { formatPrice } from "../utils/format";
 
 const TIMELINE_STEPS = ["Pending", "Processing", "Shipped", "Delivered"];
 
+function formatDateTime(value) {
+  if (!value) return "Time unavailable";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Time unavailable" : date.toLocaleString();
+}
+
 function OrderTimeline({ status }) {
   const isCancelled = status === "Cancelled";
   if (isCancelled) {
@@ -48,7 +54,10 @@ export default function Orders() {
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState(null);
   const [detailsByOrder, setDetailsByOrder] = useState({});
-  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [eventsByOrder, setEventsByOrder] = useState({});
+  const [detailsErrorByOrder, setDetailsErrorByOrder] = useState({});
+  const [eventsErrorByOrder, setEventsErrorByOrder] = useState({});
+  const [loadingByOrder, setLoadingByOrder] = useState({});
   const [cancellingId, setCancellingId] = useState(null);
   const [orderToCancel, setOrderToCancel] = useState(null); // { id, total }
   const [categories, setCategories] = useState([]);
@@ -104,23 +113,31 @@ export default function Orders() {
     }
     setExpandedId(orderId);
 
-    // Cache: only fetch if not already loaded
-    if (!detailsByOrder[orderId]) {
-      setDetailsLoading(true);
-      try {
-        const res = await orderDetailApi.getByOrder(orderId);
-        const details = res.data || [];
-        // Backend now returns detail.product directly — no per-product fetch needed
-        setDetailsByOrder((previous) => ({
-          ...previous,
-          [orderId]: details,
-        }));
-      } catch {
-        setDetailsByOrder((prev) => ({ ...prev, [orderId]: [] }));
-      } finally {
-        setDetailsLoading(false);
+    const needsItems = !Object.prototype.hasOwnProperty.call(detailsByOrder, orderId);
+    const needsEvents = !Object.prototype.hasOwnProperty.call(eventsByOrder, orderId);
+    if ((!needsItems && !needsEvents) || loadingByOrder[orderId]) return;
+    setLoadingByOrder((previous) => ({ ...previous, [orderId]: true }));
+    const requests = await Promise.allSettled([
+      needsItems ? orderDetailApi.getByOrder(orderId) : Promise.resolve(null),
+      needsEvents ? ordersApi.deliveryEvents(orderId) : Promise.resolve(null),
+    ]);
+    if (needsItems) {
+      if (requests[0].status === "fulfilled") {
+        setDetailsByOrder((previous) => ({ ...previous, [orderId]: requests[0].value.data || [] }));
+        setDetailsErrorByOrder((previous) => ({ ...previous, [orderId]: "" }));
+      } else {
+        setDetailsErrorByOrder((previous) => ({ ...previous, [orderId]: requests[0].reason.response?.data?.message || "Couldn't load the items in this order." }));
       }
     }
+    if (needsEvents) {
+      if (requests[1].status === "fulfilled") {
+        setEventsByOrder((previous) => ({ ...previous, [orderId]: requests[1].value.data || [] }));
+        setEventsErrorByOrder((previous) => ({ ...previous, [orderId]: "" }));
+      } else {
+        setEventsErrorByOrder((previous) => ({ ...previous, [orderId]: requests[1].reason.response?.data?.message || "Couldn't load delivery history." }));
+      }
+    }
+    setLoadingByOrder((previous) => ({ ...previous, [orderId]: false }));
   }
 
   return (
@@ -154,115 +171,105 @@ export default function Orders() {
           const paymentMethod = o.payment_method ?? o.paymentMethod ?? o.PaymentMethod;
           const paymentStatus = o.payment_status ?? o.paymentStatus ?? o.PaymentStatus;
           const shippingAddress = o.shipping_address ?? o.shippingAddress ?? o.ShippingAddress;
+          const shippingPhone = o.shipping_phone ?? o.shippingPhone ?? o.customer_phone ?? o.customerPhone ?? o.phone ?? o.Phone;
+          const courierName = o.courier_name ?? o.courierName ?? o.CourierName;
+          const trackingNumber = o.tracking_number ?? o.trackingNumber ?? o.TrackingNumber;
+          const estimatedDeliveryDate = o.estimated_delivery_date ?? o.estimatedDeliveryDate ?? o.EstimatedDeliveryDate;
+          const isDetailsLoading = Boolean(loadingByOrder[id]);
           const isOpen = expandedId === id;
 
           return (
             <div key={id} className="spec-ticket rounded-xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-panel)]">
-              <button
-                onClick={() => toggleExpand(id)}
-                className="w-full p-4 flex items-center justify-between text-left"
-              >
-                <div>
-                  <p className="font-semibold text-sm text-[var(--color-ink)]">
-                    Order #{id}
-                  </p>
+              <div className="w-full p-4 flex items-center justify-between gap-3 text-left">
+                <button type="button" onClick={() => toggleExpand(id)} aria-expanded={isOpen} className="min-w-0 flex-1 text-left">
+                  <p className="font-semibold text-sm text-[var(--color-ink)]">Order #{id}</p>
                   <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
-                    {date ? new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : ""}
+                    {date ? new Date(date).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : ""}
                   </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded bg-[var(--color-circuit)]/10 text-[var(--color-circuit-dark)]">
-                    {status}
-                  </span>
+                </button>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded bg-[var(--color-circuit)]/10 text-[var(--color-circuit-dark)]">{status}</span>
                   {status === "Pending" && (
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // don't trigger the row's expand/collapse click
-                        setOrderToCancel({ id, total });
-                      }}
+                      type="button"
+                      onClick={() => setOrderToCancel({ id, total })}
                       disabled={cancellingId === id}
                       className="text-alert text-xs disabled:opacity-50"
-                    >
-                      {cancellingId === id ? "Cancelling…" : "Cancel"}
-                    </button>
+                    >{cancellingId === id ? "Cancelling…" : "Cancel"}</button>
                   )}
                 </div>
-                <span className="font-[var(--font-mono)] font-semibold text-[var(--color-gold)]">
-                  {formatPrice(total)}
-                </span>
-              </button>
+                <span className="font-[var(--font-mono)] font-semibold text-[var(--color-gold)]">{formatPrice(total)}</span>
+              </div>
 
               {isOpen && (
                 <div className="border-t border-[var(--color-line)] px-4 py-4 bg-[var(--color-paper)]">
-                  {detailsLoading && !detailsByOrder[id] ? (
-                    <p className="text-xs text-[var(--color-ink-soft)]">Loading items…</p>
-                  ) : (detailsByOrder[id] || []).length === 0 ? (
-                    <p className="text-xs text-[var(--color-ink-soft)]">No line items found for this order.</p>
-                  ) : (
-                    <div>
-                      {/* Line items */}
-                      {detailsByOrder[id].map((d, idx) => {
-                        const productId = d.product_id ?? d.productId ?? d.ProductId;
-                        const product = d.product;
-                        const productName = product?.product_name ?? `Product #${productId}`;
-                        const quantity = d.quantity ?? d.Quantity ?? 1;
-                        const price = d.price ?? d.Price ?? 0;
-                        const category = categories.find(
-                          (item) => item.category_id === product?.category_id
-                        );
+                  {isDetailsLoading && <p className="text-xs text-[var(--color-ink-soft)] mb-3">Loading order details…</p>}
 
-                        return (
-                          <div key={idx} className="order-line-item">
-                            {/* Product thumbnail */}
-                            <div className="order-line-art">
-                              <ProductArt
-                                product={product ?? { product_id: productId }}
-                                alt=""
-                                className="w-full h-full object-contain p-1"
-                              />
-                            </div>
-
-                            {/* Name + subtitle */}
-                            <div className="min-w-0 flex-1">
-                              <p className="font-medium truncate text-sm">{productName}</p>
-                              <p className="text-xs text-[var(--color-ink-soft)]">
-                                {product?.brand || category?.category_name || "Gadget"} · Qty {quantity}
-                              </p>
-                            </div>
-
-                            {/* Saved price */}
-                            <span className="font-[var(--font-mono)] text-sm flex-shrink-0">
-                              {formatPrice(price)}
-                            </span>
+                  <section aria-label="Order items">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-ink-soft)] mb-2">Items</h3>
+                    {detailsErrorByOrder[id] && <p role="alert" className="text-xs text-[var(--color-signal)]">{detailsErrorByOrder[id]}</p>}
+                    {Object.prototype.hasOwnProperty.call(detailsByOrder, id) && detailsByOrder[id].length === 0 && <p className="text-xs text-[var(--color-ink-soft)]">No line items found for this order.</p>}
+                    {(detailsByOrder[id] || []).map((d, idx) => {
+                      const productId = d.product_id ?? d.productId ?? d.ProductId;
+                      const product = d.product ?? d.Product;
+                      const productName = product?.product_name ?? product?.productName ?? product?.ProductName ?? `Product #${productId}`;
+                      const quantity = d.quantity ?? d.Quantity ?? 1;
+                      const price = d.price ?? d.Price ?? 0;
+                      const category = categories.find((item) => item.category_id === product?.category_id);
+                      return (
+                        <div key={d.order_detail_id ?? d.orderDetailId ?? idx} className="order-line-item">
+                          <div className="order-line-art">
+                            <ProductArt product={product ?? { product_id: productId }} alt="" className="w-full h-full object-contain p-1" />
                           </div>
-                        );
-                      })}
-
-                      {/* Order meta */}
-                      <div className="order-detail-meta mt-4">
-                        {paymentMethod && (
-                          <div className="order-detail-meta-row">
-                            <span className="order-detail-meta-label">Payment</span>
-                            <span className="order-detail-meta-value">
-                              {paymentMethod}
-                              {paymentStatus ? ` · ${paymentStatus}` : ""}
-                            </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium truncate text-sm">{productName}</p>
+                            <p className="text-xs text-[var(--color-ink-soft)]">{product?.brand || category?.category_name || "Gadget"} · Qty {quantity}</p>
                           </div>
-                        )}
-                        {shippingAddress && (
-                          <div className="order-detail-meta-row">
-                            <span className="order-detail-meta-label">Ship to</span>
-                            <span className="order-detail-meta-value">{shippingAddress}</span>
-                          </div>
-                        )}
-                      </div>
+                          <span className="font-[var(--font-mono)] text-sm flex-shrink-0">{formatPrice(price)}</span>
+                        </div>
+                      );
+                    })}
+                  </section>
 
-                      {/* Timeline */}
-                      <div className="mt-5">
-                        <OrderTimeline status={status} />
-                      </div>
+                  <div className="order-detail-meta mt-4">
+                    <div className="order-detail-meta-row">
+                      <span className="order-detail-meta-label">Payment</span>
+                      <span className="order-detail-meta-value">{paymentMethod || "Not specified"}{paymentStatus ? ` · ${paymentStatus}` : ""}</span>
                     </div>
-                  )}
+                    <div className="order-detail-meta-row">
+                      <span className="order-detail-meta-label">Ship to</span>
+                      <span className="order-detail-meta-value">{shippingAddress || "No shipping address provided"}</span>
+                    </div>
+                    {shippingPhone && <div className="order-detail-meta-row"><span className="order-detail-meta-label">Phone</span><span className="order-detail-meta-value">{shippingPhone}</span></div>}
+                  </div>
+
+                  <section className="mt-5" aria-label="Shipment tracking">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-ink-soft)] mb-2">Shipment tracking</h3>
+                    <div className="space-y-1 text-sm">
+                      <p><span className="text-[var(--color-ink-soft)]">Courier:</span> {courierName || "Not assigned"}</p>
+                      <p><span className="text-[var(--color-ink-soft)]">Tracking number:</span> {trackingNumber || "Not available"}</p>
+                      {estimatedDeliveryDate && <p><span className="text-[var(--color-ink-soft)]">Estimated delivery:</span> {String(estimatedDeliveryDate).slice(0, 10)}</p>}
+                    </div>
+                  </section>
+
+                  <div className="mt-5"><OrderTimeline status={status} /></div>
+
+                  <section className="mt-5 border-t border-[var(--color-line)] pt-4" aria-label="Delivery event history">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-ink-soft)] mb-2">Delivery updates</h3>
+                    {eventsErrorByOrder[id] && <p role="alert" className="text-xs text-[var(--color-signal)]">{eventsErrorByOrder[id]}</p>}
+                    {!isDetailsLoading && Object.prototype.hasOwnProperty.call(eventsByOrder, id) && eventsByOrder[id].length === 0 && <p className="text-xs text-[var(--color-ink-soft)]">No delivery updates recorded yet.</p>}
+                    {eventsByOrder[id]?.length > 0 && (
+                      <ol className="space-y-3">
+                        {[...eventsByOrder[id]].sort((a, b) => new Date(a.created_at ?? a.createdAt) - new Date(b.created_at ?? b.createdAt)).map((deliveryEvent, index) => (
+                          <li key={deliveryEvent.delivery_event_id ?? deliveryEvent.deliveryEventId ?? index} className="border-l-2 border-[var(--color-circuit)]/40 pl-3">
+                            <p className="text-sm font-medium">{deliveryEvent.status || deliveryEvent.event_type || deliveryEvent.eventType || "Delivery update"}</p>
+                            {deliveryEvent.note && <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">{deliveryEvent.note}</p>}
+                            <time dateTime={deliveryEvent.created_at ?? deliveryEvent.createdAt} className="text-[11px] text-[var(--color-ink-soft)]">{formatDateTime(deliveryEvent.created_at ?? deliveryEvent.createdAt)}</time>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </section>
                 </div>
               )}
             </div>
