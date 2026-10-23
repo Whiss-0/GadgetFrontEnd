@@ -16,7 +16,7 @@
 //     disabled={false}
 //   />
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 // Base URL for the address JSON data — points at the reference repository's
 // raw files. Can be overridden to a self-hosted mirror if desired.
@@ -130,6 +130,7 @@ function AddressSelect({ id, label, value, options, disabled, loading, onChange,
 
 export default function PhilippineAddressSelector({
   street = "",
+  initialLocation = null,
   onAddressChange,
   disabled = false,
   showCity = true,
@@ -157,6 +158,84 @@ export default function PhilippineAddressSelector({
   const [labelProvince, setLabelProvince] = useState("");
   const [labelCity,     setLabelCity]     = useState("");
   const [labelBarangay, setLabelBarangay] = useState("");
+  const suppressCascadeRef = useRef({ region: false, province: false, city: false });
+
+  // Restore a saved account location by its persisted labels. The profile predates
+  // PSGC code fields, so resolve labels against the canonical selector data.
+  useEffect(() => {
+    if (!initialLocation?.region || !initialLocation?.province || !initialLocation?.city) return;
+    let cancelled = false;
+    const sameLabel = (left, right) => String(left ?? "").trim().toLocaleLowerCase() === String(right ?? "").trim().toLocaleLowerCase();
+
+    (async () => {
+      setError("");
+      setLoadingRegions(true);
+      setLoadingProvinces(true);
+      setLoadingCities(true);
+      try {
+        const [rawRegions, rawProvinces] = await Promise.all([loadRegions(), fetchJson(`${DATA_BASE}/province.json`)]);
+        const regionOptions = rawRegions.map((r) => ({ code: r.region_code, name: r.region_name }));
+        const region = regionOptions.find((r) => sameLabel(r.name, initialLocation.region));
+        if (!region) throw new Error("Saved region was not found.");
+
+        const provinceData = rawProvinces.filter((p) => p.region_code === region.code);
+        const provinceByCode = new Map();
+        provinceData.forEach((p) => {
+          const option = { code: p.province_code, name: p.province_name };
+          const existing = provinceByCode.get(option.code);
+          if (!existing || option.name.length < existing.name.length ||
+              (option.name.length === existing.name.length && option.name.localeCompare(existing.name) < 0)) {
+            provinceByCode.set(option.code, option);
+          }
+        });
+        const provinceOptions = Array.from(provinceByCode.values());
+        const province = provinceOptions.find((p) => sameLabel(p.name, initialLocation.province));
+        if (!province) throw new Error("Saved province was not found in its region.");
+
+        const allCities = await fetchJson(`${DATA_BASE}/city.json`);
+        const cityOptions = allCities
+          .filter((c) => c.province_code === province.code)
+          .map((c) => ({ code: c.city_code, name: c.city_name }));
+        const city = cityOptions.find((c) => sameLabel(c.name, initialLocation.city));
+        if (!city) throw new Error("Saved city/municipality was not found in its province.");
+
+        let barangayOptions = [];
+        let barangay = null;
+        if (showBarangay && initialLocation.barangay) {
+          const allBarangays = await fetchJson(`${DATA_BASE}/barangay.json`);
+          barangayOptions = allBarangays
+            .filter((b) => b.city_code === city.code)
+            .map((b) => ({ code: b.brgy_code, name: b.brgy_name }));
+          barangay = barangayOptions.find((b) => sameLabel(b.name, initialLocation.barangay)) ?? null;
+        }
+
+        if (cancelled) return;
+        suppressCascadeRef.current = { region: true, province: true, city: true };
+        setRegions(regionOptions);
+        setProvinces(provinceOptions);
+        setCities(cityOptions);
+        setBarangays(barangayOptions);
+        setSelRegion(region.code);
+        setSelProvince(province.code);
+        setSelCity(city.code);
+        setSelBarangay(barangay?.code ?? "");
+        setLabelRegion(region.name);
+        setLabelProvince(province.name);
+        setLabelCity(city.name);
+        setLabelBarangay(barangay?.name ?? initialLocation.barangay ?? "");
+      } catch {
+        if (!cancelled) setError("Your saved delivery area could not be matched. Please select your province and city again.");
+      } finally {
+        if (!cancelled) {
+          setLoadingRegions(false);
+          setLoadingProvinces(false);
+          setLoadingCities(false);
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [initialLocation?.region, initialLocation?.province, initialLocation?.city, initialLocation?.barangay, showBarangay]);
 
   // Notify parent with the full formatted address string and breakdown details
   const notifyParent = useCallback(
@@ -205,6 +284,7 @@ export default function PhilippineAddressSelector({
   // Load provinces when region changes
   useEffect(() => {
     if (!selRegion) { setProvinces([]); return; }
+    if (suppressCascadeRef.current.region) { suppressCascadeRef.current.region = false; return; }
     setLoadingProvinces(true);
     setProvinces([]);
     setSelProvince(""); setLabelProvince("");
@@ -230,6 +310,7 @@ export default function PhilippineAddressSelector({
   // Load cities when province changes
   useEffect(() => {
     if (!selProvince || !showCity) { setCities([]); return; }
+    if (suppressCascadeRef.current.province) { suppressCascadeRef.current.province = false; return; }
     setLoadingCities(true);
     setCities([]);
     setSelCity(""); setLabelCity("");
@@ -245,6 +326,7 @@ export default function PhilippineAddressSelector({
   // Load barangays when city changes
   useEffect(() => {
     if (!selCity || !showBarangay) { setBarangays([]); return; }
+    if (suppressCascadeRef.current.city) { suppressCascadeRef.current.city = false; return; }
     setLoadingBarangays(true);
     setBarangays([]);
     setSelBarangay(""); setLabelBarangay("");

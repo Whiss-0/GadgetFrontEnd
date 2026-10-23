@@ -12,6 +12,11 @@ const EVENT_LABELS = {
   OrderPlaced: "Order placed",
   OrderCancelled: "Order cancelled",
   OrderStatusChanged: "Order status changed",
+  OrderFulfillmentUpdated: "Delivery details updated",
+  OrderDeleted: "Order deleted",
+  OrderDetailCreated: "Order line added",
+  OrderDetailUpdated: "Order line updated",
+  OrderDetailDeleted: "Order line removed",
   CartItemAdded: "Added to cart",
   CartUpdated: "Cart updated",
   CartItemRemoved: "Removed from cart",
@@ -26,6 +31,7 @@ const EVENT_LABELS = {
   UserUpdated: "User updated",
   UserRoleChanged: "Role changed",
   UserDeleted: "User deleted",
+  ReviewDeleted: "Review removed",
 };
 
 const ROLE_COLORS = {
@@ -62,7 +68,9 @@ function getEventIcon(type) {
 // ---- Sub-components ----
 
 function ActivityItem({ log, showRole }) {
-  const actorName = log.Actor_Name || (log.User_ID ? `User #${log.User_ID}` : null);
+  const actorName = log.Actor_Name
+    || (log.Actor_User_ID ? `${log.Actor_Role || "User"} #${log.Actor_User_ID}` : null)
+    || (log.User_ID ? `User #${log.User_ID}` : null);
 
   return (
     <li className="activity-item">

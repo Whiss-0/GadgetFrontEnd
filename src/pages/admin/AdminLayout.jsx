@@ -14,6 +14,7 @@ const tabs = [
   { to: "/admin/notifications", label: "Notifications" },
   { to: "/admin/contact", label: "Support Inbox", adminOnly: true },
   { to: "/admin/pricing", label: "Pricing", adminOnly: true },
+  { to: "/admin/audit", label: "Staff audit", adminOnly: true },
 ];
 
 const PERIODS = [

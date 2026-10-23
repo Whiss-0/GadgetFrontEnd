@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { ordersApi, cartApi, storePricingApi } from "../api/client";
+import { authApi, ordersApi, cartApi, storePricingApi } from "../api/client";
 import PhilippineAddressSelector from "../components/PhilippineAddressSelector";
 import { formatPrice } from "../utils/format";
 
@@ -50,6 +50,32 @@ function normalizeDeliveryQuote(data, provinceCode, cityCode) {
   return { ...data, delivery_fee_amount: fee };
 }
 
+function getSavedAddressParts(profile) {
+  const parts = String(profile?.address ?? "").split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.at(-1)?.toLocaleLowerCase() === "philippines") parts.pop();
+  const fallback = parts.length >= 4 ? {
+    region: parts.at(-1),
+    province: parts.at(-2),
+    city: parts.at(-3),
+    barangay: parts.at(-4),
+  } : {};
+  return {
+    region: profile?.region || fallback.region || "",
+    province: profile?.province || fallback.province || "",
+    city: profile?.city_Municipality || profile?.cityMunicipality || fallback.city || "",
+    barangay: profile?.barangay || fallback.barangay || "",
+  };
+}
+
+function getSavedStreetAddress(address, location) {
+  const parts = String(address ?? "").split(",").map((part) => part.trim()).filter(Boolean);
+  const suffixes = ["Philippines", location?.region, location?.province, location?.city, location?.barangay]
+    .filter(Boolean)
+    .map((part) => part.toLocaleLowerCase());
+  while (parts.length && suffixes.includes(parts.at(-1).toLocaleLowerCase())) parts.pop();
+  return parts.join(", ");
+}
+
 export default function Checkout() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,6 +87,11 @@ export default function Checkout() {
   const items = buyNow ? location.state.items : cartItems;
 
   const [address, setAddress] = useState("");
+  const [initialLocation, setInitialLocation] = useState(null);
+  const [addressParts, setAddressParts] = useState({});
+  const [hasSavedAccountAddress, setHasSavedAccountAddress] = useState(false);
+  const [saveAddressToAccount, setSaveAddressToAccount] = useState(false);
+  const [profileAddressState, setProfileAddressState] = useState("loading");
   const [areaCodes, setAreaCodes] = useState({ provinceCode: "", cityCode: "" });
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState("COD");
@@ -95,6 +126,26 @@ export default function Checkout() {
   useEffect(() => {
     loadPricing();
   }, [loadPricing]);
+
+  useEffect(() => {
+    let current = true;
+    authApi.me()
+      .then(({ data }) => {
+        if (!current) return;
+        const savedParts = getSavedAddressParts(data);
+        const hasLocation = Boolean(savedParts.region && savedParts.province && savedParts.city);
+        setInitialLocation(hasLocation ? savedParts : null);
+        setAddress(getSavedStreetAddress(data.address, savedParts));
+        setHasSavedAccountAddress(Boolean(data.address || hasLocation));
+      })
+      .catch(() => {
+        // Checkout remains available; the customer can enter the delivery address manually.
+      })
+      .finally(() => {
+        if (current) setProfileAddressState("ready");
+      });
+    return () => { current = false; };
+  }, []);
 
   useEffect(() => {
     let current = true;
@@ -203,9 +254,13 @@ export default function Checkout() {
       // Atomic checkout: creates the order, validates stock, and inserts all
       // line items in a single database transaction. If any item fails (e.g.
       // out of stock), the entire order is rolled back.
+      const shippingAddress = [
+        address.trim(), addressParts.barangay, deliveryQuote.city_name,
+        deliveryQuote.province_name, addressParts.region, "Philippines",
+      ].filter(Boolean).join(", ");
       const checkoutResponse = await ordersApi.checkout({
         totalAmount: estimatedTotal,
-        shippingAddress: [address.trim(), deliveryQuote.city_name, deliveryQuote.province_name, "Philippines"].filter(Boolean).join(", "),
+        shippingAddress,
         provinceCode: areaCodes.provinceCode,
         cityCode: areaCodes.cityCode,
         phoneNumber: phone,
@@ -223,15 +278,30 @@ export default function Checkout() {
       // The order is committed. Cleanup is best-effort and must not turn a
       // successful purchase into a failure that encourages a duplicate retry.
       setStep("done");
+      const warnings = [];
+      if (saveAddressToAccount) {
+        try {
+          await authApi.updateMe({
+            Address: shippingAddress,
+            Region: addressParts.region || "",
+            Province: deliveryQuote.province_name,
+            City_Municipality: deliveryQuote.city_name,
+            Barangay: addressParts.barangay || "",
+          });
+        } catch {
+          warnings.push("Your order was placed, but we couldn’t save this address to your account.");
+        }
+      }
       if (!buyNow) {
         try {
           await cartApi.clear();
           const refreshed = await refresh();
-          if (!refreshed) setCleanupWarning("Your order was placed, but we couldn’t refresh the cart. Please review it before your next checkout.");
+          if (!refreshed) warnings.push("Your order was placed, but we couldn’t refresh the cart. Please review it before your next checkout.");
         } catch {
-          setCleanupWarning("Your order was placed, but we couldn’t clear the cart. Please review it before your next checkout.");
+          warnings.push("Your order was placed, but we couldn’t clear the cart. Please review it before your next checkout.");
         }
       }
+      setCleanupWarning(warnings.join(" "));
     } catch (err) {
       setStep("form");
       setError(err.response?.data?.message || "Couldn't place the order.");
@@ -271,11 +341,19 @@ export default function Checkout() {
           <div className="space-y-4">
             <div>
               <p className="block text-xs font-medium text-[var(--color-ink-soft)] mb-2">Delivery area <span className="text-[var(--color-signal)]">*</span></p>
-              <p className="text-xs text-[var(--color-ink-soft)] mb-3">Choose the province and city/municipality so we can verify the delivery fee. Street details are entered separately below.</p>
+              <p className="text-xs text-[var(--color-ink-soft)] mb-3">
+                {profileAddressState === "loading"
+                  ? "Loading your saved account address…"
+                  : hasSavedAccountAddress
+                    ? "Your saved account address is prefilled. You can change the destination for this order."
+                    : "Choose the province and city/municipality so we can verify the delivery fee. Street details are entered separately below."}
+              </p>
               <PhilippineAddressSelector
                 street=""
+                initialLocation={initialLocation}
                 showBarangay={false}
-                onAddressChange={(_formatted, _parts, codes) => {
+                onAddressChange={(_formatted, parts, codes) => {
+                  setAddressParts(parts || {});
                   setAreaCodes({ provinceCode: codes?.provinceCode || "", cityCode: codes?.cityCode || "" });
                   setDeliveryQuote(null);
                   setQuoteState(codes?.provinceCode && codes?.cityCode ? "loading" : "idle");
@@ -304,6 +382,16 @@ export default function Checkout() {
                 className="w-full border border-[var(--color-line)] rounded-lg p-3 bg-[var(--color-panel)] text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)] focus:border-[var(--color-circuit)] outline-none text-sm disabled:opacity-50"
               />
             </div>
+            <label className="flex items-start gap-2.5 text-sm text-[var(--color-ink-soft)]">
+              <input
+                type="checkbox"
+                checked={saveAddressToAccount}
+                onChange={(event) => setSaveAddressToAccount(event.target.checked)}
+                disabled={step === "processing"}
+                className="mt-0.5 accent-[var(--color-circuit)]"
+              />
+              <span>Save this delivery address to my account for future orders</span>
+            </label>
             <div>
               <label className="block text-xs font-medium text-[var(--color-ink-soft)] mb-1" htmlFor="phone">
                 Contact phone number
