@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 import PasswordInput from "../components/PasswordInput";
 
 export default function Login() {
   const { login, verifyMfa } = useAuth();
+  const { mergeGuestCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from;
@@ -26,10 +28,14 @@ export default function Login() {
         if (result.requiresMfa) {
           setMfaStep(true);
         } else {
+          // Merge any guest-cart items into the newly authenticated account cart.
+          await mergeGuestCart();
           navigate(returnTo, { replace: true });
         }
       } else {
         await verifyMfa(username, code);
+        // Merge guest cart after MFA sign-in as well.
+        await mergeGuestCart();
         navigate(returnTo, { replace: true });
       }
     } catch (err) {

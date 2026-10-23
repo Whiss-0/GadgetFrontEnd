@@ -41,7 +41,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [retryNonce, setRetryNonce] = useState(0);
   const { isAuthenticated } = useAuth();
-  const { addItem } = useCart();
+  const { addItem, addGuestItem } = useCart();
   const toast = useToast();
 
   useEffect(() => {
@@ -99,8 +99,9 @@ export default function Home() {
     const name = typeof productOrId === "object" ? productOrId.product_name : "Product";
 
     if (!isAuthenticated) {
-      toast.show("Log in to add items to your cart.", { tone: "error" });
-      return false;
+      addGuestItem(id, 1);
+      toast.show(`“${name}” saved — it will be added to your cart when you sign in.`, { tone: "success" });
+      return true;
     }
     try {
       await addItem(id, 1);

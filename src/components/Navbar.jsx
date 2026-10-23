@@ -131,10 +131,10 @@ function MenuLinks({ isAuthenticated, isMod, isAdmin, className = "", onNavigate
 
 export default function Navbar() {
   const { isAuthenticated, isAdmin, isMod, user, logout } = useAuth();
-  const { items } = useCart();
+  const { totalCount } = useCart();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const count = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const count = totalCount;
 
   useEffect(() => {
     setMobileOpen(false);

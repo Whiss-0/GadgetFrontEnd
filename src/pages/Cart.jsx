@@ -6,7 +6,7 @@ import { useToast } from "../hooks/useToast";
 import { formatPrice } from "../utils/format";
 
 export default function Cart() {
-  const { items, loading, loadError, updateQuantity, removeItem, refresh } = useCart();
+  const { items, loading, loadError, mergeErrors, updateQuantity, removeItem, refresh } = useCart();
   const navigate = useNavigate();
   const toast = useToast();
   const [pendingCartId, setPendingCartId] = useState(null);
@@ -65,6 +65,16 @@ export default function Cart() {
   return (
     <div className="cart-page max-w-5xl mx-auto px-5 py-8 sm:py-12">
       <h1 className="font-[var(--font-display)] text-2xl sm:text-3xl font-semibold mb-2">Your cart</h1>
+      {mergeErrors.length > 0 && (
+        <div className="mb-4 rounded-lg border border-[var(--color-signal)]/50 bg-[var(--color-signal)]/10 p-3 flex items-start gap-3" role="alert">
+          <svg aria-hidden="true" className="mt-0.5 shrink-0 text-[var(--color-signal)]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-[var(--color-ink)] font-medium">{mergeErrors.length} saved item{mergeErrors.length > 1 ? 's' : ''} couldn’t be added automatically.</p>
+            <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">They’re still saved on this device. Refresh the page to try again.</p>
+          </div>
+          <button type="button" onClick={refresh} className="shrink-0 text-xs font-semibold text-[var(--color-circuit)] hover:underline">Retry</button>
+        </div>
+      )}
       <p className="text-[var(--color-ink-soft)] text-sm mb-8">
         Review your items before proceeding to checkout.
       </p>

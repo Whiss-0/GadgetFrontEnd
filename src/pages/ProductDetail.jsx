@@ -25,7 +25,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, isMod } = useAuth();
-  const { addItem } = useCart();
+  const { addItem, addGuestItem } = useCart();
   const toast = useToast();
 
   const [product, setProduct] = useState(null);
@@ -126,13 +126,14 @@ export default function ProductDetail() {
 
   async function handleAdd() {
     if (!isAuthenticated) {
-      navigate("/login", { state: { from: { pathname: `/products/${id}` } } });
+      addGuestItem(Number(id), qty);
+      toast.show(`${qty}× “${name}” saved — it will be added to your cart when you sign in.`, { tone: "success" });
       return;
     }
     setAdding(true);
     try {
       await addItem(Number(id), qty);
-      toast.show(`${qty}× "${name}" added to your cart.`, { tone: "success" });
+      toast.show(`${qty}× “${name}” added to your cart.`, { tone: "success" });
     } catch (err) {
       toast.show(err.response?.data?.message || "Couldn't add to cart.", { tone: "error" });
     } finally {
