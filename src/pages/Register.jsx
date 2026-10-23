@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authApi } from "../api/client";
 import PasswordInput from "../components/PasswordInput";
 
 export default function Register() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -21,7 +23,7 @@ export default function Register() {
     try {
       await authApi.register(form);
       setSuccess(true);
-      setTimeout(() => navigate("/login"), 1200);
+      setTimeout(() => navigate("/login", { state: from ? { from } : undefined }), 1200);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Try a different username.");
     } finally {
@@ -100,7 +102,7 @@ export default function Register() {
           )}
 
           <div className="auth-links">
-            <Link to="/login">Already have an account? Log in</Link>
+            <Link to="/login" state={from ? { from } : undefined}>Already have an account? Log in</Link>
           </div>
         </section>
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { wishlistApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 import { useToast } from "../hooks/useToast";
 import ProductArt from "./ProductArt";
 import { formatPrice } from "../utils/format";
@@ -9,6 +10,7 @@ import { formatPrice } from "../utils/format";
 
 export default function ProductCard({ product, onAddToCart }) {
   const { isAuthenticated } = useAuth();
+  const { addGuestItem } = useCart();
   const toast = useToast();
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
@@ -58,11 +60,13 @@ export default function ProductCard({ product, onAddToCart }) {
   async function handleAddClick(e) {
     e.preventDefault();
     e.stopPropagation();
+    if (stock === 0 || adding) return;
     if (!isAuthenticated) {
-      navigate("/login");
+      addGuestItem(id, 1);
+      toast.show(`“${name}” is saved. Log in or create an account to see it in your cart.`, { tone: "success" });
+      navigate("/login", { state: { from: { pathname: "/cart" } } });
       return;
     }
-    if (stock === 0 || adding) return;
 
     setAdding(true);
     try {

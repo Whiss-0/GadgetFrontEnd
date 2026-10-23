@@ -120,7 +120,7 @@ export default function Login() {
           {!mfaStep && (
             <div className="auth-links">
               <Link to="/forgot-password">Forgot your password?</Link>
-              <Link to="/register" className="auth-create-link">Create an account <span aria-hidden="true">→</span></Link>
+              <Link to="/register" state={from ? { from } : undefined} className="auth-create-link">Create an account <span aria-hidden="true">→</span></Link>
             </div>
           )}
         </section>

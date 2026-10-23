@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "../hooks/useNotifications";
+import { useAuth } from "../context/AuthContext";
 
 const iconPaths = {
   OrderProcessing: <><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /><circle cx="12" cy="12" r="6" /><path d="m10 12 1.3 1.3L14.5 10" /></>,
@@ -30,6 +31,7 @@ function formatDate(dateStr) {
 
 export default function Notifications() {
   const [filter, setFilter] = useState("all");
+  const { isMod } = useAuth();
   const { notifications, unreadCount, loading, error, refresh, markRead, markAllRead } = useNotifications({ unreadOnly: filter === "unread" });
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export default function Notifications() {
                 </div>
                 <p>{notification.message}</p>
                 <div className="notification-page-actions">
-                  {notification.related_order_id && <Link to="/orders" onClick={() => { if (!notification.is_read) void markRead(notification.notification_id); }}>View order <span aria-hidden="true">#{notification.related_order_id} →</span></Link>}
+                  {notification.related_order_id && <Link to={notification.notification_type === "NewCustomerOrder" && isMod ? "/admin/orders?status=Pending#admin-orders" : "/orders"} onClick={() => { if (!notification.is_read) void markRead(notification.notification_id); }}>View order <span aria-hidden="true">#{notification.related_order_id} →</span></Link>}
                   {!notification.is_read && <button type="button" onClick={() => void markRead(notification.notification_id)} aria-label={`Mark “${notification.title}” as read`}>Mark as read</button>}
                 </div>
               </div>

@@ -127,7 +127,8 @@ export default function ProductDetail() {
   async function handleAdd() {
     if (!isAuthenticated) {
       addGuestItem(Number(id), qty);
-      toast.show(`${qty}× “${name}” saved — it will be added to your cart when you sign in.`, { tone: "success" });
+      toast.show(`${qty}× “${name}” is saved. Log in or create an account to see it in your cart.`, { tone: "success" });
+      navigate("/login", { state: { from: { pathname: "/cart" } } });
       return;
     }
     setAdding(true);

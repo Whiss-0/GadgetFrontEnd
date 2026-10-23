@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "../hooks/useNotifications";
+import { useAuth } from "../context/AuthContext";
 
 function formatRelativeTime(dateStr) {
   if (!dateStr) return "";
@@ -20,6 +21,7 @@ export default function NotificationBell() {
   const triggerRef = useRef(null);
   const popoverRef = useRef(null);
   const navigate = useNavigate();
+  const { isMod } = useAuth();
   const { notifications, unreadCount, loading, error, refresh, markRead, markAllRead } = useNotifications();
   const previewList = notifications.slice(0, 6);
 
@@ -47,7 +49,13 @@ export default function NotificationBell() {
   async function handleItemClick(notification) {
     if (!notification.is_read) await markRead(notification.notification_id);
     setOpen(false);
-    if (notification.related_order_id) navigate("/orders");
+    if (notification.related_order_id) {
+      if (notification.notification_type === "NewCustomerOrder" && isMod) {
+        navigate("/admin/orders?status=Pending#admin-orders");
+      } else {
+        navigate("/orders");
+      }
+    }
   }
 
   const unreadLabel = `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}`;
