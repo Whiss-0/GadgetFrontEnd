@@ -56,6 +56,7 @@ export const authApi = {
 // ---- Products / Categories ----
 export const productsApi = {
   list: () => client.get("/api/product"),
+  bestSellers: (limit = 8) => client.get("/api/product/best-sellers", { params: { limit } }),
   search: (term) => client.get(`/api/product?search=${encodeURIComponent(term)}`),
   get: (id) => client.get(`/api/product/${id}`),
   // Admin-only: full create / update / delete

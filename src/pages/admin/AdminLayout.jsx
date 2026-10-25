@@ -232,6 +232,9 @@ export default function AdminLayout() {
   const [productCount, setProductCount] = useState(0);
   const [outOfStockItems, setOutOfStockItems] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);
+  const [bestSellingItems, setBestSellingItems] = useState([]);
+  const [bestSellingLoading, setBestSellingLoading] = useState(true);
+  const [bestSellingError, setBestSellingError] = useState(false);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
   const [period, setPeriod] = useState("all");
@@ -244,14 +247,25 @@ export default function AdminLayout() {
 
   const loadDashboard = useCallback(async ({ notify = false } = {}) => {
     setIsRefreshing(true);
+    setBestSellingLoading(true);
     setDashboardError("");
     try {
-      const [prodRes, orderRes] = await Promise.all([
+      const [prodResult, orderResult, bestSellerResult] = await Promise.allSettled([
         productsApi.list(),
         ordersApi.listAllAdmin(),
+        productsApi.bestSellers(12),
       ]);
-      const products = prodRes.data || [];
-      const nextOrders = orderRes.data || [];
+      if (prodResult.status === "rejected") throw prodResult.reason;
+      if (orderResult.status === "rejected") throw orderResult.reason;
+      const products = prodResult.value.data || [];
+      const nextOrders = orderResult.value.data || [];
+
+      if (bestSellerResult.status === "fulfilled") {
+        setBestSellingItems(Array.isArray(bestSellerResult.value.data) ? bestSellerResult.value.data : []);
+        setBestSellingError(false);
+      } else {
+        setBestSellingError(true);
+      }
 
       setProductCount(products.length);
       setOutOfStockItems(products.filter((p) => (p.stock ?? 0) === 0));
@@ -283,6 +297,7 @@ export default function AdminLayout() {
       }
     } finally {
       setIsRefreshing(false);
+      setBestSellingLoading(false);
     }
   }, [show, isAdmin]);
 
@@ -369,6 +384,7 @@ export default function AdminLayout() {
       customers: customerIds.size || location.orders,
     }))
     .sort((a, b) => b.orders - a.orders || a.label.localeCompare(b.label));
+  const maxBestSellerUnits = Math.max(...bestSellingItems.map((item) => Number(item.units_sold ?? 0)), 1);
 
   return (
     <div className="admin-workspace min-h-[calc(100vh-64px)] bg-[var(--color-dark-bg)] text-[var(--color-dark-ink)] pb-16">
@@ -592,6 +608,50 @@ export default function AdminLayout() {
         </div>
 
         <SalesTrendGraph orders={ordersInPeriod} periodLabel={periodLabel} />
+
+        <section className="admin-stock-demand-panel mb-8" aria-labelledby="stock-demand-heading">
+          <div className="admin-stock-demand-header">
+            <div>
+              <p className="admin-section-kicker">Inventory planning · last 30 days</p>
+              <h2 id="stock-demand-heading">What to stock up</h2>
+              <p>Recent product demand next to the quantity currently on hand.</p>
+            </div>
+            <Link to="/admin#admin-products" className="admin-stock-demand-link">Manage products <span aria-hidden="true">→</span></Link>
+          </div>
+
+          <p className="admin-stock-demand-note">Suggested top-up is a simple starting point: units ordered in the last 30 days minus current stock, never below zero. Cancelled orders are excluded. Adjust for supplier lead time and safety stock before purchasing.</p>
+
+          {bestSellingLoading ? (
+            <div className="admin-stock-demand-empty" role="status">Calculating recent demand…</div>
+          ) : bestSellingError ? (
+            <div className="admin-stock-demand-empty" role="status">Sales-based stock guidance is temporarily unavailable. Refresh the dashboard to try again.</div>
+          ) : bestSellingItems.length === 0 ? (
+            <div className="admin-stock-demand-empty" role="status">No non-cancelled orders in the last 30 days yet. Restock priorities will appear after orders are placed.</div>
+          ) : (
+            <div className="admin-stock-demand-list">
+              {bestSellingItems.slice(0, 8).map((item, index) => {
+                const unitsSold = Math.max(0, Number(item.units_sold ?? 0));
+                const stockOnHand = Math.max(0, Number(item.stock ?? 0));
+                const suggestedTopUp = Math.max(0, unitsSold - stockOnHand);
+                const priority = stockOnHand === 0 ? "urgent" : suggestedTopUp > 0 ? "soon" : "covered";
+                const demandWidth = Math.max(8, (unitsSold / maxBestSellerUnits) * 100);
+                return (
+                  <div className={`admin-stock-demand-row is-${priority}`} key={item.product_id}>
+                    <span className="admin-stock-demand-rank">{String(index + 1).padStart(2, "0")}</span>
+                    <div className="admin-stock-demand-product">
+                      <strong>{item.product_name}</strong>
+                      <span>{item.brand || "Techstead product"}</span>
+                      <div className="admin-stock-demand-meter" aria-hidden="true"><span style={{ width: `${demandWidth}%` }} /></div>
+                    </div>
+                    <div className="admin-stock-demand-stat"><span>Ordered · 30d</span><strong>{unitsSold}</strong></div>
+                    <div className="admin-stock-demand-stat"><span>On hand</span><strong>{stockOnHand}</strong></div>
+                    <div className={`admin-stock-demand-topup is-${priority}`}><span>Suggested top-up</span><strong>{suggestedTopUp > 0 ? `${suggestedTopUp} units` : "Stock covered"}</strong></div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         {/* Low Stock Drawer if expanded */}
         {showLowStock && (lowStockItems.length > 0 || outOfStockItems.length > 0) && (

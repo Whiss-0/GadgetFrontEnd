@@ -5,6 +5,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import { useToast } from "../../hooks/useToast";
 import { scrollToElement } from "../../utils/scroll";
 import { formatPrice } from "../../utils/format";
+import { printOrderLabel } from "../../utils/printOrderLabel";
 
 const STATUS_OPTIONS = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
 
@@ -43,6 +44,7 @@ function formatDateTime(dateStr) {
 
 function AdminOrderDetails({ order, onRefresh }) {
   const id = order.order_id ?? order.orderId ?? order.OrderId;
+  const toast = useToast();
   const [lineItems, setLineItems] = useState([]);
   const [events, setEvents] = useState([]);
   const [loadingItems, setLoadingItems] = useState(true);
@@ -150,6 +152,13 @@ function AdminOrderDetails({ order, onRefresh }) {
             })}
           </ul>
         </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[var(--color-dark-line)] pt-4">
+        <p className="text-xs text-[var(--color-dark-ink)]/60">Print a 4 × 6 in store label for packing and order identification.</p>
+        <button type="button" onClick={() => {
+          if (!printOrderLabel(order, lineItems)) toast.show("Your browser blocked the print window. Allow pop-ups and try again.", { tone: "error" });
+        }} className="admin-btn-secondary self-start sm:self-auto">Print parcel label</button>
       </div>
 
       <form onSubmit={saveFulfillment} className="border-t border-[var(--color-dark-line)] pt-4">

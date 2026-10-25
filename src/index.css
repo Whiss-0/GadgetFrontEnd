@@ -6142,3 +6142,178 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   .category-tile:hover,
   .admin-attention-card:hover { transform: none; }
 }
+
+
+/* Customer best-seller carousel — editorial feature panel with deliberate, manual navigation. */
+.best-sellers-section {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.1rem, 3vw, 1.8rem);
+  border: 1px solid color-mix(in srgb, var(--color-circuit) 24%, var(--color-line));
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 94% 0%, color-mix(in srgb, var(--color-circuit) 12%, transparent), transparent 31%),
+    linear-gradient(135deg, color-mix(in srgb, var(--color-panel) 96%, var(--color-circuit) 4%), var(--color-panel));
+  box-shadow: 0 12px 32px rgba(20, 24, 31, 0.055);
+}
+
+.best-sellers-heading-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.best-sellers-copy { min-width: 0; }
+
+.best-sellers-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  color: var(--color-circuit);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.best-sellers-copy h2 {
+  margin-top: 0.35rem;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.best-sellers-copy p {
+  margin-top: 0.4rem;
+  color: var(--color-ink-soft);
+  font-size: 0.86rem;
+}
+
+.best-sellers-controls { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+.best-sellers-controls button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-panel);
+  color: var(--color-ink);
+  font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(20, 24, 31, 0.06);
+  transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.best-sellers-controls button:not(:disabled):hover {
+  transform: translateY(-1px);
+  border-color: var(--color-circuit);
+  background: var(--color-circuit);
+  color: #fff;
+}
+
+.best-sellers-controls button:disabled { opacity: 0.42; cursor: not-allowed; }
+
+.best-sellers-track {
+  display: flex;
+  gap: 1.125rem;
+  overflow-x: auto;
+  padding: 0.1rem 0.1rem 0.85rem;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.best-sellers-track::-webkit-scrollbar { display: none; }
+.best-seller-slide { flex: 0 0 clamp(235px, 27vw, 285px); min-width: 0; scroll-snap-align: start; }
+.best-seller-slide .product-card { height: 100%; }
+.best-seller-slide .product-image-wrap,
+.best-seller-slide .main-image-container { height: 13.25rem; min-height: 13.25rem; }
+
+.best-seller-rankline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 0.45rem;
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.best-seller-rank { color: var(--color-circuit); font-weight: 800; }
+.best-seller-units { font-weight: 600; }
+.best-seller-meter { height: 3px; margin-bottom: 0.65rem; overflow: hidden; border-radius: 999px; background: var(--color-line); }
+.best-seller-meter span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--color-circuit), color-mix(in srgb, var(--color-circuit) 35%, var(--color-gold))); transition: width 240ms ease; }
+
+.best-sellers-empty {
+  padding: 1.1rem 1.2rem;
+  border: 1px dashed color-mix(in srgb, var(--color-circuit) 32%, var(--color-line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-panel) 84%, var(--color-circuit) 16%);
+  color: var(--color-ink-soft);
+  font-size: 0.88rem;
+}
+
+/* Sales-informed inventory guidance in the staff/admin workspace. */
+.admin-stock-demand-panel {
+  padding: clamp(1rem, 2.5vw, 1.4rem);
+  border: 1px solid var(--color-dark-line);
+  border-radius: 0.85rem;
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-circuit) 10%, transparent), transparent 30%),
+    var(--color-dark-panel);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.admin-stock-demand-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; }
+.admin-stock-demand-header h2 { margin-top: 0.25rem; color: #fff; font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.025em; }
+.admin-stock-demand-header p:not(.admin-section-kicker) { margin-top: 0.25rem; color: color-mix(in srgb, var(--color-dark-ink) 66%, transparent); font-size: 0.78rem; }
+.admin-stock-demand-link { flex-shrink: 0; color: var(--color-circuit); font-size: 0.78rem; font-weight: 700; text-decoration: none; }
+.admin-stock-demand-link:hover { text-decoration: underline; }
+.admin-stock-demand-note { margin-bottom: 1rem; color: color-mix(in srgb, var(--color-dark-ink) 54%, transparent); font-size: 0.7rem; line-height: 1.55; }
+.admin-stock-demand-empty { padding: 1rem; border: 1px dashed var(--color-dark-line); border-radius: 0.6rem; color: color-mix(in srgb, var(--color-dark-ink) 68%, transparent); font-size: 0.82rem; }
+.admin-stock-demand-list { display: grid; gap: 0.55rem; }
+.admin-stock-demand-row { display: grid; grid-template-columns: 2.25rem minmax(8rem, 1.8fr) repeat(3, minmax(5rem, 0.8fr)); align-items: center; gap: 0.8rem; padding: 0.8rem 0.85rem; border: 1px solid var(--color-dark-line); border-radius: 0.65rem; background: color-mix(in srgb, var(--color-dark-bg) 72%, transparent); }
+.admin-stock-demand-rank { display: grid; width: 2rem; height: 2rem; place-items: center; border: 1px solid color-mix(in srgb, var(--color-circuit) 36%, var(--color-dark-line)); border-radius: 0.55rem; color: var(--color-circuit); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; }
+.admin-stock-demand-product { min-width: 0; }
+.admin-stock-demand-product strong { display: block; overflow: hidden; color: var(--color-dark-ink); font-size: 0.84rem; text-overflow: ellipsis; white-space: nowrap; }
+.admin-stock-demand-product > span { display: block; margin-top: 0.16rem; color: color-mix(in srgb, var(--color-dark-ink) 50%, transparent); font-size: 0.68rem; }
+.admin-stock-demand-meter { height: 3px; margin-top: 0.5rem; overflow: hidden; border-radius: 999px; background: var(--color-dark-line); }
+.admin-stock-demand-meter span { display: block; height: 100%; border-radius: inherit; background: var(--color-circuit); }
+.admin-stock-demand-stat span,
+.admin-stock-demand-topup span { display: block; color: color-mix(in srgb, var(--color-dark-ink) 50%, transparent); font-size: 0.63rem; }
+.admin-stock-demand-stat strong { display: block; margin-top: 0.22rem; color: var(--color-dark-ink); font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+.admin-stock-demand-topup { padding: 0.5rem 0.6rem; border-radius: 0.5rem; background: color-mix(in srgb, var(--color-circuit) 9%, var(--color-dark-bg)); }
+.admin-stock-demand-topup strong { display: block; margin-top: 0.2rem; color: var(--color-circuit); font-size: 0.75rem; }
+.admin-stock-demand-topup.is-urgent { background: rgba(239, 68, 68, 0.12); }
+.admin-stock-demand-topup.is-urgent strong { color: var(--color-signal); }
+.admin-stock-demand-topup.is-soon { background: rgba(245, 158, 11, 0.1); }
+.admin-stock-demand-topup.is-soon strong { color: #FBBF24; }
+
+@media (max-width: 720px) {
+  .best-sellers-heading-row { align-items: start; }
+  .best-seller-slide { flex-basis: min(82vw, 285px); }
+  .admin-stock-demand-row { grid-template-columns: 2rem minmax(0, 1fr) auto; gap: 0.65rem; }
+  .admin-stock-demand-stat { display: none; }
+  .admin-stock-demand-topup { grid-column: 2 / 4; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.45rem 0.6rem; }
+  .admin-stock-demand-topup strong { margin-top: 0; text-align: right; }
+}
+
+@media (max-width: 440px) {
+  .best-sellers-section { padding: 1rem; border-radius: 17px; }
+  .best-sellers-heading-row { gap: 0.45rem; }
+  .best-sellers-controls { gap: 0.35rem; }
+  .best-sellers-controls button { width: 2.2rem; height: 2.2rem; }
+  .best-sellers-copy p { max-width: 15rem; font-size: 0.78rem; }
+  .admin-stock-demand-header { align-items: start; flex-direction: column; }
+}

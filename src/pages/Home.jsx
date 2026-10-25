@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useToast } from "../hooks/useToast";
 import ProductCard from "../components/ProductCard";
+import BestSellersCarousel from "../components/BestSellersCarousel";
 import { scrollToId } from "../utils/scroll";
 
 const PAGE_SIZE = 12;
@@ -192,6 +193,8 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      <BestSellersCarousel onAddToCart={handleAdd} />
 
       <section id="products" className="catalog-section scroll-mt-24" aria-labelledby="products-heading">
         <div className="catalog-section-heading">
