@@ -4,6 +4,7 @@ import { productsApi, ordersApi, usersApi } from "../../api/client";
 import CustomerLocationMap from "../../components/CustomerLocationMap";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../hooks/useToast";
+import { scrollToElement } from "../../utils/scroll";
 import { formatPrice, formatPriceShort } from "../../utils/format";
 
 const tabs = [
@@ -393,7 +394,7 @@ export default function AdminLayout() {
         <div className="admin-page-heading flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-[var(--color-dark-line)]">
           <div>
             <h1 className="font-[var(--font-display)] text-2xl font-bold text-white tracking-tight mb-1">
-              {isAdmin ? "Techstead Admin" : "Store operations"}
+              {isAdmin ? "GadgetStore Admin" : "Store operations"}
             </h1>
             <p className="text-sm text-[var(--color-dark-ink)]/60">
               {isAdmin
@@ -616,7 +617,19 @@ export default function AdminLayout() {
               <h2 id="stock-demand-heading">What to stock up</h2>
               <p>Recent product demand next to the quantity currently on hand.</p>
             </div>
-            <Link to="/admin#admin-products" className="admin-stock-demand-link">Manage products <span aria-hidden="true">→</span></Link>
+            <Link
+              to="/admin?focus=products#admin-products"
+              className="admin-stock-demand-link"
+              onClick={() => {
+                const panel = document.getElementById("admin-products");
+                const heading = document.getElementById("admin-products-heading");
+                if (!panel || !heading) return;
+                scrollToElement(panel);
+                heading.focus({ preventScroll: true });
+              }}
+            >
+              Manage products <span aria-hidden="true">→</span>
+            </Link>
           </div>
 
           <p className="admin-stock-demand-note">Suggested top-up is a simple starting point: units ordered in the last 30 days minus current stock, never below zero. Cancelled orders are excluded. Adjust for supplier lead time and safety stock before purchasing.</p>
@@ -640,7 +653,7 @@ export default function AdminLayout() {
                     <span className="admin-stock-demand-rank">{String(index + 1).padStart(2, "0")}</span>
                     <div className="admin-stock-demand-product">
                       <strong>{item.product_name}</strong>
-                      <span>{item.brand || "Techstead product"}</span>
+                      <span>{item.brand || "GadgetStore product"}</span>
                       <div className="admin-stock-demand-meter" aria-hidden="true"><span style={{ width: `${demandWidth}%` }} /></div>
                     </div>
                     <div className="admin-stock-demand-stat"><span>Ordered · 30d</span><strong>{unitsSold}</strong></div>

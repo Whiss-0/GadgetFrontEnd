@@ -7,7 +7,14 @@ import NotificationBell from "./NotificationBell";
 import ProfileAvatar from "./ProfileAvatar";
 
 function Pin() {
-  return <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--color-circuit)] mr-2 align-middle" />;
+  return (
+    <span className="brand-mark" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <path d="M16 2.5 28 9.25v13.5L16 29.5 4 22.75V9.25L16 2.5Z" fill="#176BDB" />
+        <path d="M22.5 11.3A8.2 8.2 0 1 0 23 20h-7v-5h10v7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
 }
 
 function RoleBadge({ isAdmin, isMod }) {
@@ -143,10 +150,10 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 top-header border-b relative">
       <div className="header-inner max-w-6xl mx-auto px-5">
-        <Link to="/" className="font-[var(--font-display)] font-semibold text-lg tracking-tight flex items-center gap-2 z-10 logo-text" aria-label="Techstead home">
+        <Link to="/" className="font-[var(--font-display)] font-semibold text-lg tracking-tight flex items-center gap-2 z-10 logo-text" aria-label="GadgetStore home">
           <span className="brand-wordmark flex items-center whitespace-nowrap">
             <Pin />
-            Techstead
+            GadgetStore
           </span>
           <RoleBadge isAdmin={isAdmin} isMod={isMod} />
         </Link>

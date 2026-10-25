@@ -49,37 +49,37 @@ export default function App() {
 
   useEffect(() => {
     const titles = {
-      "/": "Techstead | Shop gadgets",
-      "/cart": "Techstead | Your cart",
-      "/orders": "Techstead | Your orders",
-      "/checkout": "Techstead | Checkout",
-      "/wishlist": "Techstead | Wishlist",
-      "/login": "Techstead | Sign in",
-      "/register": "Techstead | Create account",
-      "/forgot-password": "Techstead | Reset password",
-      "/reset-password": "Techstead | Reset password",
-      "/about": "Techstead | About Us",
-      "/return-policy": "Techstead | Return Policy",
-      "/terms-of-service": "Techstead | Terms of Service",
-      "/contact": "Techstead | Contact Us",
-      "/settings": "Techstead | Account Settings",
-      "/activity": "Techstead | Activity Log",
+      "/": "GadgetStore | Shop gadgets",
+      "/cart": "GadgetStore | Your cart",
+      "/orders": "GadgetStore | Your orders",
+      "/checkout": "GadgetStore | Checkout",
+      "/wishlist": "GadgetStore | Wishlist",
+      "/login": "GadgetStore | Sign in",
+      "/register": "GadgetStore | Create account",
+      "/forgot-password": "GadgetStore | Reset password",
+      "/reset-password": "GadgetStore | Reset password",
+      "/about": "GadgetStore | About Us",
+      "/return-policy": "GadgetStore | Return Policy",
+      "/terms-of-service": "GadgetStore | Terms of Service",
+      "/contact": "GadgetStore | Contact Us",
+      "/settings": "GadgetStore | Account Settings",
+      "/activity": "GadgetStore | Activity Log",
     };
     if (location.pathname.startsWith("/admin")) {
       document.title = location.pathname === "/admin/pricing"
-        ? "Techstead Admin | Delivery and VAT pricing"
+        ? "GadgetStore Admin | Delivery and VAT pricing"
         : location.pathname === "/admin/audit"
-          ? "Techstead Admin | Staff audit trail"
-        : "Techstead Admin | Store overview";
+          ? "GadgetStore Admin | Staff audit trail"
+        : "GadgetStore Admin | Store overview";
     } else {
-      document.title = titles[location.pathname] || "Techstead | Technology for everyday life";
+      document.title = titles[location.pathname] || "GadgetStore | Technology for everyday life";
     }
   }, [location.pathname]);
 
   // Sync the body background with the active theme so there's no
   // colour mismatch between the <body> and the themed wrapper div.
   useEffect(() => {
-    document.body.style.backgroundColor = isMod ? "#080D1A" : "";
+    document.body.style.backgroundColor = isMod ? "#0C1729" : "";
   }, [isMod]);
 
   return (

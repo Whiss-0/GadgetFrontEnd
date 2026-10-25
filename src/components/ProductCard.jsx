@@ -139,7 +139,7 @@ export default function ProductCard({ product, onAddToCart }) {
         </Link>
         
         <div className="product-meta flex items-center justify-between text-xs text-[var(--color-ink-soft)]">
-            <span>{product.brand || "Techstead pick"}</span>
+            <span>{product.brand || "GadgetStore pick"}</span>
           {stockLabel && (
             <span className={stock === 0 ? "text-[var(--color-signal)]" : stock <= 3 ? "text-[var(--color-warning)] font-medium" : ""}>
               {stockLabel}

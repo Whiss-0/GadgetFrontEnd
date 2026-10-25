@@ -53,7 +53,7 @@ export default function BestSellersCarousel({ onAddToCart }) {
   const maxUnitsSold = Math.max(...products.map((product) => Number(product.units_sold ?? 0)), 1);
 
   return (
-    <section className="best-sellers-section mb-10" aria-labelledby="best-sellers-heading">
+    <section id="best-sellers" className="best-sellers-section mb-10 scroll-mt-24" aria-labelledby="best-sellers-heading">
       <div className="best-sellers-heading-row">
         <div className="best-sellers-copy">
           <span className="best-sellers-eyebrow"><span aria-hidden="true">✦</span> Customer favorites · 30 days</span>

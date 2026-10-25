@@ -95,6 +95,7 @@ export default function Checkout() {
   const [areaCodes, setAreaCodes] = useState({ provinceCode: "", cityCode: "" });
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState("COD");
+  const [demoCard, setDemoCard] = useState({ holder: "", number: "", expiry: "", cvv: "" });
   const [step, setStep] = useState("form"); // form | processing | done
   const [error, setError] = useState("");
   const [cleanupWarning, setCleanupWarning] = useState("");
@@ -222,6 +223,10 @@ export default function Checkout() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (submittingRef.current) return;
+    if (method === "Card" && (!demoCard.holder.trim() || !demoCard.number || !demoCard.expiry || !demoCard.cvv)) {
+      setError("Complete the demo card form to continue. Do not enter real card details.");
+      return;
+    }
     if (!address.trim()) {
       setError("Enter your street address.");
       return;
@@ -247,7 +252,7 @@ export default function Checkout() {
 
     try {
       if (method !== "COD") {
-        // Simulated payment step — no real gateway, no real card data collected.
+        // Demo-only delay. Card fields remain in component memory and are never sent to the API.
         await new Promise((r) => setTimeout(r, 1400));
       }
 
@@ -331,7 +336,7 @@ export default function Checkout() {
         Review your delivery details and choose your preferred payment method.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="checkout-form-grid">
         {/* Section 1: Shipping details */}
         <div className="spec-ticket rounded-xl p-6 border border-[var(--color-line)] bg-[var(--color-panel)]">
           <h2 className="font-[var(--font-display)] text-base font-semibold mb-4 flex items-center gap-2">
@@ -442,12 +447,81 @@ export default function Checkout() {
                   disabled={step === "processing"}
                   className="accent-[var(--color-circuit)]"
                 />
-                <span className="text-sm font-medium">{m.label}</span>
+                <span className="text-sm font-medium">{m.id === "Card" ? "Card payment — demo" : m.label}</span>
               </label>
             ))}
           </div>
+          {method === "Card" && (
+            <div className="demo-card-fields" aria-label="Demo card details">
+              <p className="mb-3 text-xs font-semibold text-[#17365E]">Demo card details</p>
+              <div className="demo-card-fields-grid">
+                <label className="sm:col-span-2">Cardholder name
+                  <input
+                    type="text"
+                    value={demoCard.holder}
+                    onChange={(event) => setDemoCard((current) => ({ ...current, holder: event.target.value.slice(0, 60) }))}
+                    autoComplete="off"
+                    maxLength={60}
+                    required
+                    disabled={step === "processing"}
+                    placeholder="Demo Customer"
+                  />
+                </label>
+                <label className="sm:col-span-2">Card number
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={demoCard.number}
+                    onChange={(event) => {
+                      const digits = event.target.value.replace(/\D/g, "").slice(0, 16);
+                      setDemoCard((current) => ({ ...current, number: digits.match(/.{1,4}/g)?.join(" ") || "" }));
+                    }}
+                    autoComplete="off"
+                    maxLength={19}
+                    pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}"
+                    required
+                    disabled={step === "processing"}
+                    placeholder="4242 4242 4242 4242"
+                  />
+                </label>
+                <label>Expiry date
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={demoCard.expiry}
+                    onChange={(event) => {
+                      const digits = event.target.value.replace(/\D/g, "").slice(0, 4);
+                      const expiry = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+                      setDemoCard((current) => ({ ...current, expiry }));
+                    }}
+                    autoComplete="off"
+                    maxLength={5}
+                    pattern="(0[1-9]|1[0-2])/[0-9]{2}"
+                    required
+                    disabled={step === "processing"}
+                    placeholder="MM/YY"
+                  />
+                </label>
+                <label>CVV
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    value={demoCard.cvv}
+                    onChange={(event) => setDemoCard((current) => ({ ...current, cvv: event.target.value.replace(/\D/g, "").slice(0, 4) }))}
+                    autoComplete="off"
+                    maxLength={4}
+                    pattern="[0-9]{3,4}"
+                    required
+                    disabled={step === "processing"}
+                    placeholder="123"
+                  />
+                </label>
+              </div>
+              <p className="demo-card-note"><span aria-hidden="true">ⓘ</span> Demo only. Use fictional details; nothing is charged, saved, or sent to the API.</p>
+            </div>
+          )}
           <p className="text-xs text-[var(--color-ink-soft)] mt-3">
-            This demo uses simulated payment. No real payment is processed.
+            All non-cash payment options are simulated. No real payment is processed.
           </p>
         </div>
 
@@ -523,7 +597,7 @@ export default function Checkout() {
               <span className="spinner"></span>
               <span>Processing order…</span>
             </span>
-          ) : pricingState === "loading" ? "Loading VAT settings…" : pricingState !== "ready" ? "Load VAT settings to continue" : !areaCodes.provinceCode || !areaCodes.cityCode ? "Select a delivery area to continue" : !quoteVerified ? "Verify delivery fee to continue" : "Place order"}
+          ) : pricingState === "loading" ? "Loading VAT settings…" : pricingState !== "ready" ? "Load VAT settings to continue" : !areaCodes.provinceCode || !areaCodes.cityCode ? "Select a delivery area to continue" : !quoteVerified ? "Verify delivery fee to continue" : method === "Card" ? "Place demo order" : "Place order"}
         </button>
       </form>
 

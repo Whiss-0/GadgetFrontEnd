@@ -9,9 +9,9 @@ export default function SiteFooter() {
       <div className="site-footer-inner">
         <div className="site-footer-brand">
           <Link to="/" className="site-footer-logo brand-wordmark">
-            Techstead
+            GadgetStore
           </Link>
-          <p>Technology for everyday life.</p>
+          <p>The tech you want. Service you can trust.</p>
         </div>
 
         <div className="site-footer-column">

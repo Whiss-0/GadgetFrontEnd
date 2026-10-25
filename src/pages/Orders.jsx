@@ -7,6 +7,7 @@ import {
 } from "../api/client";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ProductArt from "../components/ProductArt";
+import DeliveryProofImage from "../components/DeliveryProofImage";
 import { useToast } from "../hooks/useToast";
 import { formatPrice } from "../utils/format";
 
@@ -164,7 +165,7 @@ export default function Orders() {
         <div className="empty-state-card text-center p-8 sm:p-12 border border-[var(--color-line)] rounded-xl bg-[var(--color-panel)]">
           <p className="font-[var(--font-display)] font-semibold text-lg mb-2">No orders yet</p>
           <p className="text-[var(--color-ink-soft)] text-sm mb-6 max-w-md mx-auto">
-            Your Techstead orders will appear here after checkout.
+            Your GadgetStore orders will appear here after checkout.
           </p>
           <Link to="/" className="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold inline-block">
             Browse the catalog
@@ -288,6 +289,8 @@ export default function Orders() {
                           <li key={deliveryEvent.delivery_event_id ?? deliveryEvent.deliveryEventId ?? index} className="border-l-2 border-[var(--color-circuit)]/40 pl-3">
                             <p className="text-sm font-medium">{deliveryEvent.status || deliveryEvent.event_type || deliveryEvent.eventType || "Delivery update"}</p>
                             {deliveryEvent.note && <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">{deliveryEvent.note}</p>}
+                            {(deliveryEvent.recipient_name ?? deliveryEvent.recipientName) && <p className="text-xs text-[var(--color-ink-soft)] mt-1">Received by: <strong className="text-[var(--color-ink)]">{deliveryEvent.recipient_name ?? deliveryEvent.recipientName}</strong></p>}
+                            {(deliveryEvent.has_proof_photo ?? deliveryEvent.hasProofPhoto) && <DeliveryProofImage orderId={id} />}
                             <time dateTime={deliveryEvent.created_at ?? deliveryEvent.createdAt} className="text-[11px] text-[var(--color-ink-soft)]">{formatDateTime(deliveryEvent.created_at ?? deliveryEvent.createdAt)}</time>
                           </li>
                         ))}

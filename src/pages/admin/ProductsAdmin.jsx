@@ -54,6 +54,7 @@ export default function ProductsAdmin() {
   const [deleting, setDeleting] = useState(false);
   const [searchParams] = useSearchParams();
   const stockFilter = searchParams.get("stock");
+  const focusProducts = searchParams.get("focus") === "products";
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -72,7 +73,7 @@ export default function ProductsAdmin() {
   }, [load]);
 
   useEffect(() => {
-    if (stockFilter !== "out" && stockFilter !== "low") return undefined;
+    if (!focusProducts && stockFilter !== "out" && stockFilter !== "low") return undefined;
     const frame = window.requestAnimationFrame(() => {
       const panel = document.getElementById("admin-products");
       const heading = document.getElementById("admin-products-heading");
@@ -81,7 +82,7 @@ export default function ProductsAdmin() {
       heading.focus({ preventScroll: true });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [stockFilter]);
+  }, [stockFilter, focusProducts]);
 
   useEffect(() => {
     categoriesApi

@@ -2,6 +2,9 @@ import { Fragment, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { orderDetailApi, ordersApi } from "../../api/client";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import QRCodeScanner from "../../components/QRCodeScanner";
+import DeliveryProofImage from "../../components/DeliveryProofImage";
+import AdminProofOfDelivery from "../../components/AdminProofOfDelivery";
 import { useToast } from "../../hooks/useToast";
 import { scrollToElement } from "../../utils/scroll";
 import { formatPrice } from "../../utils/format";
@@ -194,8 +197,9 @@ function AdminOrderDetails({ order, onRefresh }) {
         {loadingEvents && <p className="text-xs text-[var(--color-dark-ink)]/60 mt-2">Loading delivery history…</p>}
         {eventsError && <p className="text-xs text-[var(--color-signal)] mt-2">{eventsError}</p>}
         {!loadingEvents && !eventsError && events.length === 0 && <p className="text-xs text-[var(--color-dark-ink)]/60 mt-2">No delivery events recorded yet.</p>}
-        {events.length > 0 && <ol className="mt-3 space-y-2">{[...events].sort((a, b) => new Date(a.created_at ?? a.createdAt) - new Date(b.created_at ?? b.createdAt)).map((item, index) => <li key={item.delivery_event_id ?? item.deliveryEventId ?? index} className="border-l-2 border-[var(--color-circuit)]/40 pl-3"><p className="text-xs font-medium text-white">{item.status || item.event_type || item.eventType || "Delivery update"}</p>{(item.note) && <p className="text-xs text-[var(--color-dark-ink)]/70">{item.note}</p>}<p className="text-[10px] text-[var(--color-dark-ink)]/50">{formatDateTime(item.created_at ?? item.createdAt)}{item.actor_role ?? item.actorRole ? ` · ${item.actor_role ?? item.actorRole}` : ""}</p></li>)}</ol>}
+        {events.length > 0 && <ol className="mt-3 space-y-2">{[...events].sort((a, b) => new Date(a.created_at ?? a.createdAt) - new Date(b.created_at ?? b.createdAt)).map((item, index) => <li key={item.delivery_event_id ?? item.deliveryEventId ?? index} className="border-l-2 border-[var(--color-circuit)]/40 pl-3"><p className="text-xs font-medium text-white">{item.status || item.event_type || item.eventType || "Delivery update"}</p>{item.recipient_name ?? item.recipientName ? <p className="text-xs text-white/80">Received by: {item.recipient_name ?? item.recipientName}</p> : null}{item.note && <p className="text-xs text-[var(--color-dark-ink)]/70">{item.note}</p>}{(item.has_proof_photo ?? item.hasProofPhoto) && <DeliveryProofImage orderId={id} />}<p className="text-[10px] text-[var(--color-dark-ink)]/50">{formatDateTime(item.created_at ?? item.createdAt)}{item.actor_role ?? item.actorRole ? ` · ${item.actor_role ?? item.actorRole}` : ""}</p></li>)}</ol>}
       </section>
+      {(order.status ?? order.Status) === "Shipped" && <AdminProofOfDelivery orderId={id} onSaved={() => Promise.all([onRefresh(), loadDetails()])} />}
     </div>
   );
 }
@@ -209,11 +213,15 @@ export default function OrdersAdmin() {
   const [expandedDesktopId, setExpandedDesktopId] = useState(null);
   const [expandedMobileId, setExpandedMobileId] = useState(null);
   const [orderToCancel, setOrderToCancel] = useState(null); // { id, displayId }
+  const [orderSearch, setOrderSearch] = useState("");
+  const [qrScannerOpen, setQrScannerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const statusFilter = searchParams.get("status");
-  const visibleOrders = statusFilter
-    ? orders.filter((order) => (order.status ?? order.Status ?? "Pending") === statusFilter)
-    : orders;
+  const visibleOrders = orders.filter((order) => {
+    const id = order.order_id ?? order.orderId ?? order.OrderId;
+    const statusMatches = !statusFilter || orderSearch.trim() || (order.status ?? order.Status ?? "Pending") === statusFilter;
+    return statusMatches && (!orderSearch.trim() || String(id).includes(orderSearch.trim()));
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -280,6 +288,17 @@ export default function OrdersAdmin() {
     }
   }
 
+  const handleQrScan = useCallback((payload) => {
+    const match = String(payload).trim().match(/^(?:GADGETSTORE:ORDER:|GS-|ORDER[:#\s-]*)?(\d+)$/i);
+    if (!match) { toast.show("That QR code does not contain a GadgetStore order ID.", { tone: "error" }); return; }
+    const id = Number(match[1]);
+    setOrderSearch(String(id));
+    setExpandedDesktopId(id);
+    setExpandedMobileId(id);
+    setQrScannerOpen(false);
+    window.setTimeout(() => document.getElementById(`admin-order-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 120);
+  }, [toast]);
+
   return (
     <div id="admin-orders" className="admin-glass-panel rounded-xl p-6 scroll-mt-24">
       {/* Table header bar */}
@@ -291,6 +310,10 @@ export default function OrdersAdmin() {
           </p>
         </div>
 
+        <div className="flex flex-wrap items-center gap-2">
+          <input type="search" value={orderSearch} onChange={(event) => setOrderSearch(event.target.value)} placeholder="Search order #" aria-label="Search orders by order ID" className="admin-input-premium w-36 rounded border border-[var(--color-dark-line)] px-3 py-2 text-xs text-white" />
+          <button type="button" onClick={() => setQrScannerOpen(true)} className="admin-btn-secondary">Scan QR</button>
+        </div>
         <button
           type="button"
           onClick={load}
@@ -391,7 +414,7 @@ export default function OrdersAdmin() {
 
                   return (
                     <Fragment key={id}>
-                    <tr>
+                    <tr id={`admin-order-${id}`}>
                       <td className="font-[var(--font-mono)] font-semibold text-white">
                         Order #{id}
                       </td>
@@ -417,7 +440,7 @@ export default function OrdersAdmin() {
                           className="admin-input-premium border border-[var(--color-dark-line)] rounded px-3 py-1.5 text-xs text-white outline-none cursor-pointer focus:border-[var(--color-circuit)] transition-colors"
                           aria-label={`Change status for Order #${id}`}
                         >
-                          {STATUS_OPTIONS.map((s) => (
+                          {STATUS_OPTIONS.filter((s) => s !== "Delivered" || currentStatus === "Delivered").map((s) => (
                             <option key={s} value={s} className="bg-[var(--color-dark-panel)]">
                               {s}
                             </option>
@@ -449,6 +472,7 @@ export default function OrdersAdmin() {
               return (
                 <div
                   key={id}
+                  id={`admin-order-${id}`}
                   className="admin-item-card rounded-lg p-4 space-y-3"
                 >
                   <div className="flex items-center justify-between">
@@ -477,7 +501,7 @@ export default function OrdersAdmin() {
                       className="admin-input-premium border border-[var(--color-dark-line)] rounded px-2.5 py-1 text-xs text-white outline-none"
                       aria-label={`Change status for Order #${id}`}
                     >
-                      {STATUS_OPTIONS.map((s) => (
+                      {STATUS_OPTIONS.filter((s) => s !== "Delivered" || currentStatus === "Delivered").map((s) => (
                         <option key={s} value={s} className="bg-[var(--color-dark-panel)]">
                           {s}
                         </option>
@@ -508,6 +532,7 @@ export default function OrdersAdmin() {
         onConfirm={confirmCancelOrder}
         onCancel={() => setOrderToCancel(null)}
       />
+      {qrScannerOpen && <QRCodeScanner onScan={handleQrScan} onClose={() => setQrScannerOpen(false)} />}
     </div>
   );
 }

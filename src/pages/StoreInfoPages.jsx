@@ -36,9 +36,9 @@ function InfoSection({ title, children }) {
 export function AboutPage() {
   return (
     <PageShell
-      eyebrow="About Techstead"
+      eyebrow="About GadgetStore"
       title="Technology for everyday life."
-      intro="Techstead is an online shop for gadgets and practical technology. We aim to make it straightforward to browse products, compare details, and get help with an order."
+      intro="GadgetStore is an online shop for gadgets and practical technology. We aim to make it straightforward to browse products, compare details, and get help with an order."
     >
       <InfoSection title="What we do">
         <p>We bring the store catalog, shopping cart, orders, and product reviews together in one place so shoppers can make informed choices about the technology they use every day.</p>
@@ -82,7 +82,7 @@ export function TermsOfServicePage() {
     <PageShell
       eyebrow="Store information"
       title="Terms of Service"
-      intro="These starter terms describe basic expectations for using the Techstead storefront. They are not a substitute for the store’s final, owner-approved terms."
+      intro="These starter terms describe basic expectations for using the GadgetStore storefront. They are not a substitute for the store’s final, owner-approved terms."
     >
       <InfoSection title="Using the storefront">
         <p>Use the site lawfully and provide accurate information when placing an order or contacting the shop. Keep your account credentials private and tell the shop if you believe your account has been used without permission.</p>

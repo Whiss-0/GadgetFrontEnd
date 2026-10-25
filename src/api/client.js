@@ -123,6 +123,8 @@ export const ordersApi = {
     client.put(`/api/order/${id}`, { Status: status }), // PUT /api/order/{id}  (mod+)
   updateFulfillment: (id, data) => client.put(`/api/order/${id}/fulfillment`, data),
   deliveryEvents: (id) => client.get(`/api/order/${id}/delivery-events`),
+  recordDeliveryProof: (id, data) => client.post(`/api/order/${id}/proof-of-delivery`, data, { headers: { "Content-Type": "multipart/form-data" } }),
+  deliveryProofPhoto: (id) => client.get(`/api/order/${id}/proof-of-delivery/photo`, { responseType: "blob" }),
   // Atomic checkout: creates order + validates stock + inserts all line items in a single transaction
   checkout: (data) => client.post("/api/order/checkout", data),
 };

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { productsApi, categoriesApi, wishlistApi } from "../api/client";
+import { productsApi, categoriesApi, wishlistApi, storePricingApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useToast } from "../hooks/useToast";
 import ProductReviews from "../components/ProductReviews";
 import ProductArt from "../components/ProductArt";
+import PhilippineAddressSelector from "../components/PhilippineAddressSelector";
 import { formatPrice } from "../utils/format";
 
 // A single spec row in the specs table
@@ -37,6 +38,9 @@ export default function ProductDetail() {
   const [adding, setAdding] = useState(false);
   const [savedWishlist, setSavedWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
+  const [deliveryArea, setDeliveryArea] = useState({ provinceCode: "", cityCode: "" });
+  const [deliveryQuote, setDeliveryQuote] = useState(null);
+  const [deliveryQuoteState, setDeliveryQuoteState] = useState("idle");
 
   // Description edit state (staff/admin only)
   const [editingDesc, setEditingDesc] = useState(false);
@@ -68,6 +72,29 @@ export default function ProductDetail() {
       .catch(() => { if (active) setCategories([]); }); // category name is optional
     return () => { active = false; };
   }, [id, retryNonce]);
+
+  useEffect(() => {
+    if (!deliveryArea.provinceCode || !deliveryArea.cityCode) {
+      setDeliveryQuote(null);
+      setDeliveryQuoteState("idle");
+      return undefined;
+    }
+    let active = true;
+    setDeliveryQuote(null);
+    setDeliveryQuoteState("loading");
+    storePricingApi.quoteDeliveryFee(deliveryArea.provinceCode, deliveryArea.cityCode)
+      .then(({ data }) => {
+        if (!active) return;
+        setDeliveryQuote(data);
+        setDeliveryQuoteState("ready");
+      })
+      .catch(() => {
+        if (!active) return;
+        setDeliveryQuote(null);
+        setDeliveryQuoteState("error");
+      });
+    return () => { active = false; };
+  }, [deliveryArea.provinceCode, deliveryArea.cityCode]);
 
   if (notFound)
     return (
@@ -383,6 +410,21 @@ export default function ProductDetail() {
             ) : (
               <p className="text-xs text-[var(--color-ink-soft)] leading-relaxed">Warranty details have not been confirmed for this item. Contact us before purchase.</p>
             )}
+          </section>
+
+          <section className="product-delivery-check" aria-labelledby="product-delivery-heading">
+            <h2 id="product-delivery-heading">Check delivery to your area</h2>
+            <PhilippineAddressSelector
+              street=""
+              showBarangay={false}
+              onAddressChange={(_formatted, _parts, codes) => {
+                setDeliveryArea({ provinceCode: codes?.provinceCode || "", cityCode: codes?.cityCode || "" });
+              }}
+            />
+            {deliveryQuoteState === "loading" && <p role="status">Checking the current delivery fee…</p>}
+            {deliveryQuoteState === "error" && <p role="status">We couldn’t verify the fee right now. The exact area fee will be checked again at checkout.</p>}
+            {deliveryQuoteState === "ready" && deliveryQuote && <p className="product-delivery-result" role="status"><strong>₱{Number(deliveryQuote.delivery_fee_amount).toFixed(2)}</strong><span>{deliveryQuote.city_name}, {deliveryQuote.province_name} · {deliveryQuote.fee_scope === "city" ? "City rate" : deliveryQuote.fee_scope === "province" ? "Province rate" : "Default rate"}</span></p>}
+            {deliveryQuoteState === "idle" && <p>Select a province and city/municipality to see the current fee.</p>}
           </section>
 
           {/* Trust points */}

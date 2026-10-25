@@ -1,4 +1,7 @@
 import JsBarcode from "jsbarcode";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { QRCodeSVG } from "qrcode.react";
 
 function firstValue(...values) {
   return values.find((value) => value !== null && value !== undefined && String(value).trim() !== "");
@@ -32,6 +35,15 @@ function makeOrderBarcode(orderId) {
     margin: 4,
   });
   return svg.outerHTML;
+}
+
+function makeOrderQr(orderId) {
+  return renderToStaticMarkup(createElement(QRCodeSVG, {
+    value: `GADGETSTORE:ORDER:${orderId}`,
+    size: 128,
+    level: "M",
+    marginSize: 1,
+  }));
 }
 
 export function printOrderLabel(order, items = []) {
@@ -77,12 +89,13 @@ export function printOrderLabel(order, items = []) {
     : '<tr><td colspan="3" class="muted">Item details were not loaded when this label was printed.</td></tr>';
 
   const barcode = makeOrderBarcode(orderId);
+  const qrCode = makeOrderQr(orderId);
   const html = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Order ${escapeHtml(orderId)} — Techstead parcel label</title>
+<title>Order ${escapeHtml(orderId)} — GadgetStore parcel label</title>
 <style>
   @page { size: 100mm 150mm; margin: 0; }
   * { box-sizing: border-box; }
@@ -95,8 +108,11 @@ export function printOrderLabel(order, items = []) {
   .tag { border:1px solid #111827; padding:1.5mm 2mm; text-align:right; font-size:8px; font-weight:700; }
   .tag strong { display:block; font-size:14px; margin-top:1mm; }
   .meta { display:flex; justify-content:space-between; gap:3mm; padding:2mm 0; border-bottom:1px solid #6b7280; font-size:9px; }
-  .barcode-wrap { text-align:center; padding:2mm 0 1mm; border-bottom:2px solid #111827; }
-  .barcode-wrap svg { display:block; width:100%; max-height:20mm; }
+  .barcode-wrap { display:flex; align-items:center; justify-content:space-between; gap:3mm; padding:2mm 0 1mm; border-bottom:2px solid #111827; }
+  .barcode-bar { min-width:0; flex:1; text-align:center; }
+  .barcode-bar svg { display:block; width:100%; max-height:20mm; }
+  .qr-wrap { width:25mm; flex:0 0 25mm; text-align:center; font-size:6px; letter-spacing:.5px; font-weight:800; }
+  .qr-wrap svg { display:block; width:24mm; height:24mm; margin:0 auto 1mm; }
   .barcode-caption { font-size:9px; letter-spacing:1px; margin-top:1mm; }
   .section { padding:2.3mm 0; border-bottom:1px solid #6b7280; }
   .eyebrow { font-size:8px; letter-spacing:1.2px; font-weight:800; color:#374151; margin-bottom:1mm; }
@@ -125,9 +141,9 @@ export function printOrderLabel(order, items = []) {
 </head>
 <body>
 <main class="label">
-  <header class="top"><div class="brand">TECHSTEAD<small>STORE-GENERATED PARCEL LABEL</small></div><div class="tag">ORDER ID<strong>#${escapeHtml(orderId)}</strong></div></header>
+  <header class="top"><div class="brand">GADGETSTORE<small>STORE-GENERATED PARCEL LABEL</small></div><div class="tag">ORDER ID<strong>#${escapeHtml(orderId)}</strong></div></header>
   <div class="meta"><span>Placed: ${escapeHtml(date)}</span><span>Status: ${escapeHtml(firstValue(order.status, order.Status, "Pending"))}</span></div>
-  <div class="barcode-wrap">${barcode}<div class="barcode-caption">GS-${escapeHtml(orderId)}</div></div>
+  <div class="barcode-wrap"><div class="barcode-bar">${barcode}<div class="barcode-caption">GS-${escapeHtml(orderId)}</div></div><div class="qr-wrap">${qrCode}<span>SCAN ORDER ID</span></div></div>
   <section class="section"><div class="eyebrow">DELIVER TO</div><div class="recipient">${escapeHtml(recipient)}</div><div class="phone">${escapeHtml(phone)}</div></section>
   <section class="section"><div class="eyebrow">DELIVERY ADDRESS</div><div class="address">${escapeHtml(address)}</div></section>
   <section class="section route"><div><span>Courier</span><strong>${escapeHtml(courier)}</strong></div><div><span>Tracking number</span><strong>${escapeHtml(tracking)}</strong></div></section>

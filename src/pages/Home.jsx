@@ -144,16 +144,16 @@ export default function Home() {
     <div className="catalog-page max-w-6xl mx-auto px-5 py-6 sm:py-9">
       <section className="catalog-hero mb-7 sm:mb-9" aria-labelledby="storefront-title">
         <div className="catalog-hero-copy">
-          <p className="eyebrow">Techstead</p>
+          <p className="eyebrow">GadgetStore</p>
           <h1 id="storefront-title" className="font-[var(--font-display)] text-4xl sm:text-5xl lg:text-[3.6rem] font-semibold tracking-tight leading-[1.04]">
-            Technology for <span className="hero-accent">everyday life.</span>
+            Upgrade your <span className="hero-accent">everyday.</span>
           </h1>
           <p className="catalog-hero-description">
-            Find dependable gadgets and useful accessories for work, home, and everything in between.
+            The tech you want. Service you can trust.
           </p>
           <div className="catalog-hero-actions">
-            <a href="#products" className="btn-primary px-5 py-3 rounded-lg text-sm font-semibold inline-flex items-center gap-2">
-              Explore the collection
+            <a href="#best-sellers" className="btn-primary px-5 py-3 rounded-lg text-sm font-semibold inline-flex items-center gap-2">
+              Shop best sellers
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </a>
           </div>
@@ -167,6 +167,8 @@ export default function Home() {
           <img className="hero-product hero-product-front" src="/product-art-laptop.webp" alt="" />
         </div>
       </section>
+
+      <BestSellersCarousel onAddToCart={handleAdd} />
 
       {categories.length > 0 && (
         <section className="category-spotlight mb-9" aria-labelledby="category-heading">
@@ -193,8 +195,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      <BestSellersCarousel onAddToCart={handleAdd} />
 
       <section id="products" className="catalog-section scroll-mt-24" aria-labelledby="products-heading">
         <div className="catalog-section-heading">
@@ -284,7 +284,7 @@ export default function Home() {
         )}
       </section>
 
-      <section className="store-assurance" aria-label="Why shop Techstead">
+      <section className="store-assurance" aria-label="Why shop GadgetStore">
         <div><span className="store-assurance-icon"><ProductIcon type="shield" /></span><div><strong>Shop with confidence</strong><span>Your account and checkout stay protected.</span></div></div>
         <div><span className="store-assurance-icon"><ProductIcon type="box" /></span><div><strong>Know before you choose</strong><span>Clear pricing, product details, and stock status.</span></div></div>
         <div><span className="store-assurance-icon"><ProductIcon type="support" /></span><div><strong>A real store experience</strong><span>Order history and account tools, all in one place.</span></div></div>
